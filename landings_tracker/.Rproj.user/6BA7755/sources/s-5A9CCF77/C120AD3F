@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1589574838521.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "C120AD3F",
+    "lastKnownWriteTime" : 1591041084,
+    "last_content_update" : 1591041084,
+    "path" : "~/landings-tracker/datapull.R",
+    "project_path" : "datapull.R",
+    "properties" : {
+        "cursorPosition" : "168,0",
+        "scrollLine" : "0",
+        "source_window_id" : "",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

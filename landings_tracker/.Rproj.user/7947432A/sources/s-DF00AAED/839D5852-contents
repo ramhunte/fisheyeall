@@ -1,0 +1,3 @@
+tt <- mutate(day_raw, flag = ifelse(is.na(VESSEL_NUM), 'miss', 'fine')) %>%
+  group_by(flag) %>%
+  summarise(rev = sum(EXVESSEL_REVENUE))

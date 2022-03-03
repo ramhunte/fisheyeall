@@ -1,0 +1,21 @@
+library(dplyr)
+options(stringsAsFactors = F)
+ce_2017 <- read.csv("LEFG2016_2017lFG_yvonne_forsql.csv")
+
+ce_2017_sql <- ce_2017 %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(VESSEL_ID) %>%
+  mutate(SQL1 = paste("Insert into EDCSURVEY.EDC_SURVEYS (LKSURVEYTYPE_DBID, SURVEY_YEAR, VESSEL_ID, VESSEL_NAME, COMPANY_NAME, ADDRESS_LINE_1, CITY, STATE, ZIPCODE)"),
+         SQL2 = toString(paste0(
+           "'", LKSURVEYTYPE_DBID, "',",
+           "'", SURVEY_YEAR, "',",
+           "'", VESSEL_ID, "',",
+           "'", VESSEL_NAME,"',",
+           "'", COMPANY_NAME, "',",
+           "'", ADDRESS_LINE_1, "',",
+           "'", CITY, "',",
+           "'", STATE, "',",
+           "'", ZIPCODE,"'")),
+         SQL = paste(SQL1, "values (", SQL2, ");"))
+
+write.csv(ce_2017_sql, file = "ce_2017.csv")

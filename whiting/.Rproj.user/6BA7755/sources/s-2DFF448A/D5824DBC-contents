@@ -1,0 +1,44 @@
+---
+title: "Fisheye cheat sheet"
+author: "Ashley Vizek"
+date: "2/19/2020"
+output: html_document
+---
+# Server
+
+Fisheye uses selection tools to allow users to choose the type of data they want to display. The two most common selection tools we use are 
+```checkboxGroupInput``` which creates a list of items that can all be checked, and ```radioButtons``` which only allows one item in the list to be selected. 
+
+```r
+output$rockfishckbox <- renderUI({
+        checkboxGroupInput("rockfish", "Insert title here", choices = unique(data$ckboxchoices), selected = c('Ckbox default choice 1','Ckbox default choice 2','Ckbox default choice 3'))
+  })
+
+output$rockfishradiobtn <- renderUI({
+    radioButtons("rockfishradiobtn","Insert title here", choices = unique(data$radiochoices), selected = "Radio default choice 1")
+  })
+```
+In some cases when we wanted the list of selection options to change based on a specific input we used ```selectInput```, which functions like a dropdown bar. 
+```r
+output$rockfishbar <- renderUI({
+    selectInput(inputId = 'rockfishbar',
+                label = "Insert title here",
+                choices = c('Choice 1', 'Choice 2', 'Choice 3'),
+                selectize = F)
+  })
+```
+The user selects one of the options from the dropdown bar and then we use ```observe``` to update the checkbox list based on which item in the dropdown bar was selected.
+
+```r
+observe({
+    if(is.null(input$rockfishbar)) {
+      return()
+    } else if(input$rockfishbar == 'Choice 1') {
+      updateCheckboxGroupInput(session, "rockfishckbox", "Insert title here", choices = unique(data2$ckboxchoices), selected = 'Ckbox default choice')
+    } else if(input$rockfishbar == 'Choice 2') {
+      updateCheckboxGroupInput(session, "rockfishckbox", "Insert title here", choices = unique(data3$ckboxchoices), selected = 'Ckbox default choice')
+    } else if (input$rockfishbar == 'Choice 3') {
+      updateCheckboxGroupInput(session, "rockfishckbox", "Insert title here", choices = unique(data4$ckboxchoices), selected = 'Ckbox default choice')
+     }
+  })
+```

@@ -1,0 +1,67 @@
+#' Function for comparing two data frames from different code runs
+#'
+#' @param datold original data frame
+#' @param datnew new data frame
+#' @param valuecols vector of character strings of column names of the values that are to be compared
+#' @param type defaults to "long", only matters if `length(valuecols)` > 1, if "wide" then it will append old/new to each of the value columns, otherwise long will create one column for each comparison
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+comparefun <- function(datold, datnew, valuecols, type = 'long') {
+  if (length(valuecols) == 1) {
+    datold <- as.data.table(datold)
+    datnew <- as.data.table(datnew)
+    
+    valcol <- valuecols
+    
+  } else {
+
+    datold <- melt(as.data.table(datold), measure.vars = valuecols)
+    datnew <- melt(as.data.table(datnew), measure.vars = valuecols)
+    
+    setnames(datold, 'variable', 'measure')
+    setnames(datnew, 'variable', 'measure')
+    
+    valcol <- 'value'
+    
+  }
+  
+  keys <- names(datold)[!names(datold) %in% valcol]
+  
+  if (!all(names(datold) %in% names(datnew))) stop("There are columns in datold that aren't in datnew")
+  
+  if (!all(names(datnew) %in% names(datold))) stop("There are columns in datnew that aren't in datold")
+  
+  if (any(dim(distinct(select(datold, keys))) != dim(select(datold, keys)))) stop('There are duplicate combinations of categories in datold')
+  
+  if (any(dim(distinct(select(datnew, keys))) != dim(select(datnew, keys)))) stop('There are duplicate combinations of categories in datnew')
+  
+  setkeyv(datold, cols = keys)
+  setkeyv(datnew, cols = keys)
+  datold[, old_flag := as.character('old')]
+  datnew[, new_flag := as.character('new')]
+  
+  setnames(datold, valcol, 'old')
+  setnames(datnew, valcol, 'new')
+  
+  tt <- merge(datold, datnew, all = TRUE)
+  tt[, rawDiff := new - old]
+  tt[, percDiff := (new - old) / (new + old) / 2]
+  tt[, combomiss := case_when(is.na(old_flag) |
+      is.na(new_flag) ~ 'Missing combo', T ~ 'Fine')]
+  setcolorder(tt, keys)
+  
+  if (type == 'long' | length(valuecols) == 1) {
+    return(data.frame(tt))
+    
+  } else {
+    ff <-
+      melt(tt, measure.vars = c('old', 'new', 'rawDiff', 'percDiff'))
+    ff <- dcast(ff, ... ~ measure + variable, value.var = 'value')
+    return(data.frame(ff))
+  }
+  
+}

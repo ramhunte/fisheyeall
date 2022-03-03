@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587397733025.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "F1DC8923",
+    "lastKnownWriteTime" : 1587403314,
+    "last_content_update" : 1587403314,
+    "path" : "~/landings_tracker_2020/fishery_timing.r",
+    "project_path" : "fishery_timing.r",
+    "properties" : {
+        "cursorPosition" : "48,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

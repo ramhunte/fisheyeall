@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1584401642173.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2756461514",
+    "id" : "D96357A3",
+    "lastKnownWriteTime" : 1571334115,
+    "last_content_update" : 1571334115,
+    "path" : "C:/Users/Ashley.Vizek/Downloads/comparefun.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "66,1",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

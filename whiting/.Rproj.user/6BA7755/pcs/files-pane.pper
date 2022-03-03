@@ -1,0 +1,9 @@
+{
+    "path" : "~/fisheye-mini-whiting",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

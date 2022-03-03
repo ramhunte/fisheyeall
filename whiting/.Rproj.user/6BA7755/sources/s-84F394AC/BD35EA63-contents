@@ -1,0 +1,286 @@
+.libPaths(c("/usr/lib64/R/shiny_library/fisheye", .libPaths()))
+
+library(shiny)
+library(shinyjs)
+library(shinyBS)
+library(ggplot2)
+library(grid)
+library(dplyr)
+library(scales)
+library(DT)
+
+load("mini_whiting.RData")
+
+# Data formatting for plot ####
+data <- mini_whiting %>%
+  mutate(Variance = case_when(
+    unit == '' ~ Variance,
+    unit == 'thousands' ~ Variance/1e3,
+    unit == 'millions' ~ Variance/1e6,
+    unit == 'billions' ~ Variance/1e9,
+    T ~ -999),
+    q25 = case_when(
+      unit == '' ~ q25,
+      unit == 'thousands' ~ q25/1e3,
+      unit == 'millions' ~  q25/1e6,
+      unit == 'billions' ~  q25/1e9,
+      T ~ -999),
+    q75 = case_when(
+      unit == '' ~ q75,
+      unit == 'thousands' ~ q75/1e3,
+      unit == 'millions' ~  q75/1e6,
+      unit == 'billions' ~  q75/1e9,
+      T ~ -999),
+    Value = case_when(
+      unit == '' ~ Value,
+      unit == 'thousands' ~ Value/1e3,
+      unit == 'millions' ~ Value/1e6,
+      unit == 'billions' ~ Value/1e9,
+      T ~ -999),
+    upper = case_when(Statistic == 'Mean' ~ Value + Variance,
+                      Statistic == 'Median' ~ q75,
+                      Statistic == 'Total' ~ Value),
+    lower = case_when(Statistic == 'Mean' ~ Value - Variance,
+                      Statistic == 'Median' ~ q25,
+                      Statistic == 'Total' ~ Value)) %>%
+  data.frame()
+
+# Data formatting for table#####
+data_table <- mini_whiting %>%
+  mutate(Variance = round(Variance, 2),
+         q25 = round(q25,2),
+         q75 = round(q75,2),
+         Value = round(Value, 2)) %>%
+  data.frame()
+
+# Filter by tab and metric for easy use in sidebar setup#####
+prodTab <- filter(data, tab == 'Product')
+prodTabval <- filter(prodTab, grepl('Production value', Metric))
+prodTabwt <- filter(prodTab, grepl('Production weight', Metric))
+prodTabprice <- filter(prodTab, grepl('Production price', Metric))
+prodTabpval <- filter(prodTab, grepl('Percent by value', Metric))
+prodTabpwt <- filter(prodTab, grepl('Percent by weight', Metric))
+sumTab <- filter(data, tab == 'Summary')
+sumTab$Metric <- sort(sumTab$Metric, decreasing = T)
+
+
+## SERVER part of the app.####
+# The server piece contains all reactive components.
+shinyServer(function(input, output, session) {
+  ##Reactive component of the sidebar using renderUI and uiOutput functions####
+  ##This allows us to update the sidebar based on other inputs##
+  
+  ##Summary tab components####
+  ##Summary tab: yaxis options
+  output$yaxisInput <- renderUI({
+        checkboxGroupInput("yaxisInput", "Metric", choices = unique(sumTab$Metric), selected = c('Production value','Total allowable catch','Purchase (or catch) weight'))
+  })
+
+  ##Summary tab: stat options
+  output$statInput <- renderUI({
+    radioButtons("statInput","Statistic", choices = unique(sumTab$Statistic), selected = "Total")
+  })
+  ##Summary tab: sector options
+  output$sectorInput <- renderUI({
+    checkboxGroupInput("sectorInput","Sector", choices = unique(sumTab$Sector), selected = c("Catcher-Processor","Mothership","Shoreside"))
+  })
+  
+  ##Product tab components####
+  ##Product tab: yaxis options (types of products). These are updated with the help of an 'observer'
+  output$yaxis2Input <- renderUI({
+    checkboxGroupInput("yaxis2Input", "Product types", choices = unique(prodTab$Metric) , selected = 'Production value (Surimi)')
+  })
+  ##Product tab: select type of metric (production weight, value, value per lb)
+  output$producttypeInput <- renderUI({
+    selectInput(inputId = 'producttypeInput',
+                label = "Select a metric",
+                choices = c('Production value', 'Production weight', 'Production price (per lb)', 'Percent by value','Percent by weight'),
+                selectize = F)
+  })
+  
+  ##Product tab: stat options
+  output$stat2Input <- renderUI({
+    radioButtons("stat2Input","Statistic", choices = unique(prodTab$Statistic), selected = "Median")
+  })
+  ##Product tab: sector options
+  output$sector2Input <- renderUI({
+    checkboxGroupInput("sector2Input","Sector", choices = unique(prodTab$Sector), selected = "All")
+  })
+  
+  ##Putting the summary and product tab together
+  output$tabs <- renderUI({
+    tabsetPanel(
+      tabPanel("Summary", 
+               uiOutput("yaxisInput"),
+               uiOutput("statInput"),
+               uiOutput("sectorInput")),
+      tabPanel("By product type",
+               uiOutput("producttypeInput"),
+               uiOutput("yaxis2Input"),
+               uiOutput("stat2Input"),
+               uiOutput("sector2Input")),
+      id = "tab_type", type = c("tabs"))
+  })
+  
+  ##Observer####
+  ##Observe the selection of metric within the product type tab
+  ##I was unable to get the list to update based on the selectInput without using observe
+  observe({
+    if(is.null(input$producttypeInput)) {
+      return()
+    } else if(input$producttypeInput == 'Production value') {
+      updateCheckboxGroupInput(session, "yaxis2Input", "Product types", choices = unique(prodTabval$Metric), selected = 'Surimi (Production value)')
+    } else if(input$producttypeInput == 'Production weight') {
+      updateCheckboxGroupInput(session, "yaxis2Input", "Product types", choices = unique(prodTabwt$Metric), selected = 'Surimi (Production weight)')
+    } else if (input$producttypeInput == 'Production price (per lb)') {
+      updateCheckboxGroupInput(session, "yaxis2Input", "Product types", choices = unique(prodTabprice$Metric), selected = 'Surimi (Production price (per lb))')
+    } else if (input$producttypeInput == 'Percent by value') {
+      updateCheckboxGroupInput(session, "yaxis2Input", "Product types", choices = unique(prodTabpval$Metric), selected = 'Surimi (Percent by value)')
+    } else {
+      updateCheckboxGroupInput(session, "yaxis2Input", "Product types", choices = unique(prodTabpwt$Metric), selected = 'Surimi (Percent by weight)')
+    }
+  })
+  
+  
+  ##creating the dataframe for graph#####
+  ##Use reactive to reactively filter the dataframe based on inputs
+  filtered <- reactive({
+    if(input$tab_type == "Summary") {
+        data %>%
+          filter(Metric %in% c(input$yaxisInput, input$yaxisbInput),
+                 Statistic == input$statInput,
+                 Sector %in% c(input$sectorInput))
+    } else {
+      data %>%
+        filter(Metric %in% c(input$yaxis2Input),
+               Statistic == input$stat2Input,
+               Sector %in% c(input$sector2Input))
+    }
+  })
+  
+  #creating the dataframe for data table#####
+  ##Use reactive to reactively filter the dataframe based on inputs
+  filtered_dt <- reactive({
+    if(input$tab_type == "Summary") {
+      data_table %>%
+        filter(Metric %in% c(input$yaxisInput, input$yaxisbInput),
+               Statistic == input$statInput,
+               Sector %in% c(input$sectorInput))
+    } else {
+      data %>%
+        filter(Metric %in% c(input$yaxis2Input),
+               Statistic == input$stat2Input,
+               Sector %in% c(input$sector2Input))
+    }
+  })
+  
+  ##Preparing plots####
+  #greyless_ballard_terminal_pal <- c('#4C384C','#BC8787', '#CB6D4F', '#D49F12','#691C32', '#79863C', '#8F9EBD', '#33647F',  '#0C2340')
+  greyless_mountains_pal <- c('#C1052F','#D89B2C', '#C0CB81',
+                              '#648C1C','#6FB1C9',
+                              '#001B70','#595478',
+                              '#C0B3B6','#B56C97')
+  #plot(rep(1,9), col=(greyless_mountains_pal), pch=19,cex=8)
+  
+  ##set colors for lines
+  lineColor <- c(
+    'Catcher-Processor' = '#001B70',
+    'Mothership' = '#C1052F',
+    'Shoreside' = '#648C1C',
+    'All' = '#D89B2C'
+    # 'Purchase cost' = '#595478',
+    # 'Purchase (or catch) weight' = '#595478',
+    # 'Purchase price per lb' = '#595478',
+    # 'Production value' = '#D89B2C',
+    # 'Production weight' = '#D89B2C',
+    # 'Production price per lb' = '#D89B2C',
+    # "Surimi (Production value)" = '#C1052F',
+    # "Surimi (Production weight)" = '#C1052F',
+    # "Surimi (Production price (per lb))" = '#C1052F',
+    # "Fillet (Production value)" = '#D89B2C',
+    # "Fillet (Production weight)" = '#D89B2C',
+    # "Fillet (Production price (per lb))" = '#D89B2C',
+    # "Headed-and-gutted (Production value)" = '#C0CB81',
+    # "Headed-and-gutted (Production weight)" = '#C0CB81',
+    # "Headed-and-gutted (Production price (per lb))" = '#C0CB81',
+    # "Unprocessed (Production value)" = '#648C1C',
+    # "Unprocessed (Production weight)" = '#648C1C',
+    # "Unprocessed (Production price (per lb))" = '#648C1C',
+    # "Fishmeal (Production value)" = '#6FB1C9',
+    # "Fishmeal (Production weight)" = '#6FB1C9',
+    # "Fishmeal (Production price (per lb))" = '#6FB1C9',
+    # "Fish oil (Production value)" = '#001B70',
+    # "Fish oil (Production weight)" = '#001B70',
+    # "Fish oil (Production price (per lb))" = '#001B70',
+    # "Minced (Production value)" = '#595478',
+    # "Minced (Production weight)" = '#595478',
+    # "Minced (Production price (per lb))" = '#595478',
+    # "Other (Production value)" = '#C0B3B6',
+    # "Other (Production weight)" = '#C0B3B6',
+    # "Other (Production price (per lb))" = '#C0B3B6',
+    # "Round (Production value)" = '#B56C97',
+    # "Round (Production weight)" = '#B56C97',
+    # "Round (Production price (per lb))" = '#B56C97'
+  )
+  
+  ##Defining standard plot elements
+  point_size <- 4
+  line_size <- 0.75
+  
+  ##Plot for when year is on the x-axis in the summary tab
+  output$yearplot <- renderPlot({
+    if(is.null(filtered())){
+      return()
+    } 
+      ggplot(filtered(),
+             aes(x = Year,
+                 y = Value,
+                 group = Sector)) +
+        scale_fill_manual(values = lineColor) +
+        scale_color_manual(values = lineColor) +
+        theme_minimal() +
+        theme(text = element_text(size = 14),
+              axis.text = element_text(size = 12),
+              strip.text = element_text(size = 14)) +
+        geom_point(aes(color = Sector), size = point_size) +
+        geom_line(aes(color = Sector), size = line_size) +
+        geom_ribbon(aes(ymax = upper,
+                        ymin = lower,
+                        fill = Sector), alpha = .25) +
+        facet_wrap(~ylab, scales = 'free_y', ncol = 2) +
+        labs(y = input$statInput) +
+        scale_x_continuous(breaks= pretty_breaks())
+  }, height = 800, width = 1100)
+  
+  
+  ##Plot for the product tab
+  output$productplot <- renderPlot({
+    if(is.null(filtered())) {
+      return()
+    }
+      ggplot(filtered(),
+             aes(x = Year,
+                 y = Value,
+                 group = Sector)) +
+        scale_fill_manual(values = lineColor) +
+        scale_color_manual(values = lineColor) +
+        theme_minimal() +
+        theme(text = element_text(size = 14),
+              axis.text = element_text(size = 12),
+              strip.text = element_text(size = 14)) +
+        geom_point(aes(color = Sector), size = point_size) +
+        geom_line(aes(color = Sector), size = line_size) +
+        geom_ribbon(aes(ymax = upper,
+                        ymin = lower,
+                        fill = Sector), alpha = .25) +
+        facet_wrap(~ylab, scales = 'free_y', ncol = 2) +
+        labs(y = input$stat2Input) +
+        scale_x_continuous(breaks= pretty_breaks())
+  }, height = 800, width = 1100)
+  
+  ##Creating the data table
+  output$table <- DT::renderDataTable({
+    filtered_dt() %>%
+      select(-c(Order,tab,ylab,unit))
+  })
+})

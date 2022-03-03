@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587684894865.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2331018810",
+    "id" : "8FE28C68",
+    "lastKnownWriteTime" : 1587751431,
+    "last_content_update" : 1587751431990,
+    "path" : "C:/Users/Ashley.Vizek/Desktop/server.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "36,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

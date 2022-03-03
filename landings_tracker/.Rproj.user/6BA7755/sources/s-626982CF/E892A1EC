@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1591311007882.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E892A1EC",
+    "lastKnownWriteTime" : 1589404352,
+    "last_content_update" : 1589404352,
+    "path" : "~/landings-tracker/helperfns.r",
+    "project_path" : "helperfns.r",
+    "properties" : {
+        "cursorPosition" : "13,44",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

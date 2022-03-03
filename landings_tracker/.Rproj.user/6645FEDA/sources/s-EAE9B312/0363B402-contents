@@ -1,0 +1,101 @@
+lineColor <- c(
+  '2015-2019' = 'lightgray',
+  '2020' = 'light blue',
+  '2021' = 'blue',
+  '2015-2019 Median' = 'red'
+)
+lineColor1 <- c(
+  '2020' = 'light blue',
+  '2021' = 'blue',
+  '2015-2019 Median' = 'red'
+)
+
+ptsize = ifelse(comp_dat_covid_app$Interval == 'Weekly', .1, 1.5)
+plot_size <- reactive({
+  size <- filtered() %>%
+    summarize(count = length(unique(ylab)))
+  if (size$count > 6) {
+    h <- 1600
+  } else {
+    h <- 800
+  }
+  #print(h)
+})
+
+# plot_title <- reactive({
+#   case_when(input$filter_ops == "Importance" ~
+#               paste('Fisheries that represent', input$state_prop, 'of annual ex-vessel revenue for', toString(input$state_select)),
+#             input$filter_ops == 'Seasonality' ~
+#               paste('Fisheries that represent', input$month_prop, 'of', input$month_select, 'ex-vessel revenue for', toString(input$state1Input)),
+#             # input$filter_ops == '2020 change' ~ 
+#             #   paste('Fisheries with a',  input$perc_change, 'in total ex-vessel revenue compared to 2014-2019'),
+#             T ~ '')
+# })
+
+test <- filter(comp_dat_covid_app, Species == 'Dungeness crab',
+               Statistic == 'Total',
+               Metric == 'Exvessel revenue',
+               Cumulative == 'N',
+               Interval == 'Monthly',
+               State == 'All')
+
+data[(Species %in% c(input$mgrpInput) &
+        Statistic == input$statInput &
+        Metric == input$metricInput &
+        Cumulative == input$cumulInput &
+        Interval == input$wkInput &
+        State %in% c(input$regionInput))]
+
+  main_plot <- ggplot(test,
+                      aes(x = Date_plot, y = Value, color = Type,  group = Year)) +
+    scale_color_manual(values = lineColor, name = 'Time period') +
+    theme_minimal() +
+    theme(text = element_text(size = 12),
+          axis.text = element_text(size = 8),
+          strip.text = element_text(size = 10),
+          axis.title.x = element_blank(),
+          axis.title.y = element_text(size = 12),
+          panel.spacing.y = unit(2, "lines"),
+          plot.title = element_text(size = 12)) +
+    scale_x_date(date_labels = '%b', date_breaks = "1 month") +
+    # grey lines
+    geom_line(data = filter(test, Type == '2015-2019'), size = 0.6, mapping = aes(color = Type)) +
+    # blue dotted line
+    # geom_line(data = filter(filtered(), Year == 2020), aes(linetype = 'dotted'), color = "blue") +
+    geom_line(data = filter(test, Year == '2020'), aes(linetype = 'dotted'), color = "light blue") +
+    geom_line(data = filter(test, Year == '2021', Interval == 'Weekly'), aes(linetype = 'dotted'), color = "blue") +
+    # draws thin blue and red lines through all points (thin line connects through suppressed data)
+    geom_line(data = filter(test, !is.na(Value) & Type != '2015-2019' & complete != 'uncertain'),
+              mapping = aes(color = Type, linetype = 'F1'), size = 0.1) +
+    # draws thick blue and red lines through the "real points"
+    geom_line(data = filter(test, Type != '2015-2019' & complete != 'uncertain'),
+              mapping = aes(color = Type, size = 'large', linetype = 'solid'), size = 0.6) +
+    # adds points to red and blue if set to monthly
+    geom_point(data = filter(test, no_pts == 0 & complete != 'uncertain'),
+               mapping = aes(color = Type), size = 0.1) 
+  # +
+  #   facet_wrap(~ylab, scales = 'free', ncol = 2) +
+  # 
+  # 
+  #   labs(y = paste(input$statInput, input$metricInput)) +
+  #   scale_linetype_identity(
+  #     name = "Reporting",
+  #     breaks = c("solid", "F1", "dotted"),
+  #     labels = c("Complete", "Suppressed for Confidentiality", "Incomplete"),
+  #     guide = 'legend') +
+  #   # guides(linetype = guide_legend(override.aes = list(size = c(1, .1, 1)))) +
+  #   theme(legend.position='none') +
+  #   expand_limits(y = 0) 
+    #annotate("text", x = ymd('2001-04-01'), y = 9,
+    #  label = whitingtext, hjust = 0, vjust = 1) +
+
+
+  
+  reg_plot <-  print(ggplotly(main_plot,
+                              tooltip = 'Year',
+                              height = plot_size(),
+                              width = 850) %>%
+                       layout(margin = list(b = 100, l = 50, r = 50, t = 100)))
+  
+  main_plot
+  

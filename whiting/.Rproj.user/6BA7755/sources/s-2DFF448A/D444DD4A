@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576887040449.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4207209137",
+    "id" : "D444DD4A",
+    "lastKnownWriteTime" : 1575909411,
+    "last_content_update" : 1575909411,
+    "path" : "~/ce_20162017/csv to sql_ce.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

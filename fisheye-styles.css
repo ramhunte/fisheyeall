@@ -1,0 +1,188 @@
+a {
+    text-decoration: none;
+}
+
+a:hover {color:#2980B9}
+
+header div#logo {
+    position:relative;
+    top:1vh;
+    left:1vw;
+    width:25%;
+    height:5%;
+}
+
+.nav {
+    position: relative;
+    box-sizing: border-box;
+    background-color: #03036e;
+    top: 5vh;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans",sans-serif;
+    font-style: normal;
+}
+.navmenu {
+    display:none;
+}
+.navbar ul {
+    display: inline-block;
+    font-weight: bold;
+    margin-top: 1.5vh;
+    margin-bottom: 1.5vh;
+    margin-left: 1.25vw;
+    font-size: 1em;
+    list-style: none;
+}
+
+.navbar li {
+    display:inline-block;
+    padding-right: 2.5vw;
+}
+
+.navbar a {
+    color:white;
+}
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #2980B9;
+    border:none;
+    color:white;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: 0vh;
+    padding-top: 1.5vh; 
+    padding-bottom: 1.5vh;
+    padding-left: 1.5vh;
+    padding-right: 1.5vh;
+  }
+  
+  /* Dropdown button on hover & focus */
+  .dropbtn:hover, .dropbtn:focus {
+    background-color: #2980B9;
+  }
+  
+  /* The container <div> - needed to position the dropdown content */
+  .dropdown {
+    position: relative;
+    display: inline-block;  
+    margin-top: 0vh;
+    font-weight: bold;
+    font-size: 1em;
+  }
+  
+  /* Dropdown Content (Hidden by Default) */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 10.5vw;
+  }
+  
+  /* Links inside the dropdown */
+  .dropdown-content a {
+    font-family: "Open Sans",sans-serif;
+    color: black;
+    padding: 1em;
+    text-decoration: none;
+    display: block;
+    font-size: 1em;
+  }
+  
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #39afcc;}
+
+
+ul#lit {
+    font-family: "Open Sans",sans-serif;
+    font-style: normal;
+    font-size: 1em;
+    line-height: 1.5em;
+    color: #000000;
+    list-style-type: none;
+    margin-left: 8vw;
+    margin-right: 8vw;
+}
+
+div#header {
+    font-family: "Open Sans",sans-serif;
+    font-style: normal;
+    margin-top: 15vh;
+    margin-left: 10vw;
+    margin-right: 10vw;
+}
+
+/* Horizontal line */
+div#hr {
+    margin-left: 10vw;
+    margin-right:10vw;
+}
+
+p#lit_h2 {
+    font-family: "Open Sans",sans-serif;
+    font-style: normal;
+    font-size: 2em;
+    color: #483D68
+
+}
+
+p#lit_h3 {
+    font-family: "Open Sans",sans-serif;
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-left: 10vw;
+
+}
+body>ul>li {
+    padding-bottom: 2vh;
+}
+body>ul>li>a {
+    color: #03036e;
+}
+
+
+@media (min-width:2200px) {
+      ul#lit {
+        font-family: "Open Sans",sans-serif;
+        font-style: normal;
+        font-size: 1em;
+        line-height: 1.5em;
+        color: #000000;
+        list-style-type: none;
+        margin-left: 8.75vw;
+        margin-right: 8.75vw;
+    }
+
+}
+
+@media (max-width:600px) {
+    .navbar {
+        display: none;
+    }
+    .navmenu {
+        display: inline-block;
+    }
+    ul#lit {
+        font-family: "Open Sans",sans-serif;
+        font-style: normal;
+        font-size: 1em;
+        line-height: 1.5em;
+        color: #000000;
+        list-style-type: none;
+        margin-left: 4vw;
+        margin-right: 4vw;
+    }
+
+    
+}
+
+

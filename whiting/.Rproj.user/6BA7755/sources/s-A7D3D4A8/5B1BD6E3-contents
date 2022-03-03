@@ -1,0 +1,408 @@
+##Data prep for mini whiting app##
+
+source("C:/Program Files/R/connectioninfoROracle.r")
+preventingprintingtoconsole <- dbSendQuery(framdw, "alter session set current_schema=FRAM_ANALYSIS_CURRENT")
+
+currentyear <- 2017
+frcurrentyear <- 2016
+
+#Check which libraries are installed and install ones that are not
+#Most useful if you are distributing  a set of script files to people who may not be aware that the needed packages are not installed
+need<-c("daff","sqldf",'reshape2','lazyeval','tidyr','doBy','lubridate','reldist','antitrust','dplyr','data.table', 'bazar') #needed packages for a job
+ins<-installed.packages()[,1] #find out which packages are installed
+(Get<-need[which(is.na(match(need,ins)))]) # check if the needed packages are installed
+if(length(Get)>0){install.packages(Get)} #install the needed packages if they are not-installed
+eval(parse(text=paste("library(",need,")")))#load the needed packages
+
+library(EDCReport)
+
+##Data pieces####
+##CP/MS data####
+# (1195, 1196, 3919) These are boats that normally fish as CPs in the west coast fishery but they operated as tribal mothership 
+#in 2010 or 2011. They filled out one form for their regular CP operation and another for their tribal operation. 
+#So there's no "catch share data on these forms". See "authoritative verdict on makah disaggregation.Rmd"
+dbids_ms <- dbGetQuery(framdw, paste("
+  select distinct edcsurvey_dbid
+  from edcsurvey_edcdata_v where (edcsurvey_dbid not in (1195, 1196, 3919)
+    and survey_type = 'MOTHERSHIP'
+    and ADJ_YEAR between 2009 and ", currentyear, ")"))
+
+# from marie: is there a reason why you pull one the MS dbids from edcdata and CP dbids from edc_fish?
+# taking out the stormie c - a cp that isn't in the at-sea whiting fishery
+dbids_cp <- dbGetQuery(framdw, paste("
+  select distinct vss_dbid as edcsurvey_dbid
+  from edc_fish_mv
+  where sector = 'CATCHER PROCESSOR'
+  and vss_dbid is not null and vss_year <=", currentyear, "
+  and vessel_id <> '936611'"))
+
+# from marie: I added RVWTPWHTOTHR and RVVALPWHTOTHR which are older versions of the OTHR1, OTHR2, etc. 
+# I did a quick search & I don't think there are any other changes over the years that aren't getting picked up but might be worth a double-check. 
+data_list <- "'EXWTPWCPWHT',
+               'EXCOSTWCPWHT',
+               'WTMSWC',
+               'RVWTPWHTSURI',
+               'RVWTPWHTFILL',
+               'RVWTPWHTHG',
+               'RVWTPWHTRND',
+               'RVWTPWHTFML',
+               'RVWTPWHTFOIL',
+               'RVWTPWHTROE',
+               'RVWTPWHTMINC',
+               'RVWTPWHTSTOM',
+               'RVWTPWHTOTHR',
+               'RVWTPWHTOTHR1',
+               'RVWTPWHTOTHR2',
+               'RVVALPWHTSURI',
+               'RVVALPWHTFILL',
+               'RVVALPWHTHG',
+               'RVVALPWHTRND',
+               'RVVALPWHTFML',
+               'RVVALPWHTFOIL',
+               'RVVALPWHTROE',
+               'RVVALPWHTMINC',
+               'RVVALPWHTSTOM',
+               'RVVALPWHTOTHR',
+               'RVVALPWHTOTHR1',
+               'RVVALPWHTOTHR2'"
+
+# from marie: I don't think you need the species line here because you are pulling by fullcode but I also don't think it's doing any harm. 
+# from marie: for some reason, this is also pulling fullcode like 'RVPWHTOTHRNAM%' as well and I'm not sure why. 
+# Again, don't think it's doing harm, but it's not in data_list, so not clear on why it's sneaking in. 
+# av response: the 'RVPWHTOTHRNAM%' items appear to be text_response description of other products. 
+# Maybe they are connected somehow to the d_number_response fullcodes. cp_disag is null so I will remove them.
+cp_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, cp_disag value, fullcode
+                                    from edc_cp_all_v
+                                    where year <=", currentyear, "and fullcode in (", data_list, ")
+                                    and species is NULL or species = 'Pacific whiting'
+                                    and edcsurvey_dbid in (", xfn(dbids_cp), ")
+                                    and cp_disag is not NULL")) %>%
+  mutate(SECTOR = 'Catcher-Processor')
+
+cp_companies <- cp_raw %>%
+  group_by(YEAR, VESSEL_ID, COMPANY) %>%
+  distinct(VESSEL_ID) %>%
+  data.frame()
+
+# from marie: catch data is being pulled by survey_year while other pulls are for calendar year. is that correct?
+cp_catch <- dbGetQuery(framdw, paste0("select vessel_id, year, wtwc value
+                                      from edc_cp_valmtsdas_v
+                                      where survey_year <=", currentyear, "and edcsurvey_dbid in (", xfn(dbids_cp), ")")) %>%
+  mutate(SECTOR = 'Catcher-Processor',
+         FULLCODE = 'WTCPWC') %>%
+  merge(cp_companies)
+
+cp_raw2 <- rbind(cp_raw, cp_catch)
+
+# from marie: ms_disag is different than d_number_response. I was surprised at first because these aren't costs but we think it's due to tribal activity. no difference in case of CPs
+# av response: Yes because of tribal.
+# from marie: for some reason, this is also pulling fullcode like 'RVPWHTOTHRNAM%' and 'EXWTRWCPWHT' as well and I'm not sure why.  
+# av response: This is weird and don't understand why happening. 'EXWTRWCPWHT' is weight of whiting received but not paid for. It isn't being included in calculations so its OK.
+ms_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, ms_disag value, fullcode
+                                     from edc_ms_all_mv
+                                     where fullcode in (", data_list, ") and year <=", currentyear,
+                                    "and species is NULL or species = 'Pacific whiting'
+                                     and edcsurvey_dbid in (", xfn(dbids_ms), ")
+                                     and ms_disag is not NULL")) %>%
+  mutate(SECTOR = 'Mothership')
+
+defl <- dbGetQuery(framdw, paste0("select year, defl", currentyear, "/100 as defl from edc_gdp_defl"))
+##Data formatting###
+##labels, deflator, mt to lbs
+# from marie: you have a few cases here where both type & metric are NA. I believe they are the 'WTMSWC', 'RVPWHTOTHRNAM%'. and 'EXWTRWCPWHT.' 
+# Don't think it's a issue but may be liable to get accidentally summed with other things. Might want to just remove for now. 
+# av response: still unsure how those fullcodes got in there in the first place. Removed.
+    # Don't think it's a issue but may be liable to get accidentally summed with other things. Might want to just remove for now. 
+# from marie: this won't affect you here bc it's all whiting but it should just be 'RVWT' in line 109 as the P is the start of 'PWHT'
+cpms_data <- rbind(cp_raw2, ms_raw) %>%
+  mutate(METRIC = case_when(grepl('RVWTP', FULLCODE) ~ 'Production weight',
+                            grepl('RVVAL', FULLCODE) ~ 'Production value',
+                            #FULLCODE %in% c('WTCPWC','WTMSWC') ~ 'Weight processed',
+                            FULLCODE %in% c('EXWTPWCPWHT', 'WTCPWC') ~ 'Purchase weight',
+                            FULLCODE == 'EXCOSTWCPWHT' ~ 'Purchase cost'),
+         TYPE = case_when(grepl('SURI', FULLCODE) ~ 'Surimi',
+                          grepl('FILL', FULLCODE) ~ 'Fillet',
+                          grepl('HG', FULLCODE) ~ 'Headed-and-gutted',
+                          grepl('RND', FULLCODE) ~ 'Round',
+                          grepl('FML', FULLCODE) ~ 'Fishmeal',
+                          grepl('FOIL', FULLCODE) ~ 'Fish oil',
+                          grepl('ROE', FULLCODE) ~ 'Roe',
+                          grepl('MINC', FULLCODE) ~ 'Minced',
+                          grepl('STOM', FULLCODE) ~ 'Stomach',
+                          grepl('OTHR', FULLCODE) ~ 'Other')) %>%
+  filter(!is.na(METRIC)) %>%
+  select(-FULLCODE) %>%
+  group_by(VESSEL_ID, COMPANY, YEAR, SECTOR, TYPE, METRIC) %>%
+  summarize(VALUE = sum(VALUE)) %>%
+  filter(VALUE > 0 & !is.na(VALUE)) %>%
+  merge(defl) %>%
+  mutate(VALUE = case_when(METRIC %in% c('Production value','Purchase cost') ~ VALUE/DEFL,
+                           T ~ VALUE),
+         VALUE = case_when(METRIC %in% c('Purchase weight','Production weight') ~ VALUE*2204.62,
+                           T ~ VALUE)) %>%
+  select(-DEFL) %>%
+  data.frame()
+
+
+##Calculating product weight and value for all products
+cpms_allproducts <- cpms_data %>%
+  filter(!is.na(TYPE)) %>%
+  group_by(VESSEL_ID, COMPANY, YEAR, SECTOR, METRIC) %>%
+  summarize(VALUE =  sum(VALUE)) %>%
+  mutate(TYPE = 'All products') %>%
+  data.frame()
+
+##Final format dataset
+cpms_data_all <- rbind(cpms_data,cpms_allproducts)
+
+##FR data####
+# from marie: Do CP/MS fiscal years & calendar years all align, or is the data adjusted? FR data is not and most align but in a few cases, they don't. 
+# Something worth mentioning in the data request & on the app. 
+# av response: I confirmed that in the fr flat files, survey_year = adj_year so i think we are OK
+# from marie: I might group by ghid & survey_year here and sum rather than just pull the weight & cost. 
+# You may end up summing later, but several of these companies receive whiting from different sources, and so will show up a few times in this pull. 
+# av response: Yes done.
+FR_purchase <- dbGetQuery(framdw, paste0("
+  select sum(WEIGHT) weight, sum(COST) cost, GHID, SURVEY_YEAR year
+  from EDC_FR_PURCHASE
+  where survey_year <=", frcurrentyear, "
+    and TYPE = 'Paid' 
+    and fishery_group = 'Pacific whiting'
+    and species_cd = 'Pacific whiting'
+  group by ghid, survey_year")) %>%
+  melt(id.vars = c('GHID','YEAR')) %>%
+  mutate(METRIC = case_when(variable == 'WEIGHT' ~ 'Purchase weight',
+                            variable == 'COST' ~ 'Purchase cost'),
+         VALUE = value,
+         TYPE = NA) %>%
+  select(-variable, -value)
+
+# from marie: to match purchases, you also want to pull on species_cd = 'Pacific whiting.' This excludes those only receiving whiting as bycatch. 
+FR_prod <- dbGetQuery(framdw, paste0("select WEIGHT, value, GHID, SURVEY_YEAR year, product type
+  from EDC_FR_PRODUCTION
+  where survey_year <=", frcurrentyear, "and fishery_group = 'Pacific whiting' and species_cd = 'Pacific whiting'"))
+
+FR_allproducts <- FR_prod %>%
+  group_by(GHID, YEAR) %>%
+  summarize(WEIGHT = sum(WEIGHT),
+            VALUE = sum(VALUE)) %>%
+  mutate(TYPE = 'All products') %>%
+  data.frame()
+
+FR_prod_all <- rbind(FR_prod, FR_allproducts) %>%
+  melt(id.vars = c('GHID','YEAR','TYPE')) %>%
+  mutate(METRIC = case_when(variable == 'WEIGHT' ~ 'Production weight',
+                            variable == 'VALUE' ~ 'Production value'),
+         VALUE = value) %>%
+  select(-variable, -value) %>%
+  group_by(METRIC, TYPE, YEAR, GHID) %>%
+  summarize(VALUE = sum(VALUE)) %>%
+  data.frame()
+
+
+FR_data_all <- rbind(FR_purchase, FR_prod_all) %>%
+  filter(!is.na(VALUE) & VALUE > 0) %>%
+  merge(defl) %>%
+  mutate(SECTOR = 'Shoreside',
+         ##change to match with the cp/ms
+         COMPANY = GHID,
+         VESSEL_ID = GHID,
+         VALUE = case_when(METRIC %in% c('Purchase cost','Production value') ~ VALUE/DEFL,
+                           T ~ VALUE),
+         TYPE = case_when(TYPE == 'Frozen' ~ 'Round',
+                          T ~ TYPE)) %>%
+  select(-GHID, -DEFL) %>%
+  group_by(YEAR, METRIC, TYPE, SECTOR, COMPANY, VESSEL_ID) %>%
+  summarize(VALUE = sum(VALUE)) %>%
+  data.frame()
+
+# Checking into fr fiscal year
+# fr_fiscalyear <- dbGetQuery(framdw, paste0("select edcsurvey_dbid, ghid, survey_year year, d_number_response value, fullcode, adj_year from edcsurvey_edcdata_v
+#                                            where fullcode in ('FSCLMM','FSCLYY')")) %>%
+#   dcast(EDCSURVEY_DBID + GHID + YEAR + ADJ_YEAR ~ FULLCODE, value.var = 'VALUE') %>%
+#   merge(FR_prod, all.y = T) 
+# 
+# fr_fiscal_iss <- filter(fr_fiscalyear, ADJ_YEAR != YEAR | FSCLMM != 1)
+# 
+# nonoverlap <- dbGetQuery(framdw, "select sum(lwt_lbs) lbs, proc_ghid, year
+# from edc_fish_fishery_v
+# where fisherycode = 'MTPWHT' and year <> proc_year and edcspid = 'Pacific whiting' and year between 2009 and 2017
+# group by proc_ghid, year")
+
+##TAC data####
+tac <- dbGetQuery(framdw, paste0("select year, mothership, catcher_processor, shoreside from edc_pwht_alloc 
+                                 where final = 'FINAL' and year between 2009 and ", currentyear, "")) %>%
+  melt(id.vars = 'YEAR') %>%
+  mutate(Sector = case_when(variable == 'MOTHERSHIP' ~ 'Mothership',
+                            variable == 'CATCHER_PROCESSOR' ~ 'Catcher-Processor',
+                            variable == 'SHORESIDE' ~ 'Shoreside'),
+         Value = value,
+         Metric = 'Total allowable catch',
+         Year = YEAR) %>%
+  select(-variable, -value, -YEAR)
+
+tac_all <- tac %>%
+  group_by(Year, Metric) %>%
+  summarize(Value = sum(Value)) %>%
+  mutate(Sector = 'All') %>%
+  data.frame()
+
+tac_final <- rbind(tac, tac_all) %>%
+  mutate(N = 1,
+         Statistic = 'Total',
+         Value = Value*2204.62,
+         Variance = NA_real_,
+         q25 = NA_real_,
+         q75 = NA_real_,
+         tab = 'Summary')
+
+
+##CP/MS and FR combined####
+data_combined <- rbind(FR_data_all, cpms_data_all,
+                       (FR_data_all %>%
+                          mutate(SECTOR = 'All')),
+                       (cpms_data_all %>%
+                          mutate(SECTOR = 'All')))
+
+##Calculating rates####
+cpmsfr_rates <- data_combined %>%
+  mutate(TYPE = case_when(METRIC %in% c('Purchase cost','Purchase weight') ~ 'All products',
+                          T ~ TYPE)) %>%
+  dcast(VESSEL_ID + COMPANY + YEAR + SECTOR + TYPE ~ METRIC, value.var = 'VALUE') %>%
+  mutate(`Purchase price (per lb)` = case_when(!is.na(`Purchase cost`) & !is.na(`Purchase weight`) 
+                                             & TYPE == 'All products' ~ `Purchase cost`/`Purchase weight`,
+                                             T ~ NA_real_),
+         `Production price (per lb)` = case_when(!is.na(`Production value`) & !is.na(`Production weight`) ~ `Production value`/`Production weight`,
+                                               T ~ NA_real_),
+         Markup = case_when(TYPE == 'All products' & !is.na(`Purchase cost`) & !is.na(`Production value`) ~ `Production value`/`Purchase cost`,
+                            T ~ NA_real_),
+         `Recovery rate` = case_when(TYPE == 'All products' & !is.na(`Purchase weight`) & !is.na(`Production weight`) ~ `Production weight`/`Purchase weight`,
+                                     T ~ NA_real_)) %>%
+  melt(id.vars = c('VESSEL_ID','COMPANY','YEAR','SECTOR','TYPE')) %>%
+  filter(!is.na(value) & variable %in% c('Purchase price (per lb)','Production price (per lb)','Markup', 'Recovery rate')) %>%
+  mutate(METRIC = variable,
+         VALUE = value) %>%
+  select(-variable, -value)
+
+data_all_rates <- rbind(data_combined, cpmsfr_rates)
+
+# from marie: EDCReportPackage also has a PreTreatRates function, which I think does a confidentiality check on the numerator & denominator
+    # rather than on the rate. Not sure if one is better than the other here. 
+data_all_rates_treated <- PreTreat(data_all_rates, variables = c('YEAR','METRIC','TYPE','SECTOR'), valvar = 'VALUE',
+                                   confunit = 'COMPANY', dontsum = T, drop = F)
+##Summarizing data#####
+##Mean, median, total
+data_all_n <- data_all_rates %>%
+  group_by(YEAR, SECTOR, TYPE, METRIC) %>%
+  summarize(N = length(unique(VESSEL_ID)))
+
+data_all_smry <- data_all_rates_treated %>%
+  group_by(YEAR, SECTOR, TYPE, METRIC) %>%
+  summarize(Mean = mean(VALUE, na.rm = T),
+            Median = median(VALUE, na.rm = T),
+            Total = sumNA(VALUE, na.rm = T),
+            Variance = sd(VALUE, na.rm = T),
+            q25 = quantile(VALUE, prob =.25, type = 8, na.rm = T),
+            q75 = quantile(VALUE, prob =.75, type = 8, na.rm = T)) %>%
+  data.frame() %>%
+  melt(id.vars = c('YEAR','SECTOR','TYPE','METRIC', 'Variance', 'q25','q75')) %>%
+  mutate(STATISTIC = as.character(variable),
+         VALUE = value,
+         rm = case_when(METRIC %in% c('Purchase price (per lb)','Production price (per lb)','Markup','Recovery rate') & STATISTIC == 'Total' ~ 1,
+                        T ~ 0)) %>%
+  filter(rm != 1) %>%
+  select(-variable,-value, -rm) %>%
+  merge(data_all_n)
+
+##Total for rates
+rates_tot <- data_all_rates_treated %>%
+  mutate(TYPE = case_when(METRIC %in% c('Purchase cost','Purchase weight') ~ 'All products',
+                          T ~ TYPE)) %>%
+  dcast(COMPANY + YEAR + SECTOR + TYPE ~ METRIC, value.var = 'VALUE', fun.aggregate = sum) %>%
+  group_by(YEAR, SECTOR, TYPE) %>%
+  summarize(`Purchase price (per lb)` =  sumNA(`Purchase cost`, na.rm = T)/sumNA(`Purchase weight`, na.rm = T),
+            `Production price (per lb)` = sumNA(`Production value`, na.rm = T)/sumNA(`Production weight`, na.rm = T),
+            Markup = sumNA(`Production value`, na.rm = T)/sumNA(`Purchase cost`, na.rm = T),
+            `Recovery rate` = sumNA(`Production weight`, na.rm = T)/sumNA(`Purchase weight`, na.rm = T)) %>%
+  melt(id.vars = c('YEAR','SECTOR','TYPE')) %>%
+  mutate(rm = case_when((SECTOR == 'Catcher-Processor' & variable %in% c('Purchase price (per lb)', 'Markup'))
+                        | (TYPE != 'All products' & variable %in% c('Purchase price (per lb)', 'Markup', 'Recovery rate')) ~ 1,
+                        T ~ 0),
+         METRIC = variable,
+         VALUE = value,
+         STATISTIC = 'Total',
+         Variance = NA_real_,
+         q25 = NA_real_,
+         q75 = NA_real_) %>%
+  filter(rm != 1) %>%
+  select(-rm, -variable, - value) %>%
+  merge(data_all_n)
+
+# from marie: there are a number of cases where the value is NA but N is greater than or equal to 3, so might be good to double-check that 
+    # those are cases suppressed due to 90-10 rule rather than some error. Rates can be tricky with confidentiality stuff. 
+
+##Final summarized dataset####
+data_final <- rbind(data_all_smry, rates_tot) %>%
+  mutate(tab = case_when(TYPE != 'All products' & !is.na(TYPE) ~ 'Product',
+                         T ~ 'Summary'),
+         Metric = as.character(case_when(!is.na(TYPE) & TYPE != 'All products' ~ paste0(TYPE, " (", METRIC, ")"),
+                                         T ~ METRIC)),
+         Metric = case_when(Metric == 'Purchase weight' ~ 'Purchase (or catch) weight',
+                            T ~ Metric),
+         Year = YEAR,
+         Sector = as.character(SECTOR),
+         Statistic = as.character(STATISTIC),
+         Value = VALUE) %>%
+select(-c(TYPE, YEAR, SECTOR, METRIC, STATISTIC, VALUE)) %>%
+  as.data.frame()
+
+##All combinations
+all_combos <- data_final %>%
+  select(Year, Sector, Statistic, Metric, N) %>%
+  dcast(Year + Sector + Statistic ~ Metric, value.var = 'N', fun.aggregate = sum) %>%
+  melt(c('Year', 'Sector','Statistic')) %>%
+  mutate(Metric = variable,
+         N = value) %>%
+  select(-value, -variable)
+
+# Add in all combos so that when a field doesn't exist it is populated with zero
+data_final_allcombos <- merge(data_final, all_combos, 
+                              by = c('Year','Statistic','Sector', 'Metric', 'N'), all = T) %>%
+  mutate(Value = case_when(N == 0 ~ 0,
+                           T ~ Value),
+         Value = case_when(Metric %in% c('Purchase cost','Purchase price (per lb)','Markup') & Sector == 'Catcher-Processor' ~ NA_real_,
+                           T ~ Value),
+         Order = case_when(grepl('Surimi', Metric) ~ 1,
+                           grepl('Fishmeal', Metric) ~ 2,
+                           grepl('Fillet', Metric) ~ 3,
+                           grepl('Headed-and-gutted', Metric) ~ 4,
+                           grepl('Round', Metric) ~ 5,
+                           grepl('Minced', Metric) ~ 6,
+                           grepl('Fish oil', Metric) ~ 7,
+                           grepl('Unprocessed', Metric) ~ 8,
+                           grepl('Other', Metric) ~ 9)) %>%
+  rbind(tac_final %>%
+          mutate(Order = NA_real_),
+        tac_final %>%
+          mutate(Order = NA_real_,
+                 Statistic = 'Mean'),
+        tac_final %>%
+          mutate(Order = NA_real_,
+                 Statistic = 'Median')) %>%
+  group_by(Metric, Statistic) %>%
+  mutate(
+    unit = case_when(max(Value, na.rm = T) < 1e3 ~ '',
+                     max(Value, na.rm = T) < 1e6 ~ 'thousands',
+                     max(Value, na.rm = T) < 1e9 ~ 'millions',
+                     max(Value, na.rm = T) < 1e12 ~ 'billions',
+                     T ~ 'help'),
+    ylab = case_when(Metric %in% c('Purchase cost','Purchase price (per lb)','Production value','Production price (per lb)', 'Markup') | grepl('Production value', Metric) | 
+                       grepl('Production price', Metric) ~
+                       paste0(Metric, ": ", Statistic, " (", unit, " ", currentyear, " $)"),
+                     Metric %in% c('Purchase weight','Production weight') | grepl('Production weight', Metric) ~
+                       paste0(Metric, ": ", Statistic, " (", unit, " lbs)"),
+                     Metric == 'Recovery rate' ~ Metric,
+                     T ~ paste0(Metric, " (", unit, ")")))
+
+
+save(data_final_allcombos, file = "mini_whiting.RData")

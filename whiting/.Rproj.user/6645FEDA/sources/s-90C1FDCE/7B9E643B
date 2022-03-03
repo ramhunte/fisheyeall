@@ -1,0 +1,26 @@
+{
+    "id": "7B9E643B",
+    "path": "~/fisheyewhiting/script for file transfer.sql",
+    "project_path": "script for file transfer.sql",
+    "type": "sql",
+    "hash": "0",
+    "contents": "",
+    "dirty": true,
+    "created": 1629154291710.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "3,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1618009111,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1629154310564,
+    "read_only": false,
+    "read_only_alternatives": []
+}

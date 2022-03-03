@@ -1,0 +1,24 @@
+{
+    "id": "AD1CEDA9",
+    "path": "~/landings-tracker/loadfiles/ui.R",
+    "project_path": "ui.R",
+    "type": "r_source",
+    "hash": "1336039487",
+    "contents": "",
+    "dirty": false,
+    "created": 1615995246381.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "cursorPosition": "39,78",
+        "scrollLine": "19"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1616602450,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1616602450504,
+    "read_only": false,
+    "read_only_alternatives": []
+}

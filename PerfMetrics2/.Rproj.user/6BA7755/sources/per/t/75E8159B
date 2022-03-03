@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1567541940768.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2991019204",
+    "id" : "75E8159B",
+    "lastKnownWriteTime" : 1559084299,
+    "last_content_update" : 1559084299,
+    "path" : "~/FishEyeApp/PerformanceMetrics/server.R",
+    "project_path" : "server.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

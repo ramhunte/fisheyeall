@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1582154823218.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D5824DBC",
+    "lastKnownWriteTime" : 1582302897,
+    "last_content_update" : 1582302897391,
+    "path" : "~/fisheye-mini-whiting/fisheye cheatsheet.Rmd",
+    "project_path" : "fisheye cheatsheet.Rmd",
+    "properties" : {
+        "cursorPosition" : "44,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

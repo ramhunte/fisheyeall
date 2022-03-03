@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1562945186222.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "418157478",
+    "id" : "ED720987",
+    "lastKnownWriteTime" : 1563916748,
+    "last_content_update" : 1563916748549,
+    "path" : "~/fisheye-mini-whiting/dataprep_whiting.R",
+    "project_path" : "dataprep_whiting.R",
+    "properties" : {
+        "cursorPosition" : "272,0",
+        "scrollLine" : "232",
+        "source_window_id" : ""
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

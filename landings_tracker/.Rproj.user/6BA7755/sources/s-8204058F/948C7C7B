@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1601392344965.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "948C7C7B",
+    "lastKnownWriteTime" : 1594225371,
+    "last_content_update" : 1594225371,
+    "path" : "~/landings-tracker/pushtoserver.R",
+    "project_path" : "pushtoserver.R",
+    "properties" : {
+        "cursorPosition" : "3,137",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

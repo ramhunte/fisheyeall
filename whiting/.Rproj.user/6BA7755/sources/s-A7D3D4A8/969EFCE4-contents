@@ -1,0 +1,134 @@
+source("C:/Program Files/R/connectioninfoROracle.r")
+preventingprintingtoconsole <- dbSendQuery(framdw, "alter session set current_schema=FRAM_ANALYSIS_CURRENT")
+
+currentyear <- 2017
+frcurrentyear <- 2016
+
+defl <- dbGetQuery(framdw, paste0("select year, defl", currentyear, "/100 as defl from edc_gdp_defl"))
+
+# (1195, 1196, 3919) These are boats that normally fish as CPs in the west coast fishery but they operated as tribal mothership 
+#in 2010 or 2011. They filled out one form for their regular CP operation and another for their tribal operation. 
+#So there's no "catch share data on these forms". See "authoritative verdict on makah disaggregation.Rmd"
+dbids_ms <- dbGetQuery(framdw, paste("
+  select distinct edcsurvey_dbid
+  from edcsurvey_edcdata_v where (edcsurvey_dbid not in (1195, 1196, 3919)
+    and survey_type = 'MOTHERSHIP'
+    and ADJ_YEAR between 2009 and ", currentyear, ")"))
+
+# taking out the stormie c - a cp that isn't in the at-sea whiting fishery
+dbids_cp <- dbGetQuery(framdw, paste("
+  select distinct vss_dbid as edcsurvey_dbid
+  from edc_fish_mv
+  where sector = 'CATCHER PROCESSOR'
+  and vss_dbid is not null and vss_year <=", currentyear, "
+  and vessel_id <> '936611'"))
+
+cp_prod_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weight, value, product
+                                          from edc_cp_production
+                                          where year <=", currentyear,
+                                         "and edcsurvey_dbid in (", xfn(dbids_cp), ")")) %>%
+  melt(id.vars = c('VESSEL_ID','YEAR','COMPANY','PRODUCT')) %>%
+  mutate(SECTOR = 'Catcher-Processor',
+         METRIC = case_when(variable == 'WEIGHT' ~ 'Production weight',
+                            variable == 'VALUE' ~ 'Production value'),
+         VALUE = value) %>%
+  select(-value, -variable)
+
+# Calculate weight and value for all product types
+cp_prod_tot <- cp_prod_raw %>%
+  group_by(VESSEL_ID, YEAR, COMPANY, SECTOR, METRIC) %>%
+  summarize(VALUE = sumNA(VALUE, na.rm = T),
+            PRODUCT = 'All products') %>%
+  data.frame()
+
+# CP Catch
+cp_catch_raw <- dbGetQuery(framdw, paste0("select vessel_id, year, lbs value, company
+                                           from edc_cp_lbsdas
+                                           where year <=", currentyear, "and type = 'WC'
+                                           and edcsurvey_dbid in (", xfn(dbids_cp), ")")) %>%
+  mutate(SECTOR = 'Catcher-Processor',
+         METRIC = 'Purchase (or catch) weight',
+         PRODUCT = NA_real_) 
+
+# (2) MS Data Pull#####
+# MS Production
+ms_prod_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weight, value, product
+                                          from edc_ms_production
+                                          where year <=", currentyear,
+                                         "and edcsurvey_dbid in (", xfn(dbids_ms), ")")) %>%
+  melt(id.vars = c('VESSEL_ID','YEAR','COMPANY','PRODUCT')) %>%
+  mutate(SECTOR = 'Mothership',
+         METRIC = case_when(variable == 'WEIGHT' ~ 'Production weight',
+                            variable == 'VALUE' ~ 'Production value'),
+         VALUE = value) %>%
+  select(-value, -variable)
+
+# Calculate weight and value for all products
+ms_prod_tot <- ms_prod_raw %>%
+  group_by(VESSEL_ID, YEAR, COMPANY, SECTOR, METRIC) %>%
+  summarize(VALUE = sumNA(VALUE, na.rm = T),
+            PRODUCT = 'All products') %>%
+  data.frame()
+
+
+# MS Purchase
+# Filter by 'Paid'. Do not include weight received but not paid for.
+ms_purc_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weight, cost
+                                          from edc_ms_purchase
+                                          where year <=", currentyear,
+                                         "and edcsurvey_dbid in (", xfn(dbids_ms), ")
+                                          and type = 'Paid'")) %>%
+  melt(id.vars = c('VESSEL_ID','YEAR','COMPANY')) %>%
+  mutate(SECTOR = 'Mothership',
+         METRIC = case_when(variable == 'WEIGHT' ~ 'Purchase (or catch) weight',
+                            variable == 'COST' ~ 'Purchase value'),
+         VALUE = value,
+         PRODUCT = NA_real_) %>%
+  select(-value, -variable)
+
+# (3) Full CP/MS data#####
+cpms_full <- rbind(cp_prod_raw, cp_prod_tot, cp_catch_raw,
+                   ms_prod_raw, ms_prod_tot, ms_purc_raw) 
+
+# Calculate RR
+rr <- filter(cpms_full, (PRODUCT == 'All products' | is.na(PRODUCT)) & grepl('weight',METRIC)) %>%
+  dcast(VESSEL_ID + YEAR + COMPANY + SECTOR ~ METRIC , value.var = 'VALUE') %>%
+  mutate(Recovery_rate = (`Production weight`/`Purchase (or catch) weight`)*100) %>%
+  melt(id.vars = c('VESSEL_ID','YEAR','COMPANY', 'SECTOR')) %>%
+  mutate(METRIC = variable,
+         VALUE = value) %>%
+  select(-variable, -value)
+
+# Calculate percent by product type
+prodperc <- filter(cpms_full, grepl('weight',METRIC) & PRODUCT != 'All products') %>%
+  merge(cpms_full %>%
+          filter(grepl('weight', METRIC) & PRODUCT == 'All products' | is.na(PRODUCT)) %>%
+          dcast(VESSEL_ID + YEAR + COMPANY + SECTOR ~ METRIC, value.var = 'VALUE')) %>%
+  mutate(Percent = (VALUE/`Production weight`)*100,
+         PURC_WEIGHT = VALUE/0.307 -748200,
+         Percent_purc = (PURC_WEIGHT/`Purchase (or catch) weight`)*100,
+         METRIC = paste('Percent',PRODUCT)) %>%
+  select(-VALUE, -`Production weight`, -PRODUCT) %>%
+  rename(VALUE = Percent)
+
+rr_perc <- rbind(rr,prodperc) %>%
+  dcast(VESSEL_ID + YEAR + COMPANY + SECTOR ~ METRIC, value.var = 'VALUE', fill = 0)
+
+
+# Testing model with percent weight by product type
+lm1 <- lm(Recovery_rate ~ `Percent Fishmeal` + `Percent Surimi` +
+            `Percent Fillet`, data = rr_perc)
+summary(lm1)
+
+lm2 <- lm(Recovery_rate ~ `Purchase (or catch) weight`, data = rr_perc)
+summary(lm2)
+
+lm3 <- lm(Recovery_rate ~ `Production weight`, data = rr_perc)
+summary(lm3)
+
+# Model production weight
+ggplot(rr_perc, aes(x = `Purchase (or catch) weight`, y = `Production weight`)) +
+  geom_point()
+
+lm4 <- lm(`Production weight` ~ `Purchase (or catch) weight`, data = rr_perc)
+summary(lm4)

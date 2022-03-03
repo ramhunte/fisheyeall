@@ -1,0 +1,33 @@
+# Data compare checksheet ####
+
+# Comparing fish tickets ####
+
+# Load last fish ticket pull. ADJUST DATE
+old_raw <- readRDS("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_raw2020-07-08.RDS")
+
+# Load new fish ticket pull. 
+new_raw <- readRDS('comp_dat_raw.RDS')
+
+# 1) Basic understanding of what changed
+# Compare the number of tickets by month, year, state, species
+old_raw_n <- old_raw %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(N = length(EXVESSEL_REVENUE))
+new_raw_n <- new_raw %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(N = length(EXVESSEL_REVENUE))
+compare_n <- comparefun(old_raw_n, new_raw_n, c('N'), 'wide')
+# Find tickets where N changed
+n_change <- filter(compare_n, abs(percDiff) > 0)
+# Find tickets in categories that didn't exist or no longer exist
+n_new <- filter(compare_n, combomiss == 'Missing combo')
+
+# 2) Identifying changes and summarizing rev/wt added or lost
+compare <- comparefun(old_raw, new_raw, c('EXVESSEL_REVENUE', 'ROUND_WEIGHT_MTONS'),'wide')
+compare_diff <- filter(compare, abs(EXVESSEL_REVENUE_percDiff) > 0)
+compare_diff_smry <- compare_diff %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(REV_change = sum(EXVESSEL_REVENUE_rawDiff),
+         WT_change = sum(ROUND_WEIGHT_MTONS_rawDiff))
+
+compare_new <- filter(compare, combomiss == 'Missing combo' & new_flag == 'new' & is.na(old_flag))

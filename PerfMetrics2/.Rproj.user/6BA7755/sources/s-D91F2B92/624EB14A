@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571957757281.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "391190710",
+    "id" : "624EB14A",
+    "lastKnownWriteTime" : 1572034234,
+    "last_content_update" : 1572034234155,
+    "path" : "~/fisheye-mini-purcprod/FRpurcprod.R",
+    "project_path" : "FRpurcprod.R",
+    "properties" : {
+        "cursorPosition" : "290,32",
+        "scrollLine" : "260"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

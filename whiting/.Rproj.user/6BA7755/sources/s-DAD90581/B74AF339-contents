@@ -1,0 +1,81 @@
+####################################
+#Contact us
+######################################
+output$Email <- renderUI({
+  withTags(
+    div(style = "margin: 15px 15px 30px; width: 60%",
+        h3("Contact us"),
+        p("We look forward to receiving feedback and questions.", br()),
+        p(h4("Please email us at", strong("nmfs.nwfsc.fisheye@noaa.gov")),
+          # tags$a(href="mailto:nwfsc.fisheye@noaa.gov?subject=FISHEyE", 'nwfsc.fisheye@noaa.gov'),
+          br()),
+        
+        p(
+          "Erin Steiner", br(),
+          "Economist", br(),
+          "206-860-3202", br(),
+          "Northwest Fisheries Science Center", br(),br(),
+          #                    "nwfsc.fisheye@noaa.gov",
+          
+          "Ashley Vizek", br(),
+          "Contractor-ECS Federal, Inc.", br(),
+          "In support of NMFS", br(),
+          "Northwest Fisheries Science Center", br(),
+          #                    "nwfsc.fisheye@noaa.gov", tags$br(),
+          br(),
+          hr(),
+          
+          # "You can send comments and questions directly to us by clicking",
+          #                 tags$a(href="mailto:nwfsc.fisheye@noaa.gov?subject=FISHEyE", 'contact us'), 'or by copying our email address',
+          #                 tags$em('nwfsc.fisheye@noaa.gov'), 'and using your favorite email program.',
+          br(),
+          br()
+        ))
+  ) #end withTags
+})
+####################################
+
+####################################
+#Blog page intro text
+####################################
+output$BlogText <- renderUI({
+  withTags(
+    div(style = "margin-top: 15px;margin-bottom:0; width: 80%; ",
+        h3("Bulletin Board"),
+        p("On this page we will provide information on updates to the application."),
+        hr()
+    )
+  ) #end withTags
+}) #        br(),
+####################################
+
+#       ,
+####################################
+#Blog
+####################################
+output$BlogUpdates <- renderUI({ 
+  withTags(
+    div(style = "margin-top:0; padding-top:0;background-color:#F8F8E9;",
+        h3("Updates"),
+        # Welcome to the whiting application
+        div( class='date', style='height:45px;width:30px; font-family:Arial; font-weight:bold;background-color:#ffffff;text-align:center; border-top:1px solid #c0c0c0;
+       border-left:1px solid #c0c0c0;border-right:1px solid #c0c0c0;position:absolute;z-index:3;line-height: 13px;',
+             # step 1: update date
+             HTML("<span class='month' style='text-transform:uppercase;font-size:11px;'>Dec</span><br />
+            <span class='day' style='font-size:16px;'>20</span><br />
+            <span class='year' style='font-size:11px;line-height: 10px;'>2019</span>")
+        ),
+        # step 2: update title
+        p(HTML("<span style='margin-left:60px;font-size:18px;font-weight:bold'>Welcome to the Whiting purchase and production app</span>")), 
+        # step 3: update message
+        p(br(),"Updates, improvements, and revisions to the application will be posted here."),
+        hr(),
+        br(),
+        
+        hr()#, 
+        
+    )
+  )
+})
+
+####################################

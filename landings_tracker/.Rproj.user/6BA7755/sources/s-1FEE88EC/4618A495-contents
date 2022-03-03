@@ -1,0 +1,2 @@
+atsea_ck <- filter(comp_dat_all, SPECIES_GROUP %in% c('MOTHERSHIP', 'CATCHER PROCESSOR'))
+atsea_ck2 <- filter(comp_dat_final_cumul, Species %in% c('MOTHERSHIP', 'CATCHER PROCESSOR'))

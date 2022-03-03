@@ -1,0 +1,1029 @@
+---
+title: "Numbers and figures for presentation"
+author: "Ashley Vizek"
+date: "April 16, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(cluster)
+library(factoextra)
+library(gridExtra)
+library(dendextend)
+library(fpc)
+library(reshape2)
+library(ape)
+library(knitr)
+library(NbClust)
+library(data.table)
+library(dunn.test)
+library(fmsb)
+library(DTK)
+library(forcats)
+
+
+source("C:/Program Files/R/connectioninfoROracle.r")
+preventingprintingtoconsole <- dbSendQuery(framdw, "alter session set current_schema=FRAM_ANALYSIS_CURRENT")
+
+currentyear <- 2017
+
+##Final set of variables: (1) VSSLNG, (2) REV, (3) PROPREVCS, (4) Number of fisheries, (5) Number of vessels in groundfish operation
+grnd_fish <- c('FTDTS','FTDTSN','FTDTSS','FTGRND','FTGRNDS','MTGRND','TTDTS','TTDTSN','TTDTSS','TTGRND','TTGRNDN','TTGRNDS')
+
+defl <- dbGetQuery(framdw, paste0("select year, defl", currentyear, "/100 as defl from edc_gdp_defl"))
+
+vsslng <- dbGetQuery(framdw, "select distinct vessel_id, year, vsslng, case when homept = 'San Francisco' then 'SAN FRANCISCO' else homept end as homept, iopcid, pm_cat, state
+                                          from edc_cv_descriptors_v 
+                                          where fshifq = 'Yes' and year <= 2017")
+
+revdas <- dbGetQuery(framdw, "select sum(rev) rev, sum(das) das, vessel_id, year
+                        from edc_cv_revlbsdas
+                        where year <= 2017
+                        group by vessel_id, year, survey_year")
+
+rev_bycs <- dbGetQuery(framdw, "select vessel_id, year, survey_year, sum(rev) rev, fisherycode
+                       from edc_cv_revlbsdas
+                       where year <= 2017
+                       group by vessel_id, fisherycode, survey_year, year")
+
+days_bycs <- dbGetQuery(framdw, "select vessel_id, year, survey_year, sum(das) das, fisherycode
+                        from edc_cv_revlbsdas
+                        where year <= 2017
+                        group by vessel_id, fisherycode, survey_year, year")
+
+netrev <- dbGetQuery(framdw, ("select nr.vessel_id, nr.year, sum(varcosts) varcosts, sum(fxcosts) fxcosts 
+                                    from edc_cv_nrcomponents_cy_v nr
+                              right join edc_cs_participants_year_v csvss
+                              on nr.vessel_id=csvss.vessel_id and nr.year=csvss.year
+                              where edcreportfishery <> 'Research'
+                              group by nr.year, nr.vessel_id")) 
+netrev <- subset(netrev, !is.na(YEAR) & FXCOSTS > 0 & YEAR > 2008)
+
+num_fsh <- dbGetQuery(framdw, paste("select fishery, sum(rev) rev, year, vessel_id 
+                                    from edc_fish_fishery_v where year between 2009 and ", currentyear, "
+                                    and fishery is not NULL 
+                                    group by vessel_id, year, fishery"))
+fish_groups <- dbGetQuery(framdw, "select distinct fisherycode, edcreportfishery
+                          from edc_fisheries") %>%
+  filter(!is.na(FISHERYCODE) & !is.na(EDCREPORTFISHERY))
+
+##Pull crew wage data by fishery, sum crewwage by groundfish fisheries, apply deflator
+crewwage <- dbGetQuery(framdw, paste("select sum(cost) crewwage, survey_year year, vessel_id, fisherycode
+                       from edc_cv_costs
+                       where survey_year between 2009 and ", currentyear, " and fullcode = 'EXCWWGWC'
+                       group by vessel_id, survey_year, fisherycode")) %>%
+  mutate(CS = case_when(FISHERYCODE %in% grnd_fish ~ 'IFQ',
+                        T ~ 'OTHR')) %>%
+  filter(CS == 'IFQ') %>%
+  group_by(YEAR, VESSEL_ID) %>%
+  summarize(CREWWAGE = sum(CREWWAGE)) %>%
+  merge(defl) %>%
+  mutate(CREWWAGE = CREWWAGE/DEFL) %>%
+  select(-DEFL)
+
+##Pull number of crew by fishery and das by fishery. Average crew and total number of DAS for all groundfish fisheries
+grnd_crew <- dbGetQuery(framdw, paste("select avg(crew) crew, sum(das) das, vessel_id, survey_year year, fisherycode
+                        from edc_cv_revlbsdas
+                        where year between 2009 and ", currentyear, "
+                        group by survey_year, vessel_id, fisherycode")) %>%
+  mutate(CS = case_when(FISHERYCODE %in% grnd_fish ~ 'IFQ',
+                        T ~ 'OTHR')) %>%
+  filter(CS == 'IFQ') %>%
+  group_by(YEAR, VESSEL_ID) %>%
+  summarize(CREW = mean(CREW),
+            DAS = sum(DAS)) %>%
+  mutate(CREWDAS = case_when(CREW != 0 & DAS != 0 ~ CREW*DAS,
+                             T ~ 0))
+
+##Calculate TCNR and VCNR 
+rev_combined <- merge(revdas, netrev, all = T) %>%
+  mutate(TCNR = REV - FXCOSTS - VARCOSTS,
+         VCNR = REV - VARCOSTS) %>%
+  melt(id.vars = c('YEAR','VESSEL_ID')) %>%
+  merge(defl) %>%
+  mutate(value = case_when(variable %in% c('REV','VARCOSTS','FXCOSTS','TCNR','VCNR') ~ value/DEFL,
+                           T ~ value)) %>%
+  select(-DEFL) %>%
+  dcast(VESSEL_ID + YEAR ~ variable, value.var = 'value', fun.aggregate = mean)
+
+##Calculate proportion of revenue from catch shares
+revbycs_sumcs <- rev_bycs %>%
+  mutate(CS = case_when(FISHERYCODE %in% grnd_fish ~ 'IFQ',
+                        T ~ 'OTHR')) %>%
+  group_by(VESSEL_ID, YEAR, CS) %>%
+  summarize(REV = sum(REV)) %>%
+  merge(defl) %>%
+  mutate(REV = REV/DEFL) %>%
+  select(-DEFL) %>%
+  dcast(VESSEL_ID + YEAR ~ CS, value.var = "REV") %>%
+  mutate(IFQ = ifelse(is.na(IFQ), 0, IFQ),
+         OTHR = ifelse(is.na(OTHR), 0, OTHR),
+         TOTREV = OTHR + IFQ,
+         PROPCS = IFQ/TOTREV) %>%
+  select(VESSEL_ID, YEAR, PROPCS, IFQ)
+
+days_cs <- days_bycs %>%
+  mutate(CS = case_when(FISHERYCODE %in% grnd_fish ~ 'IFQ',
+                        T ~ 'OTHR')) %>%
+  filter(CS == 'IFQ') %>%
+  group_by(VESSEL_ID, YEAR) %>%
+  summarize(DASCS = sum(DAS))
+
+##calculate number of fisheries by year 
+num_fsh_sum <- num_fsh %>%
+  filter(REV > 5000) %>%
+  group_by(VESSEL_ID, YEAR) %>%
+  summarize(N_FISH = length(FISHERY))
+
+##Combine non-owner data
+combine_all <- merge(rev_combined, vsslng, all = T) %>%
+  merge(revbycs_sumcs, all = T) %>%
+  merge(num_fsh_sum, all = T) %>%
+  merge(days_cs, all = T) %>%
+  filter(PM_CAT != 'Whiting' & YEAR >= 2009 & YEAR < 2018) %>%
+  select(-PM_CAT)
+
+var_agg <- function(x) {
+  summarize(x,
+            VSSLNG = mean(VSSLNG, na.rm = T),
+            REV = mean(REV, na.rm = T),
+            TCNR = mean(TCNR, na.rm = T),
+            VCNR = mean(VCNR, na.rm = T),
+            DAS = mean(DAS, na.rm = T),
+            DASCS = mean(DASCS, na.rm = T),
+            PROPCS = mean(PROPCS, na.rm = T),
+            FISHERIES = mean(N_FISH, na.rm = T))
+}
+
+##Load ownership counts
+##When this information is in cv_descriptors we can pull directly from sql
+load("~/datarequests/Ownership/vss_ownership_count 2019-04-05 .RData")
+
+num_vss_1117_avg <- num_vss_final %>%
+  group_by(VESSEL_ID) %>%
+  mutate(N_avg = mean(N)) %>%
+  select(-N, -YEAR) %>%
+  distinct()
+##FINAL DATASET
+combine_post <- combine_all %>%
+  filter(YEAR >= 2011 & YEAR <= currentyear) %>%
+  group_by(VESSEL_ID) %>%
+  var_agg() %>%
+  merge(num_vss_1117_avg, all.x = T)
+
+dataset1 <- combine_post %>%
+  select(VSSLNG, REV, PROPCS, FISHERIES, N_avg, VESSEL_ID)
+dataset1 <- na.omit(dataset1)
+
+combine_post_clus <- dataset1
+
+##CONVERT DATA TO LOG TRANSFORMATION####
+combine_post_clus_log <- combine_post_clus %>%
+  melt(id.vars = 'VESSEL_ID') %>%
+  mutate(value = log(value)) %>%
+  dcast(VESSEL_ID ~ variable, value.var = 'value')
+
+combine_post_clus_log <- na.omit(combine_post_clus_log)
+##This sets the vessel_id to rowname (id) that is used in the cluster analysis
+.rowNamesDF(combine_post_clus_log) <- combine_post_clus_log$VESSEL_ID 
+combine_post_clus_log <- select(combine_post_clus_log, -VESSEL_ID)
+combine_post_sc <- scale(combine_post_clus_log)
+cor(combine_post_sc)
+
+combine_post_euc <- dist(combine_post_clus_log, method = 'euclidean')
+```
+
+```{r Hierarchical agglomerative cluster analysis plot, echo = F}
+clus <- 5
+hc_ward_dist <- hclust(combine_post_euc, method = "ward.D2")
+plot(hc_ward_dist, cex = 0.6, labels = F, main = "", xlab = "", sub = "")
+rect.hclust(hc_ward_dist, k = clus, border = 2:5)
+
+```
+
+```{r N of clusters, echo = F}
+# Cut tree into groups
+sub_grp <- cutree(hc_ward_dist, k = clus)
+
+# Number of members in each cluster
+cluster_size <- as.data.frame(table(sub_grp)) %>%
+  mutate(cluster = sub_grp,
+         n = Freq) %>%
+  select(-sub_grp, -Freq) %>%
+  dcast( .~ cluster, value.var = 'n') %>%
+  select(-.)
+kable(cluster_size)
+##Add cluster group to original data (non- log transformed for interpretability)
+df <- setDT(combine_post_clus) %>%
+  mutate(cluster = sub_grp)
+```
+
+``` {r Summarize cluster solution, echo = FALSE}
+cluster_smry <- df %>%
+  group_by(cluster) %>%
+  summarize(VSSLNG = round(mean(VSSLNG),2), 
+            #TCNR = mean(TCNR),
+            #VCNR = mean(VCNR),
+            REV = round(mean(REV),2),
+            FISHERIES = round(mean(FISHERIES),2),
+            #OWNER = mean(OWNER_CAT3),
+            #DAS = mean(DAS),
+            PROPCS = round(mean(PROPCS),2),
+            OWNER = round(mean(N_avg),2)) %>%
+  mutate(STAT = 'Mean') %>%
+  rbind(df %>%
+          group_by(cluster) %>%
+          summarize(VSSLNG = round(median(VSSLNG),2), 
+                    #TCNR = median(TCNR),
+                    #VCNR = median(VCNR),
+                    REV = round(median(REV),2),
+                    FISHERIES = round(median(FISHERIES),2),
+                    #OWNER = mean(OWNER_CAT3),
+                    #DAS = median(DAS),
+                    PROPCS = round(median(PROPCS),2),
+                    OWNER = round(median(N_avg),2)) %>%
+          mutate(STAT = 'Median'))
+
+cluster_smry_mean <- filter(cluster_smry, STAT == 'Mean') %>%
+  melt(id.vars = c('cluster','STAT')) %>%
+  dcast(variable ~ cluster, value.var = 'value')
+kable(cluster_smry_mean)
+
+cluster_smry_median <- filter(cluster_smry, STAT == 'Median') %>%
+  melt(id.vars = c('cluster','STAT')) %>%
+  dcast(variable ~ cluster, value.var = 'value')
+kable(cluster_smry_median)
+```
+
+```{r cluster summary dotplot}
+##Adjust colors, change the layout, I want horiziontal axis to show up
+clus_sum_plot_dat <- filter(cluster_smry, STAT == 'Mean') %>%
+  mutate(VSSLNG = round(scale(VSSLNG),2),
+         REV = round(scale(REV),2),
+         FISHERIES = round(scale(FISHERIES),2),
+         PROPCS = round(scale(PROPCS),2),
+         OWNER = round(scale(OWNER),2),
+         cluster = as.factor(cluster)) %>%
+  select(-STAT) %>%
+  melt(id.vars = 'cluster') %>%
+  merge(filter(cluster_smry, STAT == 'Mean') %>%
+                select(-STAT) %>%
+                melt(id.vars = 'cluster') %>%
+                mutate(orig_val = case_when(variable == 'PROPCS' ~ round(value,2),
+                                            T ~ round(value,0))) %>%
+                select(-value)) %>%
+  mutate(variable = case_when(variable == 'VSSLNG' ~ 'Vessel length',
+                              variable == 'REV' ~ 'Revenue',
+                              variable == 'FISHERIES' ~ 'Number of fisheries',
+                              variable == 'PROPCS' ~ 'Proportion revenue from groundfish',
+                              variable == 'OWNER' ~ 'Number of vessels owned'),
+         value = case_when(cluster == 5 & variable == 'Number of vessels owned' ~ -0.74,
+                           cluster == 4 & variable == 'Vessel length' ~ 0.37,
+                           T ~ value)) %>%
+  as.data.frame()
+
+greyless_mountains_pal <- c('firebrick3','coral','darkolivegreen','deepskyblue4','darkslateblue')
+clus_sum_plot <- ggplot(clus_sum_plot_dat, aes(x = variable, y = value, fill = cluster)) +
+  geom_dotplot(dotsize = 30, alpha = 1/2, binaxis = 'y', stackdir = 'center', binpositions = 'all', binwidth = 1/100) + 
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),axis.ticks=element_blank(),axis.title.y=element_blank(), axis.title.x = element_blank(), axis.text = element_text(size = 12))+
+  scale_fill_manual(values = greyless_mountains_pal)+
+  geom_text(aes(label = orig_val), nudge_x = 0.30, check_overlap = T, size = 3) +
+  guides(color = guide_legend(override.aes = list(size=3)))+
+  coord_flip()
+clus_sum_plot
+```
+
+```{r Summarize clusters with external variables: Fishery participation, echo = F}
+##Summarize clusters by fishery participation#####
+##Fishery participation based on vessel average proportions
+clus_vid <- df %>%
+  select(cluster, VESSEL_ID) %>%
+  mutate(cluster = as.factor(cluster))
+
+rev_bycs_avg <- merge(rev_bycs, fish_groups) %>%
+  mutate(EDCREPORTFISHERY = case_when(EDCREPORTFISHERY == 'Non-whiting, non-DTS trawl with trawl endorsement' ~ 'Non-whiting, bottom trawl',
+                                      EDCREPORTFISHERY == 'DTS trawl with trawl endorsement' ~ 'Non-whiting, bottom trawl',
+                                      T ~ EDCREPORTFISHERY)) %>%
+  group_by(VESSEL_ID, YEAR, EDCREPORTFISHERY) %>%
+  summarize(REV = sum(REV)) %>%
+  merge(revdas %>%
+          mutate(REV_tot = REV) %>%
+          select(-REV)) %>%
+  filter(YEAR > 2010 & YEAR <= currentyear) %>%
+  mutate(prop_tot = REV/REV_tot) %>%
+  dcast(VESSEL_ID + YEAR ~ EDCREPORTFISHERY, value.var = 'prop_tot', fun.aggregate = mean) %>%
+  melt(id.vars = c('VESSEL_ID','YEAR')) %>%
+  mutate(prop_tot = case_when(is.na(value) ~ 0,
+                              T ~ value),
+         EDCREPORTFISHERY = variable) %>%
+  select(-value, -variable) %>%
+  group_by(VESSEL_ID, EDCREPORTFISHERY) %>%
+  summarize(prop_tot = mean(prop_tot)) %>%
+  merge(clus_vid, all.y = T)
+
+df_fishery <- rev_bycs_avg %>%
+  dcast(VESSEL_ID + cluster ~ EDCREPORTFISHERY, value.var = 'prop_tot') %>%
+  melt(id.vars = c('VESSEL_ID','cluster')) %>%
+  mutate(prop_tot = case_when(is.na(value) ~ 0,
+                              T ~ value)) %>%
+  group_by(cluster, variable) %>%
+  summarize(prop_tot = round(mean(prop_tot),2)) %>%
+  mutate(STAT = 'Mean') %>%
+  rbind(rev_bycs_avg %>%
+          dcast(VESSEL_ID + cluster ~ EDCREPORTFISHERY, value.var = 'prop_tot') %>%
+          melt(id.vars = c('VESSEL_ID','cluster')) %>%
+          mutate(prop_tot = case_when(is.na(value) ~ 0,
+                              T ~ value)) %>%
+          group_by(cluster, variable) %>%
+          summarize(prop_tot = round(median(prop_tot),2)) %>%
+          mutate(STAT = 'Median'))
+
+df_fishery_mean <- filter(df_fishery, STAT == 'Mean') %>%
+  dcast(variable ~ cluster, value.var = 'prop_tot')
+kable(df_fishery_mean)
+
+df_fishery_median <- filter(df_fishery, STAT == 'Median') %>%
+  dcast(variable ~ cluster, value.var = 'prop_tot')
+kable(df_fishery_median)
+```
+
+```{r proportion of total groundfish revenue and landings}
+grnd_by_clus <- merge(rev_bycs, fish_groups) %>%
+  mutate(EDCREPORTFISHERY = case_when(EDCREPORTFISHERY == 'Non-whiting, non-DTS trawl with trawl endorsement' ~ 'Non-whiting, bottom trawl',
+                                      EDCREPORTFISHERY == 'DTS trawl with trawl endorsement' ~ 'Non-whiting, bottom trawl',
+                                      T ~ EDCREPORTFISHERY)) %>%
+  group_by(VESSEL_ID, YEAR, EDCREPORTFISHERY) %>%
+  summarize(REV = sum(REV)) %>%
+  filter(!is.na(REV) & YEAR > 2010) %>%
+  ungroup() %>%
+  merge(clus_vid, all.y = T) %>%
+  group_by(YEAR, EDCREPORTFISHERY) %>%
+  mutate(REV_tot = sum(REV)) %>%
+  ungroup() %>%
+  group_by(YEAR, EDCREPORTFISHERY, cluster) %>%
+  mutate(REV_cluster = sum(REV),
+            prop_cluster = REV_cluster/REV_tot) %>%
+  ungroup() %>%
+  group_by(cluster, EDCREPORTFISHERY) %>%
+  mutate(prop_clus_avg = mean(prop_cluster)) %>%
+  distinct(cluster, YEAR, EDCREPORTFISHERY, REV_cluster, prop_cluster, prop_clus_avg)
+
+grnd_by_clus_avg <- grnd_by_clus %>%
+  distinct(EDCREPORTFISHERY, cluster, prop_clus_avg)
+```
+
+```{r fishery by cluster}
+clus_fish_dat <- grnd_by_clus_avg %>%
+  group_by(EDCREPORTFISHERY) %>%
+  mutate(total = sum(prop_clus_avg)) %>%
+  ungroup() %>%
+  mutate(std_prop_tot_fish = prop_clus_avg/total,
+         Fishery = as.factor(EDCREPORTFISHERY)) %>%
+  select(-EDCREPORTFISHERY)
+
+stk_fish_clus <- ggplot(filter(clus_fish_dat, !Fishery %in% c('Shoreside Pacific whiting', 'Research')), aes(x = fct_rev(Fishery), y = std_prop_tot_fish, fill = cluster)) +
+  theme_bw() +
+  geom_bar(stat = 'identity', position = 'stack') +
+  scale_fill_manual(values = greyless_mountains_pal) +
+  ylab('Average proportion of total revenue (standardized)') +
+  xlab("") +
+  coord_flip()
+
+stk_fish_clus
+```
+
+
+```{r plot of fishery participation, echo = F}
+blue_3_pal <- c("dodgerblue4","white","grey28")
+mycolors <- colorRampPalette(blue_3_pal)
+blue_9 <- mycolors(9)
+
+fishery_dat <- filter(df_fishery, STAT=='Mean' & prop_tot > 0) %>%
+  group_by(cluster) %>%
+  mutate(total = sum(prop_tot)) %>%
+  ungroup() %>%
+  mutate(std_prop_tot = prop_tot/total,
+         Fishery = variable) %>%
+  select(-variable) %>%
+  merge(select(clus_fish_dat, -total, -prop_clus_avg)) %>%
+  mutate(std_prop_tot_fish = round(std_prop_tot_fish,2))
+
+stk_fishery <- ggplot(fishery_dat, aes(x = cluster, y = std_prop_tot, fill = Fishery, label = std_prop_tot_fish)) +
+  theme_bw() +
+  geom_bar(stat = 'identity', position = 'stack') +
+  scale_fill_manual(values = blue_9) +
+  #scale_fill_brewer(palette = "RdGy") +
+  ylab('Average proportion of total revenue (standardized)') 
+  #geom_text(size = 3, position = position_stack(vjust = 0.5))
+
+stk_fishery
+```
+
+```{r number of vessels by cluster over time}
+revdas_clus <- merge(revdas, clus_vid, all.y = T) %>%
+  filter(YEAR > 2008) %>%
+  group_by(YEAR, cluster) %>%
+  summarize(n = length(unique(VESSEL_ID)))
+
+n_plot <- ggplot(revdas_clus, aes(x = YEAR, y = n, color = cluster)) +
+  geom_line(size = 1.5) +
+  geom_point(size = 1.5) +
+  scale_color_manual(values = greyless_mountains_pal)+
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 8)) +
+  theme(legend.position = 'bottom') +
+  scale_x_continuous(breaks = c(2009,2010,2011,2012,2013,2014,2015,2016,2017)) +
+  ylab("Number of vessels") 
+n_plot
+```
+
+```{r Summarize clusters with external variables: Port and State, echo = F}
+##Summarize by port#####
+port <- select(vsslng, VESSEL_ID, YEAR, IOPCID) %>%
+  filter(!is.na(IOPCID) & YEAR > 2010) %>%
+  dcast(VESSEL_ID ~ IOPCID) %>%
+  melt() %>%
+  group_by(VESSEL_ID) %>%
+  filter(value == max(value))
+
+df_port <- merge(df, port, all.x = T) %>%
+  select(VESSEL_ID, cluster, variable) %>%
+  dcast(cluster ~ variable) %>%
+  mutate(cluster = as.factor(cluster)) %>%
+  melt(id.vars = 'cluster') %>%
+  group_by(cluster) %>%
+  mutate(N = sum(value)) %>%
+  group_by(cluster, variable) %>%
+  mutate(prop_port = value/N) %>%
+  filter(prop_port > 0)
+df_port <- df_port[order(df_port$cluster),]
+
+df_port_n <- merge(df, port, all.x = T) %>%
+  select(VESSEL_ID, cluster, variable) %>%
+  group_by(variable) %>%
+  tally()
+
+port_by_clus <-merge(df_port, df_port_n) %>%
+  filter(n >= 3) %>%
+  mutate(port_prop = value/n) %>%
+  select(variable, cluster, port_prop) 
+
+# ak <- ggplot(filter(port_by_clus, variable == 'Alaska'), aes(fill = cluster, y = port_prop, x = '')) +
+#   geom_bar(width = 1, stat = 'identity') +
+#   coord_polar('y', start = 0)
+# ak
+# 
+# astoria <- ggplot(filter(port_by_clus, variable == 'Astoria'), aes(fill = cluster, y = port_prop, x = '')) +
+#   geom_bar(width = 1, stat = 'identity') +
+#   coord_polar('y', start = 0)
+# astoria
+
+##Summarize by state##
+state <- select(vsslng, VESSEL_ID, YEAR, STATE) %>%
+  filter(!is.na(STATE)) %>%
+  dcast(VESSEL_ID ~ STATE) %>%
+  melt() %>%
+  group_by(VESSEL_ID) %>%
+  filter(value == max(value))
+df_state <- merge(df, state, all.x = T) %>%
+  select(VESSEL_ID, cluster, variable) %>%
+  dcast(cluster ~ variable) %>%
+  mutate(cluster = as.factor(cluster)) %>%
+  melt(id.vars = 'cluster') %>%
+  group_by(cluster) %>%
+  mutate(N = sum(value)) %>%
+  group_by(cluster, variable) %>%
+  mutate(prop_state = value/N) %>%
+  filter(prop_state > 0) 
+df_state_prop <- df_state %>%
+  dcast(variable ~ cluster, value.var = 'prop_state')
+df_state_prop[is.na(df_state_prop)] <- 0
+kable(df_state_prop)
+```
+
+```{r port summary by cluster dotplot}
+##Adjust colors, change the layout, I want horiziontal axis to show up
+port_clus_plot <- ggplot(port_by_clus, aes(x = variable, y = port_prop, fill = cluster)) +
+  geom_bar(stat = 'identity', position = 'stack') + 
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),axis.ticks=element_blank(),axis.title.y=element_blank(), axis.title.x = element_blank())+
+  scale_fill_manual(values = greyless_mountains_pal)+
+  coord_flip()
+port_clus_plot
+```
+
+```{r map of west coast communities}
+lat_long <- read.csv('lat_long.csv')
+homeport <- port_by_clus %>%
+  distinct(variable) %>%
+  filter(variable != 'Alaska') %>%
+  mutate(CITY = as.character(toupper(variable)),
+         CITY = case_when(CITY == 'PUGET SOUND' ~ 'SEATTLE',
+                          T ~ CITY)) %>%
+  select(-variable) %>%
+  merge(lat_long, all.x = T) %>%
+  mutate(CITY = case_when(CITY == 'SEATTLE' ~ 'PUGET SOUND',
+                          T ~ CITY)) %>%
+  filter(COUNTY != 'PEND OREILLE COUNTY')
+
+wc_outline <- map_data("state", region = c('Washington','California','Oregon'))
+wc_map <- ggplot(wc_outline) + 
+  geom_polygon(aes(x = long, y = lat, group = group),
+               fill = "white", color = 'black', size = 0.4) +
+  geom_point(data = homeport, aes(x = LONGITUDE, y = LATITUDE), size = 7) +
+  geom_text(data = homeport, aes(x = LONGITUDE, y = LATITUDE, label = CITY), nudge_x = 1.15, size = 5) +
+  theme_void()
+ggsave(wc_map, file = "wc_map.jpeg", height = 11, width = 9)
+
+us <- map_data('state')
+canada <- map_data('world','Canada')
+wc <- map_data('state',c('Washington','Oregon','California'))
+
+us_ca_map <- ggplot() +
+  geom_polygon(data = us,
+               aes(x = long, y = lat, group = group),
+               fill = 'white', color = 'black', size = 0.4) +
+  geom_polygon(data= canada,
+               aes(x = long, y = lat, group = group),
+               fill = 'white', color = 'black', size = 0.4) +
+  geom_polygon(data = wc,
+               aes(x = long, y = lat, group = group),
+               fill = 'lightblue', color = 'black', size = 0.4) +
+  theme_void()
+us_ca_map
+ggsave(us_ca_map, file = "us_canada_map.jpeg", height = 11, width = 11.5)
+
+```
+
+
+```{r Comparing differences: Crew performance data, include = F}
+##Comparing crew wage per person ####
+crewwage_rates <- merge(crewwage, grnd_crew) %>%
+  merge(select(revbycs_sumcs, -PROPCS)) %>%
+  mutate(CREWWAGE = case_when(CREW == 0 ~ 0,
+                              T ~ CREWWAGE/CREW),
+         CREWWAGE_DAS = case_when(CREWDAS == 0 ~ 0,
+                                  T ~ CREWWAGE/CREWDAS),
+         CREWWAGE_REV = case_when(IFQ == 0 ~ 0,
+                                  T ~ CREWWAGE/IFQ),
+         REV_CREWDAS = case_when(CREWDAS == 0 ~ 0,
+                                 T ~ IFQ/CREWDAS))
+
+crewwage_tst <- merge(crewwage_rates, clus_vid) %>%
+  filter(YEAR >= 2011 & YEAR <= currentyear & CREWWAGE > 0 & CREWWAGE_DAS > 0 & CREWWAGE_REV > 0 & REV_CREWDAS > 0) %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(CREWWAGE = mean(CREWWAGE),
+            CREWWAGE_DAS = mean(CREWWAGE_DAS),
+            CREWWAGE_REV = mean(CREWWAGE_REV),
+            CREW = mean(CREW),
+            CREWDAS = mean(CREWDAS),
+            REV = mean(IFQ),
+            REV_CREWDAS = mean(REV_CREWDAS))
+
+crewwage_mean_tbl <- crewwage_tst %>%
+  group_by(cluster) %>%
+  summarize(CREWWAGE = round(mean(CREWWAGE),2),
+            CREWWAGE_DAS = round(mean(CREWWAGE_DAS),2),
+            CREWWAGE_REV = round(mean(CREWWAGE_REV),2),
+            CREW = round(mean(CREW),2),
+            CREWDAS = round(mean(CREWDAS),2),
+            REV_CREWDAS = round(mean(REV_CREWDAS),2))
+kable(crewwage_mean_tbl)
+crewwage_median_tbl <- crewwage_tst %>%
+  group_by(cluster) %>%
+  summarize(CREWWAGE = median(CREWWAGE),
+            CREWWAGE_DAS = median(CREWWAGE_DAS),
+            CREWWAGE_REV = median(CREWWAGE_REV),
+            CREW = median(CREW),
+            CREWDAS = median(CREWDAS),
+            REV_CREWDAS = median(REV_CREWDAS))
+
+```
+
+```{r crewwage boxplots}
+crewwage_das <- crewwage_tst %>%
+  ungroup() %>%
+  mutate(cluster = as.character(cluster)) %>%
+  filter(cluster != '1') %>%
+  mutate(cluster = as.factor(cluster))
+
+crewwage_das$cluster <- ordered(crewwage_das$cluster, levels = c('5','4','3','2'))
+crewwage_das_nootlr <- crewwage_das %>%
+  filter(CREWWAGE_DAS <= 750)
+crewwage_das_plot <- ggplot(crewwage_das_nootlr, aes(x = cluster, y = CREWWAGE_DAS)) +
+  geom_boxplot(fill = 'deepskyblue4') +
+  theme_bw() + 
+  theme(axis.text = element_text(size = 14), axis.title = element_text(size = 14)) +
+  ylab('Groundfish crew wage per day') +
+  coord_flip()
+crewwage_das_plot
+
+crewwage_mean_tbl$cluster <- ordered(crewwage_mean_tbl$cluster, levels = c("5","4","3","2","1"))
+greyless_mountains_pal2 <- c('darkslateblue','deepskyblue4','darkolivegreen','coral')
+crewwage_das_dot <- ggplot(filter(crewwage_mean_tbl, cluster !=1), aes(x = cluster, y = CREWWAGE_DAS, fill = cluster)) +
+  geom_col() +
+  theme_minimal() +
+  theme(panel.grid.minor= element_blank(), panel.grid.major = element_blank(), axis.ticks = element_blank(), axis.title = element_blank(), axis.text = element_text(size = 12)) +
+  scale_fill_manual(values = greyless_mountains_pal2) +
+  geom_text(aes(label = CREWWAGE_DAS), nudge_x = 0.30, check_overlap = T, size = 4) +
+  coord_flip()
+
+crewwage_das_violin <- ggplot(crewwage_das, aes(x = cluster, y = CREWWAGE_DAS, fill = cluster)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1) +
+  stat_summary(fun.y=mean, geom = "point", color = "black", size = 4) +
+  theme_minimal() +
+  theme(panel.grid.minor= element_blank(), panel.grid.major = element_blank(), axis.ticks = element_blank(), axis.title = element_blank(), axis.text.y = element_blank(), axis.text = element_text(size = 12)) +
+  scale_fill_manual(values = greyless_mountains_pal2) +
+  coord_flip()
+
+crewwage_das_violin
+
+crewwage_das_tst <- aov(CREWWAGE_DAS ~ cluster, data = crewwage_das)
+summary(crewwage_das_tst)
+tk_tst_cwdas <- TK.test(crewwage_das$CREWWAGE_DAS, crewwage_das$cluster)
+tk_tst_cwdas <- data.table(tk_tst_cwdas$f, keep.rownames = T)
+tk_tst_cwdas_tbl <- select(tk_tst_cwdas, rn, diff, `p adj`) %>%
+  filter(`p adj` < 0.20) %>%
+  mutate(clusters = rn) %>%
+  select(-rn) %>%
+  melt(id.vars = 'clusters') %>%
+  dcast(variable ~ clusters, value.var = 'value')
+kable(tk_tst_cwdas_tbl)
+
+rev_crewdas <- crewwage_tst %>%
+  ungroup() %>%
+  mutate(cluster = as.character(cluster)) %>%
+  filter(cluster != "1") %>%
+  mutate(cluster = as.factor(cluster))
+rev_crewdas$cluster <- ordered(rev_crewdas$cluster, levels = c('5','4','3','2'))
+rev_crewdas_nootlr <- rev_crewdas %>%
+  filter(REV_CREWDAS <= 8000)
+rev_crewdas_plot <- ggplot(rev_crewdas_nootlr, aes(x = cluster, y = REV_CREWDAS)) +
+  geom_boxplot(fill = 'darkolivegreen') +
+  theme_bw() +
+  theme(axis.text = element_text(size = 14), axis.title = element_text(size = 14)) +
+  ylab('Groundfish revenue per crew-day') +
+  coord_flip()
+rev_crewdas_plot
+
+rev_crewdas_tst <- aov(REV_CREWDAS ~ cluster, data = rev_crewdas)
+summary(rev_crewdas_tst)
+tk_tst_rev <- TK.test(rev_crewdas$REV_CREWDAS, rev_crewdas$cluster)
+tk_tst_rev <- data.table(tk_tst_rev$f, keep.rownames = T)
+tk_tst_rev_tbl <- select(tk_tst_rev, rn, diff, `p adj`) %>%
+  filter(`p adj` < 0.20) %>%
+  mutate(clusters = rn) %>%
+  select(-rn) %>%
+  melt(id.vars = 'clusters') %>%
+  dcast(variable ~ clusters, value.var = 'value')
+kable(tk_tst_rev_tbl)
+```
+
+```{r captain/crew demographics and job quality}
+#SS DATA
+load("~/linking-edc-pcgfss/ss_data.RData")
+load("~/linking-edc-pcgfss/ss_decr.RData")
+
+#B10b_Rate_Role_Compensation, B10d_Rate_Role_Job_Stability
+#Age: A2_Age
+#Historical participation: B2_Historical_Participation
+#Fishing groundfish: B6_Pacific_Fishing
+#Full time employment: FTG, FTO
+#Multiple jobs: B8a_Multiple_Jobs
+
+ss_vars <- toupper(c('B10b_Rate_Role_Compensation','B10d_Rate_Role_Job_Stability','B10e_Rate_Role_Std_Living',
+                     'B10a1_Rate_Role_Job_Satisfaction','B10f_Rate_Role_Rel_Coworker','A2_Age','B2_Historical_Participation',
+             'B6_Pacific_Fishing','FTG','FTO','B8a_Multiple_Jobs','D4_Affected', 'D9_Changed_lifestyle', 'F21_continue_fishing','D7_Your_plans1','D7_Your_plans2','D7_Your_plans3','D7_Your_plans4', 'D1_Support_Before', 'D2_Support_Now',
+             'D5_Activities_PCGTF', 'D5_Activities_PCGTF2', 'SameTown','DifferentState', 'F13_relationship_1', 'F13_relationship_2', 'F13_relationship_3','F13_relationship_4', 'F3_Species_Change'))
+
+ss_data_clus <- ss_data_vid %>%
+  filter(VARIABLE %in% ss_vars) %>%
+  merge(clus_vid, all.y = T) %>%
+  filter(!is.na(VESSEL_ID))
+ss_data_clus[ss_data_clus == -1] <- NA
+ss_data_clus[ss_data_clus == -2] <- NA
+ss_data_clus[ss_data_clus == -3] <- NA
+ss_data_clus <- merge(ss_data_clus, ss_descr) %>%
+  mutate(VALUE = case_when(VARIABLE == 'B8A_MULTIPLE_JOBS' & VALUE == '4' ~ '0',
+                           VARIABLE == 'B8A_MULTIPLE_JOBS' & VALUE != '4' ~ '1',
+                           T ~ VALUE))
+
+ss_data_clus_capcrew <- filter(ss_data_clus, CAP_CREW == 1)
+ss_data_clus_owner <- filter(ss_data_clus, OWNER == 1 | OWNER_OPERATOR == 1)
+ss_data_clus_owner_only <- filter(ss_data_clus, OWNER == 1)
+ss_data_clus_ownop <- filter(ss_data_clus, OWNER_OPERATOR == 1)
+
+data <- filter(ss_data_clus_capcrew, YEAR > 2010) %>%
+  ##Remove multiple vessels for one person
+  mutate(rm = case_when(YEAR == 2016 & CODE == 2072 & VESSEL_ID != '580792' ~ 1,
+                        YEAR == 2012 & CODE == 2433 & VESSEL_ID != '538580' ~ 1,
+                        YEAR == 2012 & CODE == 2733 & VESSEL_ID != '244706' ~ 1,
+                        YEAR == 2012 & CODE == 3212 & VESSEL_ID != '503182' ~ 1,
+                        YEAR == 2016 & CODE == 2717 & VESSEL_ID != '604639' ~ 1,
+                        YEAR == 2016 & CODE == 3123 & VESSEL_ID != '936611' ~ 1,
+                        YEAR == 2016 & CODE == 3554 & VESSEL_ID != '1198334' ~ 1,
+                        YEAR == 2016 & CODE == 4171 & VESSEL_ID != '604639' ~ 1,
+                        YEAR == 2016 & CODE == 5089 & VESSEL_ID != '645410' ~ 1, 
+                        T ~ 0)) %>%
+  filter(rm == 0)
+# data <- ss_data_clus
+# data <- ss_data_clus_owner
+
+##Comparing age#####
+age <- select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'A2_AGE') %>%
+  mutate(AGE = as.numeric(VALUE)) %>%
+  select(-VARIABLE, -VALUE) %>%
+  filter(!is.na(AGE))%>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+age_n <- age %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+age_avg <- age %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(AGE = mean(AGE)) %>%
+  merge(age_n) %>%
+  filter(n >=5) %>%
+  select(-n)
+
+age_plot <- ggplot(age_avg, aes(x = cluster, y = AGE)) +
+  geom_boxplot() +
+  theme_bw()
+age_plot
+
+age_mean_tbl <- age_avg %>%
+  group_by(cluster) %>%
+  summarize(mean = mean(AGE, na.rm = T),
+            med = median(AGE, na.rm = T))
+kable(age_mean_tbl)
+age_test <- aov(AGE ~ cluster, data= age_avg)
+summary(age_test)
+TK_age <- TK.test(age_avg$AGE, age_avg$cluster)
+TK_age <- data.table(TK_age$f, keep.rownames = T)
+TK_age_tbl <- select(TK_age, rn, diff, `p adj`) %>%
+  filter(`p adj` < 0.20) %>%
+  mutate(clusters = rn) %>%
+  select(-rn) %>%
+  melt(id.vars = 'clusters') %>%
+  dcast(variable ~ clusters, value.var = 'value')
+kable(TK_age_tbl)
+
+##Compare years fishing groundfish####
+gf_yrs <- select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'B6_PACIFIC_FISHING') %>%
+  mutate(GFYRS = as.numeric(VALUE)) %>%
+  select(-VARIABLE, -VALUE) %>%
+  filter(!is.na(GFYRS)) %>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+gf_yrs_n <- gf_yrs %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+gf_yrs_avg <- gf_yrs %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(GFYRS = mean(GFYRS)) %>%
+  merge(gf_yrs_n) %>%
+  filter(n >= 5) %>%
+  select(-n)
+
+gf_yrs_mean_tbl <- gf_yrs_avg %>%
+  group_by(cluster) %>%
+  summarize(mean = mean(GFYRS, na.rm = T),
+            med = median(GFYRS, na.rm=T))
+kable(gf_yrs_mean_tbl)
+gf_yrs_plot <-  ggplot(gf_yrs_avg, aes(x = cluster, y = GFYRS)) +
+  geom_boxplot() + 
+  theme_bw()
+gf_yrs_plot
+
+gf_yrs_test <- aov(GFYRS ~ cluster, data= gf_yrs_avg)
+summary(gf_yrs_test)
+TK_yrs <- TK.test(gf_yrs_avg$GFYRS, gf_yrs_avg$cluster)
+TK_yrs <- data.table(TK_yrs$f, keep.rownames = T)
+TK_yrs_tbl <- select(TK_yrs, rn, diff, `p adj`) %>%
+  filter(`p adj` < 0.20) %>%
+  mutate(clusters = rn) %>%
+  select(-rn) %>%
+  melt(id.vars = 'clusters') %>%
+  dcast(variable ~ clusters, value.var = 'value')
+kable(TK_yrs_tbl)
+
+##Comparing if live in same town that they work####
+same_town <- select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'SAMETOWN') %>%
+  mutate(SAMETOWN = as.numeric(VALUE)) %>%
+  select(-VARIABLE, -VALUE) %>%
+  filter(!is.na(SAMETOWN)) %>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+sametown_n <- same_town %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+sametown_avg <- same_town %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(SAMETOWN = mean(SAMETOWN)) %>%
+  mutate(SAMETOWN = case_when(SAMETOWN > 0 ~ 1,
+                               T ~ 0)) %>%
+  merge(sametown_n) %>%
+  filter(n >= 5) %>%
+  select(-n) %>%
+  mutate(cluster = as.character(cluster),
+         cluster = as.factor(cluster))
+
+sametown_tbl <- table(sametown_avg$cluster, sametown_avg$SAMETOWN)
+sametown_tbl
+
+fisher.test(sametown_tbl)
+pairwise.fisher.test(sametown_tbl, p.adjust.method = 'hochberg')
+
+##Changed species caught since catch shares####
+species <- select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'F3_SPECIES_CHANGE') %>%
+  mutate(SPECIES = as.numeric(VALUE),
+         SPECIES = case_when(SPECIES == 2 ~ 0,
+                               T ~ SPECIES)) %>%
+  select(-VARIABLE, -VALUE) %>%
+  filter(!is.na(SPECIES)) %>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+species_n <- species %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+species_avg <- species %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(SPECIES = mean(SPECIES)) %>%
+  mutate(SPECIES = case_when(SPECIES > 0 ~ 1,
+                               T ~ 0)) %>%
+  merge(species_n) %>%
+  filter(n >= 5) %>%
+  select(-n) %>%
+  mutate(cluster = as.character(cluster),
+         cluster = as.factor(cluster))
+
+species_tbl <- table(species_avg$cluster, species_avg$SPECIES)
+species_tbl
+
+fisher.test(species_tbl)
+pairwise.fisher.test(species_tbl, p.adjust.method = 'hochberg')
+
+##Compare job stability####
+stab_sat <- select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'B10D_RATE_ROLE_JOB_STABILITY') %>%
+  mutate(STAB_SAT = as.numeric(VALUE)) %>%
+  select(-VARIABLE, -VALUE) %>%
+  filter(!is.na(STAB_SAT)) %>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+stab_sat_n <- stab_sat %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+stab_sat_avg <- stab_sat %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(STAB_SAT = mean(STAB_SAT)) %>%
+  mutate(STAB_SAT = case_when(STAB_SAT < 1.5 ~ 1,
+                             STAB_SAT >= 1.5 & STAB_SAT < 2.5 ~ 2,
+                             STAB_SAT >= 2.5 & STAB_SAT < 3.5 ~ 3,
+                             STAB_SAT >= 3.5 ~ 4)) %>%
+  merge(stab_sat_n) %>%
+  filter(n >= 5) %>%
+  select(-n)
+
+stab_plot <- ggplot(stab_sat_avg, aes(x = cluster, y = STAB_SAT)) +
+  geom_boxplot() +
+  theme_bw()
+stab_plot
+
+stab_sat_mean_tbl <- stab_sat_avg %>%
+  group_by(cluster) %>%
+  summarize(mean = mean(STAB_SAT, na.rm = T),
+            med = median(STAB_SAT, na.rm = T))
+kable(stab_sat_mean_tbl)
+# stab_sat_tbl <- table(stab_sat_avg$cluster, stab_sat_avg$STAB_SAT)
+# stab_sat_tbl
+# 
+# chisq.test(stab_sat_tbl)
+# fisher.test(stab_sat_tbl)
+
+kruskal.test(STAB_SAT ~ cluster, data = stab_sat_avg)
+dunn.test(stab_sat_avg$STAB_SAT, stab_sat_avg$cluster, method = 'hochberg')
+
+stab_avg_excl <- stab_sat %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(STAB_SAT = mean(STAB_SAT)) %>%
+  mutate(STAB_SAT = case_when(STAB_SAT <= 1.5 ~ 1,
+                             T ~ 0)) %>%
+  merge(stab_sat_n) %>%
+  filter(n>=5) %>%
+  select(-n) %>%
+  ungroup() %>% 
+  mutate(cluster = as.character(cluster),
+         cluster = as.factor(cluster))
+
+stab_tbl <- table(stab_avg_excl$cluster, stab_avg_excl$STAB_SAT)
+stab_tbl
+
+fisher.test(stab_tbl)
+pairwise.fisher.test(stab_tbl, p.adjust.method = 'hochberg')
+
+###Relationship with vessel owner changed####
+vo_rel <- dplyr::select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'F14_B2_CHANGED') %>%
+  mutate(VOREL = as.numeric(VALUE),
+         VOREL = case_when(VOREL != 1 ~ 0,
+                           T ~ 1)) %>%
+  filter(!is.na(VOREL)) %>%
+  dplyr::select(-VARIABLE, -VALUE) %>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+vorel_n <- vo_rel %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+vorel_max <- vo_rel %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(VOREL = max(VOREL)) %>%
+  mutate(VOREL = case_when(VOREL == 1 ~ 'YES',
+                             VOREL == 0 ~ 'NO')) %>%
+  ungroup() %>%
+  merge(vorel_n) %>%
+  filter(n >= 5) %>%
+  dplyr::select(-n) %>%
+  mutate(cluster = as.character(cluster),
+         cluster = as.factor(cluster))
+
+vorel_tbl <- table(vorel_max$cluster, vorel_max$VOREL)
+vorel_tbl
+
+
+###Relationship with crew changed####
+cw_rel <- dplyr::select(data, cluster, VARIABLE, VALUE, YEAR, VESSEL_ID, CODE) %>%
+  filter(VARIABLE == 'F14_D2_CHANGED') %>%
+  mutate(CWREL = as.numeric(VALUE),
+         CWREL = case_when(CWREL != 1 ~ 0,
+                           T ~ 1)) %>%
+  filter(!is.na(CWREL)) %>%
+  dplyr::select(-VARIABLE, -VALUE) %>%
+  group_by(YEAR, cluster) %>%
+  distinct(CODE, .keep_all = T)
+
+cwrel_n <- cw_rel %>%
+  distinct(VESSEL_ID, .keep_all = T) %>%
+  group_by(cluster) %>%
+  tally()
+
+cwrel_max <- cw_rel %>%
+  group_by(cluster, VESSEL_ID) %>%
+  summarize(CWREL = max(CWREL)) %>%
+  mutate(CWREL = case_when(CWREL == 1 ~ 'YES',
+                             CWREL == 0 ~ 'NO')) %>%
+  ungroup() %>%
+  merge(cwrel_n) %>%
+  filter(n >= 5) %>%
+  dplyr::select(-n) %>%
+  mutate(cluster = as.character(cluster),
+         cluster = as.factor(cluster))
+
+cwrel_tbl <- table(cwrel_max$cluster, cwrel_max$CWREL)
+cwrel_tbl
+
+#chisq.test(hist_tbl)
+# fisher.test(cwrel_tbl)
+# pairwise.fisher.test(cwrel_tbl, p.adjust.method = 'hochberg')
+```
+
+```{r number of vessels by vessel length}
+greyless_mountains_pal_3 <- c('firebrick3','darkolivegreen','darkslateblue')
+n_lng <- read.csv("n vessels_by length.csv") 
+n_lng_plot <- ggplot(n_lng, aes(x = Year, y = Number.of.vessels, color = Summary.Variable)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual('Vessel length', values = greyless_mountains_pal_3)+
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 8)) +
+  theme(legend.position = 'bottom') +
+  scale_x_continuous(breaks = c(2009,2010,2011,2012,2013,2014,2015,2016,2017)) +
+  ylab("Number of vessels") 
+n_lng_plot
+```
+

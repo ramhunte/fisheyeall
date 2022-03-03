@@ -1,0 +1,87 @@
+SELECT year, vessel_id,
+CASE
+WHEN alaska/total > 0.5
+THEN 'Alaska'
+WHEN whiting/total > 0.33 AND total > 1e5
+THEN 'Whiting'
+WHEN trawlgroundfish/total > 0.33 AND total > 1e5
+THEN 'Large groundfish trawler'
+WHEN trawlgroundfish/total > 0.33 AND total > 15e3
+THEN 'Small groundfish trawler'
+WHEN fgsablefish/total > 0.33 AND total > 15e3
+THEN 'Sablefish fixed gear'
+WHEN fggrnd/total > 0.33 AND total > 15e3
+THEN 'Other groundfish fixed gear'
+WHEN pelagic/total > 0.33 AND total > 15e3
+THEN 'Pelagic netter'
+WHEN migrnetter/total > 0.33 AND total > 15e3
+THEN 'Migratory netter'
+WHEN migrliner/total > 0.33 AND total > 15e3
+THEN 'Migratory liner'
+WHEN shrimp/total > 0.33 AND total > 15e3
+THEN 'Shrimper'
+WHEN crab/total > 0.33 AND total > 15e3
+THEN 'Crabber'
+WHEN salmontroller/total > 0.33 AND total > 5e3
+THEN 'Salmon troller'
+WHEN salmonnetter/total > 0.33 AND total > 5e3
+THEN 'Salmon netter'
+WHEN othernetter/total > 0.33 AND total > 15e3
+THEN 'Other Netter'
+WHEN total > 15e3
+THEN 'Other > $15K'
+ELSE 'Other < $15K'
+END AS rdvssclass
+FROM
+(SELECT year, vessel_id, total,
+  coalesce(alaska,0) alaska,
+  coalesce(whiting,0) whiting,
+  coalesce(trawlgroundfish,0) trawlgroundfish,
+  coalesce(fgsablefish,0) fgsablefish,
+  coalesce(fggrnd,0) fggrnd,
+  coalesce(pelagic,0) pelagic,
+  coalesce(migrnetter,0) migrnetter,
+  coalesce(migrliner,0) migrliner,
+  coalesce(shrimp,0) shrimp,
+  coalesce(crab,0) crab,
+  coalesce(salmontroller,0) salmontroller,
+  coalesce(salmonnetter,0) salmonnetter,
+  coalesce(othernetter,0) othernetter
+  FROM
+  (   
+    SELECT rd.year year, rd.vessel_id vessel_id, rev, rdclass, total
+    FROM 
+    (
+      (SELECT DISTINCT
+       vessel_id,
+       year,
+       SUM(rev) rev,
+       rdclass
+       FROM
+       edc_fish_mv
+       GROUP BY
+       vessel_id,
+       year,
+       rdclass) rd
+      FULL JOIN (
+        SELECT DISTINCT
+        vessel_id,
+        year,
+        SUM(rev) total
+        FROM
+        edc_fish_mv
+        GROUP BY
+        vessel_id,
+        year
+      ) total 
+      ON
+      rd.vessel_id = total.vessel_id
+      AND
+      rd.year = total.year))
+  PIVOT (
+    sum(rev)
+    FOR rdclass IN ( 'ALASKA' as alaska, 'Whiting' as whiting, 'TrawlGroundfish' as trawlgroundfish, 'FGsablefish' as fgsablefish, 'FGgrnd' as fggrnd, 
+                     'Pelagic' as pelagic, 'MigrNetter' as migrnetter, 'MigrLiner' migrliner, 
+                     'Shrimp' as shrimp, 'Crab' as crab, 'SalmonTroller' as salmontroller, 'SalmonNetter' as salmonnetter, 'OtherNetter' as othernetter )
+  )
+  WHERE total > 0);

@@ -1,0 +1,35 @@
+.libPaths(c("/usr/lib64/R/shiny_library/fisheye", .libPaths()))
+
+library(shiny)
+library(shinyjs)
+library(shinyBS)
+library(ggplot2)
+library(grid)
+library(dplyr)
+library(scales)
+library(DT)
+library(appFrame)
+
+##UI part of the app. The ui piece is not reactive and is used for setting up the permanent pieces of the app.
+shinyUI(fluidPage(
+  # Add NOAA header
+  appFrameHeaderScrolling(),
+  title = "FISHEyE: Whiting mini-app",
+  sidebarLayout(
+    sidebarPanel(uiOutput("tabs"),
+                 uiOutput("download_Table")),
+    mainPanel(
+      tabsetPanel(type = "tabs",
+                  tabPanel("Plot", 
+                           conditionalPanel(condition = "input.tab_type == 'Summary'",
+                                            plotOutput("yearplot")),
+                           conditionalPanel(condition = "input.tab_type == 'By product type'",
+                                            plotOutput("productplot")), style = "min-height: 1000px"),
+                  tabPanel("Table", DT::dataTableOutput("table"))
+      )
+    )
+  ),
+  # Add NOAA footer
+  appFrameFooterScrolling()
+  )
+)

@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574289432498.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "69F827E0",
+    "lastKnownWriteTime" : 1574271404,
+    "last_content_update" : 1574271404,
+    "path" : "C:/Users/Ashley.Vizek/Desktop/rdclassifications_draft.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "86,19",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

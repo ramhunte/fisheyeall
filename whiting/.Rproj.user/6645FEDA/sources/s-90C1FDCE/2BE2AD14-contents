@@ -1,0 +1,1 @@
+pscp     C:/Users/Erin.Steiner/Documents/fisheye-mini-whiting/dataprep_whiting.R esteiner@nwcrweb.nwfsc.noaa.gov:/srv/shiny-server/fisheye/whiting

@@ -1,0 +1,83 @@
+# Data compare checksheet ####
+
+# PART 1. Comparing fish tickets ####
+
+# Load last fish ticket pull. ADJUST DATE
+old_raw <- readRDS("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_raw2020-07-15.RDS")
+
+# Load new fish ticket pull. 
+new_raw <- readRDS('comp_dat_raw.RDS')
+
+# 1) Basic understanding of what changed
+# Compare the number of tickets by month, year, state, species
+old_raw_n <- old_raw %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(N = length(EXVESSEL_REVENUE))
+new_raw_n <- new_raw %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(N = length(EXVESSEL_REVENUE))
+compare_n <- comparefun(old_raw_n, new_raw_n, c('N'), 'wide')
+# Find tickets where N changed
+n_change <- filter(compare_n, abs(percDiff) > 0)
+# Find tickets in categories that didn't exist or no longer exist
+n_new <- filter(compare_n, combomiss == 'Missing combo')
+
+# 2) Identifying changes and summarizing rev/wt added or lost
+compare <- comparefun(old_raw, new_raw, c('EXVESSEL_REVENUE', 'ROUND_WEIGHT_MTONS'),'wide')
+compare_diff <- filter(compare, abs(EXVESSEL_REVENUE_percDiff) > 0)
+compare_diff_smry <- compare_diff %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(REV_change = sum(EXVESSEL_REVENUE_rawDiff),
+            WT_change = sum(ROUND_WEIGHT_MTONS_rawDiff))
+
+compare_new <- filter(compare, combomiss == 'Missing combo' & new_flag == 'new' & is.na(old_flag))
+compare_new_smry <- compare_new %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(REV_plus = sum(EXVESSEL_REVENUE_new),
+            WT_plus = sum(ROUND_WEIGHT_MTONS_new))
+compare_old <- filter(compare, combomiss == 'Missing' & old_flag == 'old' & is.na(new_flag))
+compare_old_smry <- compare_old %>%
+  group_by(LANDING_YEAR, LANDING_MONTH, AGENCY_CODE, SPECIES_GROUP) %>%
+  summarize(REV_minus = sum(EXVESSEL_REVENUE_new),
+            WT_minus = sum(ROUND_WEIGHT_MTONS_new))
+
+compare_change_smry <- merge(compare_diff_smry, compare_new_smry, all = T) %>%
+  merge(compare_old_smry, all = T) %>%
+  mutate_all(~replace(., is.na(.), 0)) %>%
+  mutate(REV_smry = REV_change + REV_plus - REV_minus,
+         WT_smry = WT_change + WT_plus - WT_minus) %>%
+  select(-c(REV_change, WT_change, REV_plus, WT_plus, REV_minus, WT_minus))
+
+saveRDS(compare_change_smry, paste0("R:/Confidential/FISHEyE/data/landings_tracker/datacompare_raw", Sys.Date(), ".RDS"))
+
+# PART 2. Comparing app data ####
+# Load last app data ####
+old_app <- readRDS("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_covidapp0708.RDS")
+old_app <- readRDS("comp_dat_covidapp0716.RDS")
+# Load new app data ####
+new_app <- readRDS("comp_dat_covidapp.RDS")
+#1) Basic understanding of how total revenue changed
+
+old_app_n <- old_app %>%
+  filter(Metric == 'Exvessel revenue', Statistic == 'Total', Cumulative == 'N', Interval == 'Monthly') %>%
+  select(-c(conf, conf2, Type, ylab, upper, lower, LANDING_MONTH2, Date, complete, no_pts, 
+            q25, q75, Variance, Cumulative, Interval)) %>%
+  distinct(Value, .keep_all = T)
+new_app_n <- new_app %>%
+  filter(Metric == 'Exvessel revenue', Statistic == 'Total', Cumulative == 'N', Interval == 'Monthly') %>%
+  select(-c(conf, conf2, Type, ylab, upper, lower, LANDING_MONTH2, Date, complete, no_pts, 
+            q25, q75, Variance, Cumulative, Interval))
+compare_app <- comparefun(old_app_n, new_app_n, c('Value','N_vss','N_buy'), 'wide')
+# Find combos where revenue changed
+rev_change_app <- filter(compare_app, abs(Value_percDiff) > 0)
+# Revenue changed by greater than 10%
+rev_change_10 <- filter(compare_app, abs(Value_percDiff) > 0.10)
+
+# Confidentiality changes
+rev_conf <- filter(compare_app, combomiss == 'Missing combo') %>%
+  mutate(rm = case_when(N_vss_old == 0 & (N_vss_new == 0 | is.na(N_vss_new)) ~ 1, 
+                        N_vss_new == 0 & (N_vss_old == 0 | is.na(N_vss_old)) ~ 1,
+                        T ~ 0)) %>%
+  filter(rm == 0) %>%
+  select(-rm)
+rev_conf_2020 <- filter(rev_conf, Year == 2020)

@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571758975067.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1825370789",
+    "id" : "969EFCE4",
+    "lastKnownWriteTime" : 1571777865,
+    "last_content_update" : 1571777865954,
+    "path" : "~/fisheye-mini-whiting/recovery rate data exploration.R",
+    "project_path" : "recovery rate data exploration.R",
+    "properties" : {
+        "cursorPosition" : "119,45",
+        "scrollLine" : "98",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

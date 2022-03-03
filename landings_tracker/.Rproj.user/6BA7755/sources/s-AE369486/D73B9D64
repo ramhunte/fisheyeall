@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1600185649684.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1155200136",
+    "id" : "D73B9D64",
+    "lastKnownWriteTime" : 1601569244,
+    "last_content_update" : 1601569244015,
+    "path" : "~/landings-tracker/dataprep.R",
+    "project_path" : "dataprep.R",
+    "properties" : {
+        "cursorPosition" : "79,0",
+        "scrollLine" : "68"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569511939037.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1188557831",
+    "id" : "E636809B",
+    "lastKnownWriteTime" : 1576886234,
+    "last_content_update" : 1576886234,
+    "path" : "~/fisheye-mini-whiting/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+        "cursorPosition" : "37,39",
+        "scrollLine" : "22",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

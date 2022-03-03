@@ -1,0 +1,4 @@
+"id","realtime_start","realtime_end","title","observation_start","observation_end","frequency","frequency_short","units","units_short","seasonal_adjustment","seasonal_adjustment_short","last_updated","popularity","notes"
+"1","GDPDEF","2020-07-24","2020-07-24","Gross Domestic Product: Implicit Price Deflator","1947-01-01","2020-01-01","Quarterly","Q","Index 2012=100","Index 2012=100","Seasonally Adjusted","SA","2020-06-25 08:02:01-05",78,"BEA Account Code: A191RD
+
+The number of decimal places reported varies over time. A Guide to the National Income and Product Accounts of the United States (http://www.bea.gov/national/pdf/nipaguid.pdf) (NIPA)."

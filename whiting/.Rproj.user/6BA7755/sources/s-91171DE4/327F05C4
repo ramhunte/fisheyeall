@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574283100808.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "327F05C4",
+    "lastKnownWriteTime" : 1574283148,
+    "last_content_update" : 1574283148233,
+    "path" : "C:/Program Files/R/connectioninfoROracle.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "38,37",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

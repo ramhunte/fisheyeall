@@ -1,0 +1,114 @@
+
+#Use this script to create csv source files for cover letter mail merge and address labels.
+
+#SQL queries <-- write csv files to relevant data collection year folders.
+
+library(reshape2)
+library(DBI)
+library(dplyr)
+library(EDCReport)
+
+
+source("C:/Program Files/R/connectioninfoROracle.r")
+
+currentyear <- 2018
+
+setwd("S:/EDC/2018DataCollection/Cover Letter")
+
+#New participants
+new <- dbGetQuery(framdw, "
+            select survey_year, vessel_name
+                                from fram_analysis_current.edcsurvey_admin_v
+          where survey_year > 2013 and survey_type != 'BUYER'") %>%
+  dcast(VESSEL_NAME ~ SURVEY_YEAR) %>%
+  filter(`2017` == '0' & `2016` == '0' & `2015` == '0' & `2014` == '0') %>%
+  select(VESSEL_NAME)
+
+new_info <- dbGetQuery(framdw, paste("
+            select edcsurvey_dbid, vessel_name, vessel_id, limited_entry_permit_id permitID,
+              company_name
+                                from fram_analysis_current.edcsurvey_admin_v
+          where survey_year = ", currentyear, "and vessel_name in (", xfn(new), ")"))
+
+write.csv(new_info, file = paste0("S:/EDC/", currentyear, "DataCollection/Cover Letter/new_participants.csv"),
+          row.names = F)
+##For 2018, removed Last Straw because this is just a change from F/V Last Straw to Last Straw
+
+#Lessees
+leased <- dbGetQuery(framdw,
+                     "select vessel_id, edcsurvey_dbid, text_response
+                     from fram_analysis_current.edcsurvey_edcdata_v
+                     where fullcode = 'LEASE' and survey_year > 2016 and survey_type = 'CATCHER VESSEL'") %>%
+  filter(TEXT_RESPONSE == 'YES') %>%
+  select(EDCSURVEY_DBID)
+
+leased_names <- dbGetQuery(framdw, paste(
+                           "select distinct(vessel_name), own_lease from fram_analysis_current.edcsurvey_admin_v
+                           where edcsurvey_dbid in (", xfn(leased), ")"))
+
+leased_info <- dbGetQuery(framdw, paste(
+                     "select survey_type, web_form_id  webformID, edcsurvey_dbid, vessel_name, company_name,
+                     vessel_id, own_lease, limited_entry_permit_id permitID,
+                     address_line_1 address, city, state, zipcode
+                     from fram_analysis_current.edcsurvey_admin_v
+                     where survey_year = ", currentyear, "")) %>%
+  merge(leased_names, all = F) %>%
+  group_by(VESSEL_NAME) %>%
+  mutate(n = length(VESSEL_ID),
+         rm = case_when(n > 1 & OWN_LEASE == 'o' ~ 1,
+                        T ~ 0)) %>%
+  filter(rm == 0)
+
+write.csv(leased_info, file = paste0("S:/EDC/", currentyear, "DataCollection/Cover Letter/cover_label_sourceinfo_leasedvessels.csv"),
+                                     row.names = F)
+
+##For 2018 removed a few, did not include Joy Ann because they bought the vessel, 
+##Maverick was recorded as a lease because they lease permit from Muir Milach
+
+#CV Cover Letter
+##Remove the leased entries using own_lease = o
+cover_label_sourceinfo_vessels <- dbGetQuery(framdw, paste("
+            select survey_type, web_form_id  webformID, edcsurvey_dbid, vessel_name, vessel_id, limited_entry_permit_id permitID,
+              company_name, address_line_1 address, city, state, zipcode, phone
+            from fram_analysis.edcsurvey_admin_v where survey_year = ", currentyear, " and
+            survey_type != 'BUYER' and own_lease = 'o' order by survey_type, vessel_name"))
+
+write.csv(cover_label_sourceinfo_vessels, row.names = F,
+          file = paste0("S:/EDC/", currentyear, "DataCollection/Cover Letter/cover_label_sourceinfo_vessels.csv"))
+
+
+#FR Cover Letter
+cover_label_sourceinfo_FR <- dbGetQuery(framdw, paste("
+            select web_form_id webformID, edcsurvey_dbid, buyer_id, first_receiver_site_license FRSL, company_name, address_line_1 address, city, state, zipcode, phone
+            from fram_analysis.edcsurvey_admin_v where survey_year = ", currentyear, " and
+            survey_type = 'BUYER' order by company_name, first_receiver_site_license"))
+
+write.csv(cover_label_sourceinfo_FR, file = paste0("S:/EDC/", currentyear, "DataCollection/Cover Letter/cover_label_sourceinfo_FR.csv"))
+
+
+#Reminder Letters
+setwd("S:/EDC/2018DataCollection/Reminder Letters")
+##Manually filter by alternate address in csv. If alternate address exists then replace the current address elements with alternate address.
+##Then remove the alternate address column from the csv.
+
+#CV
+reminder_sourceinfo_vessels <- dbGetQuery(framdw, paste("
+            select survey_type, web_form_id  webformID, edcsurvey_dbid, vessel_name, vessel_id, limited_entry_permit_id permitID,
+              company_name, address_line_1 address, city, state, zipcode, phone, ALTERNATE_ADDRESS_COMMENT
+            from fram_analysis_current.edcsurvey_admin_v where survey_year = ", currentyear, " and survent_status is NULL and
+            survey_type != 'BUYER' and received_on is null order by survey_type, vessel_name"))
+
+write.csv(reminder_sourceinfo_vessels, file = paste0("S:/EDC/", currentyear, "DataCollection/Reminder Letters/reminder_sourceinfo_vessels.csv"))
+
+
+#FR
+reminder_sourceinfo_FR <- dbGetQuery(framdw, paste("
+            select web_form_id webformID, edcsurvey_dbid, buyer_id, first_receiver_site_license FRSL, company_name, 
+            address_line_1 address, city, state, zipcode, phone, alternate_address_comment
+            from fram_analysis_current.edcsurvey_admin_v where survey_year = ", currentyear, " and survent_status is NULL and
+            survey_type = 'BUYER' and received_on is null order by company_name, first_receiver_site_license"))
+
+write.csv(reminder_sourceinfo_FR, file = paste0("S:/EDC/", currentyear, "DataCollection/Reminder Letters/reminder_sourceinfo_FR.csv"))
+
+
+

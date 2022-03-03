@@ -1,0 +1,189 @@
+# testing
+
+# This script pulls data and formats the dataframe for use in the app #
+library(dplyr)
+library(reshape2)
+library(lubridate)
+library(edcdataprep)
+library(tidyr)
+#devtools::install_github("sboysel/fredr")
+library(fredr)
+
+source("dataprep_fn.R")
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Generate updated covid app data ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+# pull in the date stamp from the datapull file
+datpull_date <- readRDS('datpull_date.RDS')
+
+# load the deflators
+gdp_defl <- readRDS(paste0("R:/Confidential/FISHEyE/data/landings_tracker/defl", datpull_date, ".RDS"))
+
+# pull in data from datapull.R
+comp_dat_raw_load <- readRDS(paste0('R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_raw', datpull_date, '.RDS'))
+
+# generate the new data
+
+new <- dataprep_fn(comp_dat_raw_load, gdp_defl, datpull_date)
+
+# save the data in the landings tracker folder with date stamp
+saveRDS(new, paste0("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_covidapp", Sys.Date(), ".RDS"))
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# TEST FOR DATA CHANGES ####
+# This script compares changes in the raw data
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+# datacompare.R
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# TEST SCRIPT CHANGES ####
+# This should be run anytime modifications are made to a script
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+# pull in the last "stable input/output"
+# set the orig_date to pul'l in input and output data from the last time the outputs were "good"
+orig_date <- '2021-02-03'
+gdp_defl_last_run <- readRDS(paste0("R:/Confidential/FISHEyE/data/landings_tracker/defl", orig_date, ".RDS"))
+last_run_raw  <- readRDS(paste0("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_raw", orig_date, ".RDS"))
+last_run_output <- readRDS(paste0("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_covidapp", orig_date, ".RDS"))
+
+# run the new code on the old raw data
+new_run_output <- dataprep_fn(last_run_raw, gdp_defl_last_run, as.Date(orig_date))
+
+#compare the outputs from the last "good" run to outputs from the latest run
+
+# old <- last_run_output %>%
+#   select(Year, Metric, Statistic, Interval, Species, Cumulative, State, Dates_as_char, Value) %>%
+#   mutate(Year = as.character(Year),
+#          State = as.character(State))
+# # 
+# new <- new_run_output %>%
+#   select(Year, Metric, Statistic, Interval, Species, Cumulative, State, Dates_as_char, Value) %>%
+#   mutate(Year = as.character(Year),
+#          State = as.character(State))
+# # 
+# all.equal(old, new)
+all.equal(last_run_output, new_run_output)
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAVE APP DATA ####
+# If data meets checks, save
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+saveRDS(new, "comp_dat_covidapp.RDS")
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# OLD CODE ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+summ_new <- group_by(new,Year, LANDING_MONTH, 
+  Metric, 
+  Statistic, 
+  Interval, Species, 
+  Cumulative, State
+  ) %>%
+  summarise(valuenew = sum(Value))
+
+summ_old <- group_by(old, Year, LANDING_MONTH, 
+  Metric, 
+  Statistic, 
+  Interval, Species, 
+  Cumulative, State
+  ) %>%
+  summarise(valueold = sum(Value))
+
+test <- full_join(summ_old, summ_new)
+
+tt <- mutate(test, match = case_when(
+  is.na(valueold) & is.na(valuenew) ~ 'match',
+  is.na(valueold) & valuenew == 0 ~ 'match',
+  is.na(valueold) & valuenew > 0 ~ 'orig:suppr, new:reveal',
+  is.na(valuenew) & valueold == 0 ~ 'match',
+  is.na(valuenew) & valueold > 0 ~ 'orig:reveal, new:suppr',
+  near(valueold, valuenew, tol = .Machine$double.eps) ~ 'match',
+  T ~ 'miss'),
+  percdiff = (valuenew - valueold) / (valuenew + valueold)) %>%
+  subset(Year != '2020') %>%
+  mutate(match = factor(match, levels = c('match', 'miss', 'orig:suppr, new:reveal', 'orig:reveal, new:suppr')))
+
+# Ashley testing code
+
+ck <- comparefun(last_run_output, new_run_output, c('Value', 'upper','lower','Variance','q25','q75'), 'wide')
+testav <- new %>%
+  rename(valuenew = Value) %>%
+  select(valuenew, Year, Metric, Statistic, Dates_as_char, Interval, Species, Cumulative, State) %>%
+  full_join(old %>%
+            rename(valueold = Value)) %>%
+  mutate(percdiff = (valuenew - valueold) / (valuenew + valueold),
+         match = case_when(
+           is.na(valueold) & is.na(valuenew) ~ 'match',
+           is.na(valueold) & valuenew == 0 ~ 'match',
+           is.na(valueold) & valuenew > 0 ~ 'orig:suppr, new:reveal',
+           is.na(valuenew) & valueold == 0 ~ 'match',
+           is.na(valuenew) & valueold > 0 ~ 'orig:reveal, new:suppr',
+           near(valueold, valuenew, tol = .Machine$double.eps) ~ 'match',
+           T ~ 'miss'))
+#
+# # Misses
+miss <- filter(testav, abs(percdiff) > 0.05)
+
+not_match <- filter(testav, match != 'match')
+#
+# # Look at one metric
+# miss_rev <- filter(miss, Metric == 'Exvessel revenue')
+# miss_rev_smry <- miss_rev %>%
+#   group_by(Year) %>%
+#   tally()
+
+# This compare yields almost all differences for cumulative = Y. Only 14 where cumulative != Y.
+# need to check that these differences are due to changes in cumulative, and are correct
+# next need to check differences in suppression.
+# Not sure why the initial compare was set up at sum of?
+
+
+# Orig suppr: new reveal
+# orig_suppr <- filter(testav, match == "orig:suppr, new:reveal", !Metric %in% c('Number of vessels','Number of buyers'))
+# os_cumN <- filter(orig_suppr, Cumulative == 'N', Metric == 'Exvessel revenue', LANDING_MONTH != 52)
+# os_cumN_smry <- filter(os_cumN, Metric == 'Exvessel revenue') %>%
+#   group_by(Year, Species) %>%
+#   tally()
+# 
+# ck1 <- filter(os_cumN, !Species %in% c('Other crab', 'Anchovy', 'Sardine', 'Other coastal pelagic'), Year != 'Baseline')
+# ck1a <- filter(month_week_both, Species == 'Anchovy', Metric == 'EXVESSEL_REVENUE', 
+#                Year == 2015, CONF == 'TREATED', Dates == 7)
+# 
+# # check why baseline changed so much for Dungeness Crab and Sardine
+# ck2 <- filter(os_cumN, Year == 'Baseline', Species == 'Dungeness crab', Statistic == 'Total')
+# 
+# cka1 <- filter(old_raw, Species == 'Dungeness crab', LANDING_MONTH2 == 29, Metric == 'Exvessel revenue', Statistic == 'Total', Cumulative == 'Y', State == 'California')
+# cka <- filter(new, Species == 'Dungeness crab', LANDING_MONTH == 29, Metric == 'Exvessel revenue', Statistic == 'Total', Cumulative == 'Y', State == 'California')
+# 
+# # Orig reveal: new suppr
+# orig_reveal <- filter(testav, match == "orig:reveal, new:suppr", !Metric %in% c('Number of vessels','Number of buyers'))
+# or_cumN <- filter(orig_reveal, Cumulative == 'N', Metric == 'Exvessel revenue', LANDING_MONTH != 52,
+#                   !Species %in% c('Whiting: Catcher processor', 'Whiting: Mothership'))
+# or_cumN_smry <- filter(or_cumN, Metric == 'Exvessel revenue') %>%
+#   group_by(Year, Species) %>%
+#   tally()
+# 
+# ck1 <- filter(or_cumN, Species == 'Non-whiting groundfish: Fixed gear-non-nearshore', Metric == 'Exvessel revenue')
+# ck1a <- filter(or_cumN, Species == 'Tuna', Year == 2015)
+# ck2a <- filter(comp_dat_wk_supp, Species == 'Tuna', Year == 2015, Dates == 51)
+
+
+# subset(tt, Cumulative == 'N' & Metric == 'Landed weight (mt)') %>%
+# group_by(match, State, Year) %>%
+#   dcast(State + Year~ match, value.var = 'Year', length)
+# 
+# subset(tt, State == 'At-sea') %>% subset(match == 'miss') %>%
+#   group_by(match, Year) %>%
+#   reshape2::dcast(Year ~ match, value.var = 'Year', length)
+
+
+
+#saveRDS(new, paste0("R:/Confidential/FISHEyE/data/landings_tracker/comp_dat_covidapp", Sys.Date(), ".RDS"))
+
+# Notes about revised data prep:
+
+# Remove category Species = 'Whiting: Shorebased' & State == 'At-sea' (we already have the data in all, so I don't think we need it?)

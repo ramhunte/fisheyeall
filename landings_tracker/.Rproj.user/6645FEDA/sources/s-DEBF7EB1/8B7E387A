@@ -1,0 +1,24 @@
+{
+    "id": "8B7E387A",
+    "path": "~/pacfin-data-pull/fixes/qa_checks.sql",
+    "project_path": null,
+    "type": "sql",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1621450080934.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "cursorPosition": "69,37",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1621460320,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1621460320665,
+    "read_only": false,
+    "read_only_alternatives": []
+}

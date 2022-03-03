@@ -1,0 +1,229 @@
+---
+title: "Allocating at-sea catch"
+author: "Erin Steiner"
+date: "7/31/2020"
+output: word_document
+---
+
+```{r, echo = F, warning = F}
+
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(knitr)
+
+knitr::opts_chunk$set(echo = F, warning = F)
+
+source('C:/Program Files/R/connectioninfoROracle.R')
+
+```
+
+We were asked to provide proportions for allocating catch pounds in the at-sea sector to individual states.
+The catcher-processor sector is straightforward because all vessels are based out of Washington (though they can catch fish in Oregon). The Mothership sector is more complicated because although the mothership vessels themselves are all based out of Washington, the catcher vessels that deliver to them are based out of Washington and Oregon. All catcher-processor catch is allocated to Washington, there are two methods for allocating mothership sector catch:
+
+1.) Method 1: Allocate mothership catch by ratio of landings weight by home port of catcher vessels.
+
+2.) Method 2: Allocate mothership catch by ratio of total value (catcher vessel ex-vessel revenue + mothership production value). This is the same method that was used to distribute the economic impacts of the mothership sector to individual states for the CARES act data call.
+
+# METHOD 1
+
+Mothership catch: Catch delivered to motherships was allocated to individual states according to the home port of the delivering vessels.    
+
+Catcher processor catch: All allocated to Washington because all catcher-processors are based out of Washington.    
+
+
+```{r}
+
+# Pull landings weight for at-sea sectors
+lbs <- dbGetQuery(framdw, "
+  select sum(retained_weight_lbs) lbs, sector, landing_year year, catcher_num
+  from pacfin.comprehensive_norpac where sector in ('CATCHER PROCESSOR', 'MOTHERSHIP') 
+    and landing_year between 2014 and 2018
+  group by sector, catcher_num, landing_year")
+
+# pull catcher vessel home ports
+cv_descriptors <- dbGetQuery(framdw, "
+  select distinct vessel_id, year, state
+  from edc_cv_descriptors_mv")
+
+# combine landings and home ports
+lbs_by_state_sector <- left_join(lbs, cv_descriptors,
+  by = c('YEAR' = 'YEAR', 'CATCHER_NUM' = 'VESSEL_ID')) %>%
+  mutate(alloc = ifelse(SECTOR == 'CATCHER PROCESSOR', 'CP', STATE),
+    state_alloc = ifelse(SECTOR == 'CATCHER PROCESSOR', 'WA', STATE))
+
+# Calculate the proportions of mothership and catcher processor harvest
+cp_ms_props <- group_by(lbs_by_state_sector, SECTOR, YEAR) %>%
+  summarize(LBS = sum(LBS), .groups = 'drop') %>%
+  pivot_wider(names_from = SECTOR, values_from = LBS) %>%
+  mutate(propMS = `MOTHERSHIP`/(`MOTHERSHIP` + `CATCHER PROCESSOR`),
+    propCP = 1-propMS) %>%
+  mutate(YEAR = as.character(YEAR))
+
+# Calculate the proportions of mothership OR and WA and catcher processor harvest
+straight_lbs <- group_by(lbs_by_state_sector, YEAR, alloc) %>%
+  summarize(LBS = sum(LBS), .groups = 'drop') %>%
+  pivot_wider(names_from = alloc, values_from = LBS) %>%
+  mutate(propWA = WA/(OR + WA),
+    propOR = 1-propWA) %>%
+  mutate(YEAR = as.character(YEAR))
+
+# Calculate the proportions by state
+straight_lbs_state <- group_by(lbs_by_state_sector, YEAR, state_alloc) %>%
+  summarize(LBS = sum(LBS), .groups = 'drop') %>%
+  pivot_wider(names_from = state_alloc, values_from = LBS) %>%
+  mutate(propWA = WA/(OR + WA),
+    propOR = 1-propWA) %>%
+  mutate(YEAR = as.character(YEAR))
+
+kable(cp_ms_props, digits = c(0, 0, 0, 2, 2), format.args = list(big.mark = ','),
+  caption = 'Catch (lbs) and proportions by sector.')
+
+kable(straight_lbs[,-2], digits = c(0, 0, 0, 2, 2), format.args = list(big.mark = ','),
+  caption = 'Catch (lbs) and proportions by homeport state for mothership sector.')
+
+kable(straight_lbs_state, digits = c(0, 0, 0, 2, 2), format.args = list(big.mark = ','),
+  caption = 'METHOD 1: Catch (lbs) and proportions by state (MS catch allocated by catcher vessel homeport) for entire at-sea sector (catcher processors and mothership).')
+
+```
+
+# METHOD 2
+
+Mothership catch: Catch delivered to motherships was allocated to individual states according to the sum of catcher vessel ex-vessel revenue and mothership production value according to the home port of the delivering vessels and motherships. All motherships are based out of Seattle.    
+
+Catcher processor catch: All allocated to Washington because all catcher-processors are based out of Washington.    
+
+
+```{r}
+
+# Pull catcher vessel revenue
+cv_rev <- dbGetQuery(framdw, "
+  select sum(rev) rev, c.year, state
+  from edc_cv_revlbsdas c,
+  (select distinct vessel_id, year, state from edc_cv_descriptors_mv) d
+  where c.vessel_id = d.vessel_id and c.year = d.year
+    and fisherycode = 'ATSEAPWHT' and c.year between 2014 and 2018
+  group by c.year, state") %>%
+  mutate(type = 'CATCHER')
+
+# Pull mothership revenue
+ms_rev <- dbGetQuery(framdw, "
+  select year, sum(rev) rev 
+  from edc_ms_nrcomponents
+  where year between 2014 and 2018
+  group by year") %>%
+  mutate(type = 'MOTHERSHIP',
+    STATE = 'WA')
+
+#  Assign revenue to states
+allrev <- bind_rows(cv_rev, ms_rev) %>%
+  mutate(alloc = ifelse(type == 'CATCHER', STATE, type),
+    alloc_state = ifelse(type == 'MOTHERSHIP', 'WA', STATE)) %>%
+  select(-type, -STATE) %>%
+  mutate(YEAR = as.character(YEAR))
+
+# Calculate proportions for catcher vessel home ports and motherships
+rev_overview <- select(allrev, -alloc_state) %>%
+  pivot_wider(names_from = alloc, values_from = REV) %>%
+  mutate(propMS = MOTHERSHIP/(MOTHERSHIP + WA + OR)) 
+
+
+kable(rev_overview, digits = c(0,0,0,0,2), format.args = list(big.mark = ','),
+  caption = 'Total ex-vessel revenue for catcher vessels and production value for mothership vessels (2018 $) and proportions by homeport state for mothership sector')
+
+# Calculate proportions by state
+rev_state <- group_by(allrev, YEAR, alloc_state) %>%
+  summarise(REV = sum(REV), .groups = 'drop') %>%
+  pivot_wider(names_from = alloc_state, values_from = REV) %>%
+  mutate(propWA = WA/(WA + OR),
+    propOR = 1-propWA)
+
+kable(rev_state, digits = c(0,0,0,2,2), format.args = list(big.mark = ','),
+  caption = 'Total ex-vessel revenue/production value for mothership sector (2018 $) and proportions by homeport state for catcher vessels and all allocated to Washington for motherships')
+
+
+```
+
+```{r}
+
+# Use method 2 proportions to assign catch weight to states
+meth2MSprops <- select(rev_state, YEAR, propWA, propOR) %>%
+  full_join(cp_ms_props[,c('YEAR', 'MOTHERSHIP')], by = 'YEAR') %>%
+  mutate(WAMSlbs = MOTHERSHIP * propWA,
+    ORMSlbs = MOTHERSHIP * propOR) %>%
+  select(YEAR, WAMSlbs, ORMSlbs)
+
+# pull in catcher processor catch
+meth2CPprops <- cp_ms_props[,c('YEAR', 'CATCHER PROCESSOR')] %>%
+  rename(WACPlbs = `CATCHER PROCESSOR`)
+
+# Combine catch weight for both sectors
+meth2ALLprops <- full_join(meth2MSprops, meth2CPprops, by = 'YEAR') %>%
+  mutate(WA = WACPlbs + WAMSlbs, OR = ORMSlbs) %>%
+  mutate(WAprop = WA/(WA + OR),
+    ORprop = 1-WAprop) %>%
+  select(-WACPlbs, -WAMSlbs, -ORMSlbs)
+  
+kable(meth2ALLprops, digits = c(0, 0, 0, 2, 2), format.args = list(big.mark = ','),
+  caption = 'METHOD 2: Catch (lbs) and proportions by state (MS catch allocated by value) for entire at-sea sector (catcher processors and mothership).')
+
+```
+
+# STOP - THIS IS JUST ERIN POKING AROUND ####
+```{r}
+
+ft <- dbGetQuery(framdw, "
+  select sum(landed_weight_lbs) lbs, agency_code, landing_year year, case when pacfin_species_code = 'PWHT' then 'Whiting' else 'Other' end as sp
+  from pacfin.comprehensive_fish_ticket
+  where landing_year between 2014 and 2018
+  group by agency_code, landing_year, case when pacfin_species_code = 'PWHT' then 'Whiting' else 'Other' end") %>%
+  mutate(YEAR = as.character(YEAR))
+
+```
+
+```{r}
+
+
+
+group_by(ft, YEAR, AGENCY_CODE) %>%
+  summarise(LBS = sum(LBS), .groups= 'drop') %>%
+  pivot_wider(names_from = AGENCY_CODE, values_from = LBS) %>%
+  mutate(propWA = W/(W + C + O),
+    propOR = O/(W + C + O)) %>%
+  select(YEAR, propWA, propOR) %>%
+  kable(caption = 'Proportion of landings weight without whiting')
+
+```
+
+
+```{r}
+
+
+meth2lbs <- meth2ALLprops[,c('WA', 'OR', 'YEAR')] %>%
+  pivot_longer(cols = c(WA, OR), names_to = 'state', values_to = 'LBS') %>%
+  mutate(AGENCY_CODE = ifelse(state == 'WA', 'W', 'O')) %>%
+  mutate(SP = 'Whiting') %>%
+  select(-state)
+
+subset(ft, SP == 'Other') %>%
+  select(-SP) %>%
+  pivot_wider(names_from = AGENCY_CODE, values_from = LBS) %>%
+  mutate(propWA = W/(W + C + O),
+    propOR = O/(W + C + O),
+    propCA = C/(W + C + O)) %>%
+  select(YEAR, propWA, propOR, propCA) %>%
+  kable(caption = 'Proportion of landings weight without whiting')
+
+ bind_rows(meth2lbs, ft) %>%
+  group_by(YEAR, AGENCY_CODE) %>%
+  summarise(LBS = sum(LBS), .groups= 'drop') %>%
+  pivot_wider(names_from = AGENCY_CODE, values_from = LBS) %>%
+  mutate(propWA = W/(W + C + O),
+    propOR = O/(W + C + O),
+    propCA = C/(W + C + O)) %>%
+  select(YEAR, propWA, propOR, propCA) %>%
+  kable(caption = 'Proportion of landings using method 2')
+  
+```
+
+

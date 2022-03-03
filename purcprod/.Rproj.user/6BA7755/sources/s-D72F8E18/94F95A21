@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571959899627.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "94F95A21",
+    "lastKnownWriteTime" : 1572279466,
+    "last_content_update" : 1572279466921,
+    "path" : "~/fisheye-mini-purcprod/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+        "cursorPosition" : "18,16",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

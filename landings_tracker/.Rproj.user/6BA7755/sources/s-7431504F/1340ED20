@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1600705277546.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1340ED20",
+    "lastKnownWriteTime" : 1600705999,
+    "last_content_update" : 1600705999,
+    "path" : "~/landings-tracker/covid_impacts_data_call.R",
+    "project_path" : "covid_impacts_data_call.R",
+    "properties" : {
+        "cursorPosition" : "145,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

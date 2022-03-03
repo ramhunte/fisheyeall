@@ -1,0 +1,673 @@
+-- Each new fix should be preceeded by an identifier with format:
+-- item FISH_TICKET_FIX_ID TABLE(either FT-fish ticket, NP- norpac, PL-permits)
+-- example: item xx FT
+
+-- SHOULD BE FIXED BY NEW PERMIT WORKFLOW, NEED TO CONFIRM
+
+-- item 27 FT # Permit flag
+
+-- item 26 FT # Permit flag
+
+-- item 25 FT # Permit flag
+
+-- item 68 PL # Permit flag
+
+-- item 56 PL # Permit flag
+
+-- item 51 PL # Permit flag
+
+-- item 11 PL # Permit flag
+
+-- item 10 FT # Permit flag
+
+-- item 9 PL # Permit flag
+
+-- item 5 PL # Permit flag
+
+-- CHECKING WTIH KAYLEIGH
+
+-- item 90 FT # Help. Change to DPN. In comprehensive_ft all gear fields are BMT. Originally they were SHT. Unsure what is correct.
+
+-- item 85 FT # Help. Looks like this ftid orginally had one line with gear as BTR and now it is LGL.
+
+-- item 46 FT # Help. This fix is to remove aquaculture from pacfin. Is that something we want to do with the raw data?
+
+-- item 38 FT Y402707 coded as E. Is that OK? Y431166 changed to R in data.
+
+-- Tickets logged in gitlab issues
+-- Find the next ticket number:
+-- select   max(to_number(regexp_substr(fish_ticket_fix_id, '[^/.]*'))) from fish_ticket_fixes
+
+-- item 124 FT
+update COMPREHENSIVE_FISH_TICKET set
+  VESSEL_NUM = '943569'
+where FTID in ('EA006702', 'EA006701') and AGENCY_CODE = 'W'
+
+-- item 123 FT
+update COMPREHENSIVE_FISH_TICKET set
+  VESSEL_NUM = '650768'
+where FTID = '124489E' and AGENCY_CODE = 'C'
+
+-- item 122 FT
+update COMPREHENSIVE_FISH_TICKET set
+  IS_TRAWL_ENDORSED = 'T',
+  DAHL_GROUNDFISH_CODE = 4
+where FTID = 'X252074' and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 121 FT
+update COMPREHENSIVE_FISH_TICKET set
+  IFQ_ACCOUNT_NUM = 'VADD5972',
+  GMT_SABLEFISH_CODE = 'IFQS',
+  IFQ_MANAGEMENT_AREA = '36 to 34"27',
+  IS_IFQ_LANDING = 'T'
+where FTID = 'O367739' and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 120 FT
+update COMPREHENSIVE_FISH_TICKET set
+  IFQ_ACCOUNT_NUM = 'VAML7012',
+  DAHL_GROUNDFISH_CODE = 20,
+  GMT_SABLEFISH_CODE = 'IFQS',
+  IFQ_MANAGEMENT_AREA = 'S of 34"27',
+  IS_IFQ_LANDING = 'T'
+where FTID = 'N200479' and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 119 FT
+update comprehensive_Fish_ticket set
+  FLEET_CODE = 'LE',
+  DAHL_GROUNDFISH_CODE = 4
+where FTID = '3951038' and pacfin_year = 2014 and agency_code = 'O'
+
+-- item 118 FT
+					
+update comprehensive_Fish_ticket set
+  GEAR_CODE = '049',
+  GEAR_NAME = 'TRAWL, FOOTROPE GREATER THAN 8 INCHES IN DIAMETER',
+  ADJUSTED_GEAR_CODE = 'GFL',
+  PACFIN_GEAR_CODE = 'GFL',
+  PACFIN_GEAR_DESCRIPTION = 'GROUNDFISH TRAWL, FOOTROPE > 8 IN.',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID in ('EA005083')
+ AND PACFIN_YEAR = 2019 AND AGENCY_CODE = 'W'
+
+--item 117 FT
+UPDATE comprehensive_fish_ticket SET dealer_num = concat(substr(dealer_num, 1, 5), concat('0', substr(dealer_num, 6, 2))) WHERE agency_code = 'C' AND length(dealer_num) = 7
+
+--item 116 FT
+update comprehensive_fish_ticket set vessel_num = '694038' where ftid in ('X255195', 'X263331', 'X263340', 'X263351', 'X263355') and agency_code = 'C' and pacfin_year = 2013 and vessel_num = '649038'
+
+-- item 115 FT
+update comprehensive_fish_ticket set vessel_num = 'OR606JF' where ftid in ('3447867',  '3447871') and agency_code = 'O' and pacfin_year = 2018 and vessel_num = '639209'
+
+-- DEALER NUMBER CLEAN UP
+-- item .10 FT
+update comprehensive_Fish_ticket set dealer_num = '02436001', dealer_name = 'PACIFIC CHOICE SEAFOOD COMPANY' where dealer_num = '02436000'
+
+-- item .11 FT
+update comprehensive_Fish_ticket set dealer_num = '02832001', dealer_name = 'CAITO FISHERIES INC' where dealer_num = '02832000'
+
+-- item .12 FT
+update comprehensive_Fish_ticket set dealer_num = '04053001', dealer_name = 'MORNING STAR' where dealer_num = '04053000'
+
+-- item .13 FT
+update comprehensive_Fish_ticket set dealer_num = '06866001', dealer_name = 'CENTRAL COAST SEAFOOD INC' where dealer_num = '06866000'
+
+-- item .14 FT
+update comprehensive_Fish_ticket set dealer_num = '10434001', dealer_name = 'GIUSEPPE  PENNISI - PENNISI, GIUSEPPE' where dealer_num = '10434000'
+
+-- item .15 FT
+update comprehensive_Fish_ticket set dealer_num = '10447001', dealer_name = 'MORRO BAY FISH COMPANY INC' where dealer_num = '10447000'
+
+-- item .16 FT
+update comprehensive_Fish_ticket set dealer_num = '10930001', dealer_name = 'PIER 45 SEAFOOD' where dealer_num = '10930000'
+
+-- item .17 FT
+update comprehensive_Fish_ticket set dealer_num = '11134001', dealer_name = 'ROYAL SEAFOODS' where dealer_num = '11134000'
+
+-- item .18 FT
+update comprehensive_Fish_ticket set dealer_num = '11480001', dealer_name = 'MORRO BAY FRESH' where dealer_num = '11480000'
+
+-- item .19 FT
+update comprehensive_Fish_ticket set dealer_num = '11528001', dealer_name = 'BAYSHORE FISH & EEL COMPANY - BAYSHORE SEAFOOD COMPANY' where dealer_num = '11528000'
+
+-- item .20 FT
+update comprehensive_Fish_ticket set dealer_num = '20634001', dealer_name = 'BETTENCOURT AND SON'  where dealer_num = '20634000'
+
+-- item .21 FT
+update comprehensive_Fish_ticket set dealer_num = '30782001', dealer_name = 'SEAFOOD SUPPLIERS - SEAFOOD SUPPLIERS INC'  where dealer_num = '30782000'
+
+-- item .22 FT
+update comprehensive_Fish_ticket set dealer_num = '31238001', dealer_name = 'NORTH COAST FISHERIES LLC'  where dealer_num = '31238000'
+
+-- item .23 FT
+update comprehensive_Fish_ticket set dealer_num = '31614001', dealer_name = 'OCEAN FRESH LLC'  where dealer_num = '31614000'
+
+-- item .24 FT
+update comprehensive_Fish_ticket set dealer_num = '32090001', dealer_name = 'THOMAS WINSLOW CAPEN - CAPEN, THOMAS'  where dealer_num = '3209000'
+
+-- item .25 FT
+update comprehensive_Fish_ticket set dealer_num = '32172001', dealer_name = 'DEYERLE BROTHERS SEAFOOD INC' where dealer_num = '32172000'
+
+-- item .26 FT
+update comprehensive_Fish_ticket set dealer_num = '40785001', dealer_name = 'FITZ BUSKIRK INC' where dealer_num = '40785000'
+
+-- item .27 FT
+update comprehensive_Fish_ticket set dealer_num = '40988001', dealer_name = 'ALBER SEAFOOD INC - ALBER SEAFOODS INC' where dealer_num = '40988000'
+
+-- item .28 FT
+update comprehensive_Fish_ticket set dealer_num = '60412001', dealer_name = 'DEGARIMORE INC - GIOVANNIS FISH MARKET' where dealer_num = '60412000'
+
+-- item .29 FT
+update comprehensive_Fish_ticket set dealer_num = '71199001', dealer_name = 'SOUTHERN CAL SEAFOOD INC           VERNON' where dealer_num = '71199000'
+
+-- item .30 FT
+update comprehensive_Fish_ticket set dealer_num = '72081001', dealer_name = 'SANTA BARBARA FISH MARKET INC' where dealer_num = '72081000'
+
+-- item .31 FT
+update comprehensive_Fish_ticket set dealer_num = '84460001', dealer_name = 'CENTRAL COAST SEAFOOD' where dealer_num = '84460000'
+
+-- item .32 FT
+update comprehensive_Fish_ticket set dealer_num = '84576001', dealer_name = 'MR. MORGAN FISHERIES INC' where dealer_num = '84576000'
+
+-- item .33 FT
+update comprehensive_Fish_ticket set dealer_num = '84730001', dealer_name = 'ROYAL SEAFOODS 1 - ROYAL SEAFOOD 1' where dealer_num = '84730000'
+
+-- item .34 FT
+update comprehensive_Fish_ticket set dealer_num = '85201001', dealer_name = 'GIUSEPPE  PENNISI - PENNISI, GIUSEPPE' where dealer_num = '85201000'
+
+-- item .35 FT
+update comprehensive_Fish_ticket set dealer_num = '85336001', dealer_name = 'FISHERMAN''S CHOICE, LLC - FISHERMA''S CHOICE, LLC' where dealer_num = '85336000'
+
+-- item 111 FT 
+update comprehensive_Fish_ticket set vessel_num = NULL, vessel_id = NULL, vessel_registration_id = NULL where ftid in ('4677323', '4677324') and agency_code = 'O' and pacfin_year=2017
+-- item 110 FT
+--permitflag
+update comprehensive_Fish_ticket set vessel_num = '694038' where ftid in ('X273547', 'X273546', 'X273532', 'X273536') and agency_code = 'C' and pacfin_year = 2017
+
+-- item 109 FT 
+--permitflag
+update comprehensive_Fish_ticket set vessel_num = '632207' where ftid = 'K134149' and agency_code = 'C' and pacfin_year = 2017
+
+-- item 105 FT
+update comprehensive_Fish_ticket set vessel_num = 'CF9543AH' where vessel_num = 'CF5943AH' and agency_code = 'C' and pacfin_year = 2017
+
+-- item 99.1 FT 
+delete from COMPREHENSIVE_FISH_TICKET where ftid in ('C151233','C151234','J114201','X249353','X249354', 'X249355','X247404', 'X247405', 'X275206') and pacfin_year = 2017 and agency_code = 'C'
+
+-- item 99.2 FT 
+delete from COMPREHENSIVE_FISH_TICKET where ftid = 'X236921' and pacfin_year = 2007 and agency_code = 'C'
+
+-- item 98 FT 
+-- permitflag
+update comprehensive_Fish_ticket set vessel_num = '274453' where ftid = 'K133727' and agency_code = 'C' and pacfin_year = 2012
+
+
+-- item 94.1 FT
+update comprehensive_Fish_ticket set dealer_num = '84460001' where ftid = 'V086951' and agency_code = 'C' and pacfin_year = 2012
+
+-- item 94.2 FT
+update comprehensive_Fish_ticket set dealer_num = '84460001' where ftid in ('V082044','V082048','V082049','V082045','V082056','V083853','V082043',
+'X259967','V082054','V082042','V082050','V082055','V082051','V082046','V082098','V082052','V082047', 'V082234') and agency_code = 'C' and pacfin_year = 2013
+
+-- item 94.3 FT
+update comprehensive_Fish_ticket set dealer_num = '84460001' where ftid in ('K131121', 'X263614', 'V086827') and agency_code = 'C' and pacfin_year = 2014
+
+-- item 92.1 FT
+update comprehensive_Fish_ticket set adjusted_gear_code = 'DGN' where ftid in ('R230201', 'P217129') and agency_code = 'C' and pacfin_year = 2007
+
+-- item 92.2 FT
+update comprehensive_Fish_ticket set adjusted_gear_code = 'DGN' where ftid in ('R234168') and agency_code = 'C' and pacfin_year = 2011 -- R234167 didn't exist
+
+-- item 92.3 FT
+update comprehensive_Fish_ticket set adjusted_gear_code = 'DGN' where ftid in ('D471708') and agency_code = 'C' and pacfin_year = 2008
+
+-- item 92.4 FT
+update comprehensive_Fish_ticket set adjusted_gear_code = 'DGN' where ftid in ('R254155', 'P242347','P242341','P244480','P242343','R254156','R258251','P242342','R254154') and agency_code = 'C' and pacfin_year = 2015
+
+-- item 89 FT 
+
+update comprehensive_Fish_ticket set adjusted_gear_code = 'LGL' where ftid in ('X268799') and agency_code = 'C' and pacfin_year = 2015
+
+-- item 88 FT
+update comprehensive_Fish_ticket set adjusted_gear_code = 'POL' where ftid in ('V090726', 'V090709') and agency_code = 'C' and pacfin_year = 2015
+
+-- item 87 FT
+update comprehensive_Fish_ticket set
+  GEAR_CODE = '050',
+  GEAR_NAME = 'TRAWL NET',
+  ADJUSTED_GEAR_CODE = 'OTW',
+  PACFIN_GEAR_CODE = 'OTW',
+  PACFIN_GEAR_DESCRIPTION = 'OTHER TRAWL GEAR',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = 'K120470' AND PACFIN_YEAR = 2002 AND AGENCY_CODE = 'C'
+
+-- item 86 FT 
+update comprehensive_Fish_ticket set adjusted_gear_code = 'VHL' where ftid in ('K135353', 'K135354') and agency_code = 'C' and pacfin_year = 2014
+
+-- item 84 FT 
+update comprehensive_Fish_ticket set adjusted_gear_code = 'CLP' where ftid in ('D464554') and agency_code = 'C' and pacfin_year = 2010
+
+-- item 83 FT 
+update comprehensive_fish_ticket set 
+    GEAR_CODE = '021',
+    GEAR_NAME = 'FISH TRAP',
+    ADJUSTED_GEAR_CODE = 'FPT',
+    PACFIN_GEAR_CODE = 'FPT',
+    PACFIN_GEAR_DESCRIPTION = 'FISH POT',
+    PACFIN_GROUP_GEAR_CODE = 'POT'
+  where ftid = 'K134135' and agency_code = 'C' and pacfin_year = 2014
+
+-- item 82 FT 
+
+  update comprehensive_fish_ticket set 
+    PACFIN_GEAR_CODE = 'OPT',
+    PACFIN_GEAR_DESCRIPTION = 'OTHER POT',
+    PACFIN_GROUP_GEAR_CODE = 'POT'
+  where ftid = 'N192754' and pacfin_year = 2009 and agency_code = 'C'
+
+-- item 79 FT 
+update comprehensive_Fish_ticket set 
+    GEAR_CODE = '003',
+    GEAR_NAME = 'VERTICAL HOOK AND LINE/PORTUGUESE LONGLINE',
+    ADJUSTED_GEAR_CODE = 'VHL',
+    PACFIN_GEAR_CODE = 'VHL',
+    PACFIN_GEAR_DESCRIPTION = 'VERTICAL HOOK AND LINE GEAR',
+    PACFIN_GROUP_GEAR_CODE = 'VHL'
+where ftid = 'K135352' and pacfin_year = 2014 and agency_code = 'C'
+
+-- item 78 FT 
+update comprehensive_Fish_ticket set adjusted_gear_code = 'GFS' 
+where ftid in ('K135351', 'K131699', 'K131700') and agency_code = 'C' and pacfin_year = 2014
+
+-- item 77 FT 
+update comprehensive_Fish_ticket set gear_code = '048', gear_name = 'TRAWL, FOOTROPE LESS THAN 8 INCHES IN DIAMETER', adjusted_gear_code = 'GFS', pacfin_gear_code = 'GFS', pacfin_gear_description = 'GROUNDFISH TRAWL, FOOTROPE < 8 IN.', pacfin_group_gear_code = 'TWL' 
+where ftid = 'K131698' and pacfin_year = 2014 and agency_code = 'C'
+
+-- item 75 FT 
+update comprehensive_Fish_ticket set gear_code = '048', gear_name = 'TRAWL, FOOTROPE LESS THAN 8 INCHES IN DIAMETER', adjusted_gear_code = 'GFS', pacfin_gear_code = 'GFS', pacfin_gear_description = 'GROUNDFISH TRAWL, FOOTROPE < 8 IN.', pacfin_group_gear_code = 'TWL' 
+where ftid = 'D353582' and pacfin_year = 2003 and agency_code = 'C' and pacfin_gear_code = 'USP' and pacfin_group_gear_code = 'MSC'
+
+-- item 74 FT 
+update comprehensive_Fish_ticket set adjusted_gear_code = 'DGN' where ftid in ('H082167') and agency_code = 'C' and pacfin_year = 2014
+
+-- item 73 FT 
+update comprehensive_Fish_ticket set gear_code = '050', gear_name = 'TRAWL NET', adjusted_gear_code = 'OTW', pacfin_gear_code = 'OTW', pacfin_gear_description = 'OTHER TRAWL GEAR', pacfin_group_gear_code = 'TWL' 
+where ftid = 'C124028' and pacfin_year = 2007 and agency_code = 'C'
+
+-- item 72 FT 
+update comprehensive_Fish_ticket set gear_code = '050', gear_name = 'TRAWL NET', adjusted_gear_code = 'OTW', pacfin_gear_code = 'OTW', pacfin_gear_description = 'OTHER TRAWL GEAR', pacfin_group_gear_code = 'TWL' 
+where ftid = 'K126730' and pacfin_year = 2005 and agency_code = 'C'
+
+-- item 71 FT 
+update comprehensive_Fish_ticket set gear_code = '073', gear_name = 'DRUM PURSE SEINE', adjusted_gear_code = 'SEN', pacfin_gear_code = 'SEN', pacfin_gear_description = 'SEINE', pacfin_group_gear_code = 'NET' 
+where ftid = 'W241007' and pacfin_year = 2004 and agency_code = 'C' -- chose drum purse seine because most of 2004 SEN were 073
+
+-- item 71 FT 
+update comprehensive_Fish_ticket set gear_code = '073', gear_name = 'DRUM PURSE SEINE', adjusted_gear_code = 'SEN', pacfin_gear_code = 'SEN', pacfin_gear_description = 'SEINE', pacfin_group_gear_code = 'NET' 
+where ftid = 'W318042' and pacfin_year = 2010 and agency_code = 'C' -- chose drum purse seine because all of 2010 SEN were 073
+
+-- item 70 FT 
+update comprehensive_Fish_ticket set gear_code = '120', gear_name = 'OCEAN TROLL', adjusted_gear_code = 'TRL', pacfin_gear_code = 'TRL', pacfin_gear_description = 'TROLL', pacfin_group_gear_code = 'TLS' 
+where ftid = 'D325974' and pacfin_year = 2004 and agency_code = 'C'
+
+-- item 69 FT 
+delete from COMPREHENSIVE_FISH_TICKET where ftid = 'J110201' and pacfin_year = 2013 and agency_code = 'C'
+
+-- item 67 FT 
+update comprehensive_Fish_ticket set gear_code = '048', gear_name = 'TRAWL, FOOTROPE LESS THAN 8 INCHES IN DIAMETER', adjusted_gear_code = 'GFS', pacfin_gear_code = 'GFS', pacfin_gear_description = 'GROUNDFISH TRAWL, FOOTROPE < 8 IN.', pacfin_group_gear_code = 'TWL' 
+where ftid = 'X249978' and pacfin_year = 2014 and agency_code = 'C'
+
+-- item 63 FT 
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '049',
+  GEAR_NAME = 'TRAWL, FOOTROPE GREATER THAN 8 INCHES IN DIAMETER',
+  ADJUSTED_GEAR_CODE = 'GFL',
+  PACFIN_GEAR_CODE = 'GFL',
+  PACFIN_GEAR_DESCRIPTION = 'GROUNDFISH TRAWL, FOOTROPE > 8 IN.',
+  PACFIN_GROUP_GEAR_CODE = 'TWL' 
+where ftid = 'EA002156' and pacfin_year = 2013 and agency_code = 'W'
+
+-- item 62 FT 
+update comprehensive_Fish_ticket set gmt_sablefish_code = NULL 
+where ftid = 'X235991' and agency_code = 'C' and pacfin_year = 2009 -- Do any of the gear codes need to be changed on this one?
+
+-- item 57/2/4 FT # Help. No longer any dealer_num = 31238 associated with X253663, X253636 but the dealer_name is UNKNOWN so they are incorrect. Should they both be 3123801?
+delete from comprehensive_fish_ticket where ftid = 'X253663' and pacfin_year = 2013 and agency_code = 'C'
+
+-- item 52.1 FT 
+update comprehensive_Fish_ticket set fleet_code = 'R' where ftid = '3357348' and agency_code = 'C' and pacfin_year = 2015
+
+-- item 52.2 FT 
+update comprehensive_Fish_ticket set fleet_code = 'R' where ftid in ('3958958','3950964') and agency_code = 'C' and pacfin_year = 2013
+
+
+-- item 48 FT 
+delete from COMPREHENSIVE_FISH_TICKET where ftid = 'X240146' and pacfin_year = 2009 and agency_code = 'C'
+
+
+-- item 44 FT 
+update comprehensive_Fish_ticket set landing_day = 19, landing_date = '19-JUN-2009' where ftid = 'V058892' and agency_code = 'C' and pacfin_year = 2009 -- Not sure why this was changed but assuming it is OK
+
+-- item 43 FT 
+update comprehensive_fish_ticket set pacfin_year = 2018, landing_year = 2018, landing_date = '18-AUG-2008'
+where ftid = 'V057531'and pacfin_year = 2008 and agency_code = 'C'
+
+-- item 42 FT 
+update comprehensive_Fish_ticket set landing_day = 31, landing_date = '31-MAY-2006' 
+where ftid = 'X219025' and agency_code = 'C' and pacfin_year = 2006 and council_code = 'P' --Not sure why this was changed but assuming it is OK
+
+-- item 41 FT 
+update comprehensive_Fish_ticket set landing_day = 4, landing_month = 6, landing_date = '04-JUN-2004' 
+where ftid = 'X226798' and agency_code = 'C' and pacfin_year = 2004 and council_code = 'P' -- Not sure why this was changed but assuming it is OK
+
+-- item 40 FT 
+update comprehensive_Fish_ticket set landing_month = 3, landing_date = '12-MAR-2004'
+where ftid = 'O262055' and agency_code = 'C' and pacfin_year = 2004 -- Not sure why this was changed but assuming it is OK
+
+-- item 39 FT 
+update comprehensive_Fish_ticket set landing_day = 24, landing_date = '24-AUG-2003' 
+where ftid = 'N169707' and agency_code = 'C' and pacfin_year = 2003 -- Not sure why this was changed but assuming it is OK
+
+-- item 38.1 FT 
+update comprehensive_Fish_ticket set removal_type_code = 'R', removal_type_name = 'RESEARCH' where ftid in ('X406896', 'X406895')  and agency_code = 'W' and pacfin_year = 2011
+
+-- item 38.2 FT 
+update comprehensive_Fish_ticket set removal_type_code = 'R', removal_type_name = 'RESEARCH' where ftid in ('3953787') and agency_code = 'O' and pacfin_year = 2011
+
+-- item 37 FT 
+update comprehensive_Fish_ticket set vessel_num = 'CF2485HP' where ftid = 'D606699' and agency_code = 'C' and pacfin_year = 2015
+
+-- item 36 FT 
+update comprehensive_Fish_ticket set vessel_num = 'CF5462GE' where ftid = 'V067470' and agency_code = 'C' and pacfin_year = 2013
+
+-- item 35 FT 
+update comprehensive_Fish_ticket set vessel_num = 'CF2519KC' where ftid in ('C134675', 'C134667') and agency_code = 'C' and pacfin_year = 2011
+
+-- item 33 FT 
+update comprehensive_Fish_ticket set vessel_num = '294764' where ftid in ('X234987') and agency_code = 'C' and pacfin_year = 2008 -- I removed council_code = 'P' because the only record for 2008 is P
+
+-- item 32 FT 
+update comprehensive_fish_ticket set vessel_num = 'CF8460ET' where ftid = 'V034278' and agency_code = 'C' and pacfin_year = 2008 
+
+-- item 31 FT 
+update comprehensive_Fish_ticket set vessel_num = '532419' where ftid in ('3939616','3939629') and agency_code = 'O' and pacfin_year = 2006
+
+-- item 30 FT 
+update comprehensive_Fish_ticket set vessel_num = '511697' where ftid = 'V409573'  and agency_code = 'W' and pacfin_year = 2004 
+
+-- item 30.1 FT
+update comprehensive_fish_ticket set vessel_num = '511697' where ftid = 'EA001091' and agency_code = 'W' and pacfin_year = 2017
+
+-- item 29 FT 
+update comprehensive_Fish_ticket set vessel_num = '1133261' where ftid in ('O262676') and agency_code = 'C' and pacfin_year = 2004
+
+-- 56 is split into two lines because there was one 2015 ticket and the rest are 2016
+-- item 56.1 FT
+update pacfin.comprehensive_fish_ticket set vessel_num = '694038' where ftid in ('X271519', 'X271518',  'X271507', 'X273502', 'X271550') and pacfin_year = 2016 and agency_code = 'C'
+
+-- item 56.2 FT
+update pacfin.comprehensive_fish_ticket set vessel_num = '694038' where ftid = 'X268787' and pacfin_year = 2015 and agency_code = 'C'
+
+-- item 24 FT 
+update comprehensive_Fish_ticket set vessel_num = '694038' where ftid in ('X268860', 'X268866', 'X268861', 'X268868', 'X268865', 'X268824', 'X268780', 'X268779', 'X268854') and pacfin_year = 2015 and agency_code = 'C'
+
+-- item 23.1 FT
+delete from COMPREHENSIVE_FISH_TICKET where ftid in ('X252782') and pacfin_year = 2011 and agency_code = 'C' and council_code = 'P'
+
+-- item 23.2 FT
+delete from COMPREHENSIVE_FISH_TICKET where ftid in ('B028655') and pacfin_year = 2009 and agency_code = 'C' and council_code = 'P'
+
+-- item 23.3 FT
+delete from COMPREHENSIVE_FISH_TICKET where ftid in ('V033939') and pacfin_year = 2006 and agency_code = 'C' and council_code = 'P'
+
+-- item 17.1 FT
+update comprehensive_Fish_ticket set is_ifq_landing = 'T' where ftid = 'X260326' and pacfin_year = 2014 and agency_code = 'C'
+
+-- item 17.2 FT
+update comprehensive_Fish_ticket set is_ifq_landing = 'T' where ftid in ('N200479','O367739') and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 17.3 FT
+update comprehensive_Fish_ticket set is_ifq_landing = 'T' where ftid = 'J110202' and pacfin_year = 2013 and agency_code = 'C'
+
+-- item 16 FT 
+delete from COMPREHENSIVE_FISH_TICKET where ftid in ('V262233') and pacfin_year = 2014 and agency_code = 'C'
+
+-- item 14 FT
+update comprehensive_Fish_ticket set gmt_sablefish_code = NULL where ftid = 'Y423532' and pacfin_year = 2013 and agency_code = 'C'
+
+-- item 11 FT 
+update comprehensive_Fish_ticket set vessel_num = '538580' where ftid = '3951038' and pacfin_year = 2014 and agency_code = 'O'
+
+-- item 10 FT 
+update comprehensive_Fish_ticket set vessel_num = '594919' where ftid = 'D545851' and pacfin_year = 2012 and agency_code = 'C'
+
+-- item 9 FT
+update comprehensive_Fish_ticket set vessel_num = '580135' where ftid = 'Y407578' and pacfin_year = 2011 and agency_code = 'W'
+
+-- item 7 FT  
+update comprehensive_Fish_ticket set vessel_num = '210244' where ftid = 'N200476' and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 6 FT  
+update comprehensive_Fish_ticket set vessel_num = '299710' where ftid = 'X252368' and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 3 FT
+update comprehensive_Fish_ticket set landing_day = '6', landing_date = '06-JAN-2013' where ftid = 'X261806' and pacfin_year = 2013 and agency_code = 'C'
+
+
+-- item 1 FT 
+update comprehensive_Fish_ticket set vessel_num = '694038' where ftid in ('X263650', 'X263685', 'X264352', 'X264340', 'X264338', 'X264331', 'X263698') and agency_code = 'C' and pacfin_year = 2014
+
+-- RECENT REVIEWS BY ERIN FOR KAYLEIGH
+-- item 114.1 FT 
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '049',
+  GEAR_NAME = 'TRAWL, FOOTROPE GREATER THAN 8 INCHES IN DIAMETER',
+  ADJUSTED_GEAR_CODE = 'GFL',
+  PACFIN_GEAR_CODE = 'GFL',
+  PACFIN_GEAR_DESCRIPTION = 'GROUNDFISH TRAWL, FOOTROPE > 8 IN.',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = '50029843' AND PACFIN_YEAR = 2018 AND AGENCY_CODE = 'O'
+
+-- item 114.2 FT
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '021',
+  GEAR_NAME = 'FISH TRAP',
+  ADJUSTED_GEAR_CODE = 'FPT',
+  PACFIN_GEAR_CODE = 'FPT',
+  PACFIN_GEAR_DESCRIPTION = 'FISH POT',
+  PACFIN_GROUP_GEAR_CODE = 'POT'
+WHERE FTID = '103773E' AND PACFIN_YEAR = 2018 AND AGENCY_CODE = 'C'
+
+-- item 113 FT 
+update comprehensive_Fish_ticket set vessel_num = '632207' where ftid = 'J115554' and agency_code = 'C' and pacfin_year = 2018
+
+-- item 112 FT
+delete from COMPREHENSIVE_FISH_TICKET where ftid = 'O098573' and pacfin_year = 2018 and agency_code = 'C'
+
+-- item 106.1 FT
+update comprehensive_Fish_ticket set vessel_num = '603897' where ftid in ('J106529', 'J106528', 'J106542') and agency_code = 'C' and pacfin_year = 2017
+
+-- item 106.2 FT
+update comprehensive_Fish_ticket set vessel_num = '630024' where ftid in ('X270717') and agency_code = 'C' and pacfin_year = 2017
+
+-- item 106.3 FT
+update comprehensive_Fish_ticket set vessel_num = '632207' where ftid in ('K134150') and agency_code = 'C' and pacfin_year = 2017
+
+-- item 106.4 FT
+update comprehensive_Fish_ticket set vessel_num = 'CF3247SL' where ftid in ('C156502') and agency_code = 'C' and pacfin_year = 2017
+
+-- item 104.1 FT
+update comprehensive_Fish_ticket set vessel_num = '523758' where ftid = 'X275219' and agency_code = 'C' and pacfin_year = 2017
+
+-- item 104.2 FT
+update comprehensive_Fish_ticket set vessel_num = 'OR32AEW' where ftid in ('3382394', '3382396') and agency_code = 'O' and pacfin_year = 2017
+
+
+-- item 101.1 FT
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '048',
+  GEAR_NAME = 'TRAWL, FOOTROPE LESS THAN 8 INCHES IN DIAMETER',
+  ADJUSTED_GEAR_CODE = 'GFS',
+  PACFIN_GEAR_CODE = 'GFS',
+  PACFIN_GEAR_DESCRIPTION = 'GROUNDFISH TRAWL, FOOTROPE < 8 IN.',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = 'D353582' AND PACFIN_YEAR = 2003 AND AGENCY_CODE = 'C'
+
+-- item 101.2 FT
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '048',
+  GEAR_NAME = 'TRAWL, FOOTROPE LESS THAN 8 INCHES IN DIAMETER',
+  ADJUSTED_GEAR_CODE = 'GFS',
+  PACFIN_GEAR_CODE = 'GFS',
+  PACFIN_GEAR_DESCRIPTION = 'GROUNDFISH TRAWL, FOOTROPE < 8 IN.',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = 'K131698' AND PACFIN_YEAR = 2014 AND AGENCY_CODE = 'C'
+
+-- item 101.3 FT
+-- this one had a "good adjusted gear code, but all of the others were wrong
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '050',
+  GEAR_NAME = 'TRAWL NET',
+  PACFIN_GEAR_CODE = 'OTW',
+  PACFIN_GEAR_DESCRIPTION = 'OTHER TRAWL GEAR',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = 'C124028' AND PACFIN_YEAR = 2007 AND AGENCY_CODE = 'C'
+
+-- item 101.4 FT
+-- this one had a "good adjusted gear code, but all of the others were wrong
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '050',
+  GEAR_NAME = 'TRAWL NET',
+  PACFIN_GEAR_CODE = 'OTW',
+  PACFIN_GEAR_DESCRIPTION = 'OTHER TRAWL GEAR',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = 'K126730' AND PACFIN_YEAR = 2005 AND AGENCY_CODE = 'C'
+
+-- item 101.5 FT
+UPDATE COMPREHENSIVE_FISH_TICKET SET 
+  GEAR_CODE = '050',
+  GEAR_NAME = 'TRAWL NET',
+  ADJUSTED_GEAR_CODE = 'OTW',
+  PACFIN_GEAR_CODE = 'OTW',
+  PACFIN_GEAR_DESCRIPTION = 'OTHER TRAWL GEAR',
+  PACFIN_GROUP_GEAR_CODE = 'TWL'
+WHERE FTID = 'H077538' AND PACFIN_YEAR = 2004 AND AGENCY_CODE = 'C'
+
+
+-- item 100.1 FT
+update comprehensive_Fish_ticket set removal_type_code = 'R' where ftid = '3336198' and pacfin_year = 2006 and agency_code = 'O'
+
+-- item 100.2 FT
+update comprehensive_Fish_ticket set removal_type_code = 'R' where ftid = '3329780' and pacfin_year = 2007 and agency_code = 'O'
+
+-- item 100.3 FT
+update comprehensive_Fish_ticket set removal_type_code = 'R' where ftid = 'Y406306' and pacfin_year = 2009 and agency_code = 'W'
+
+-- item 100.4 FT
+update comprehensive_Fish_ticket set removal_type_code = 'R' where ftid = 'Y410131' and pacfin_year = 2010 and agency_code = 'W'
+
+-- WAITING FOR KAYLEIGH REVIEW OF ERIN PROPOSAL
+
+-- new1 FT - when ashley was doing the California -000 instead of -001 checks we came across a few companies that aren't FRSL, upon further inspection, the dealer_num was incorrect
+
+-- item 100.5 FT
+update comprehensive_Fish_ticket set dealer_num = '11528001', dealer_name = 'BAYSHORE FISH & EEL COMPANY - BAYSHORE SEAFOOD COMPANY' where ftid in ('X253612',	'X253554',	'X253617',	'X253551',	'X253561',	'X253619',	'X253618',	'X253623',	'X253556',	'X253560',	'X253574',	'X253620')
+and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 100.6 FT
+update comprehensive_Fish_ticket set dealer_num = '11528001', dealer_name = 'BAYSHORE FISH & EEL COMPANY - BAYSHORE SEAFOOD COMPANY' 
+where ftid in ('X254184', 'X256352', 'X256351')
+and pacfin_year = 2011 and agency_code = 'C'
+
+-- item 21.1 FT 
+delete from COMPREHENSIVE_FISH_TICKET where (
+(ftid = 'X265848' and pacfin_year = 2011) or
+(ftid in ('D591386', 'X241403') and pacfin_year = 2016))
+and agency_code = 'C' and council_code = 'P'
+
+-- item 21.2 FT
+update comprehensive_Fish_ticket set 
+  vessel_num = '1176819',
+  pacfin_year = 2011,
+  declaration_codes = 211,
+  declaration_types = 'Limited entry groundfish non-trawl, shorebased IFQ'
+where ftid = 'X265848' and pacfin_year = 2015 and agency_code = 'C'
+
+-- item 20 FT
+delete from COMPREHENSIVE_FISH_TICKET where ftid = 'X252579' and pacfin_year = 2011 and agency_code = 'C'
+
+-- FIXED ON PACFIN END
+
+-- item 108 FT # Change reflected in comprehensive_ft
+
+-- item 107 FT # Pending. Change reflected in comprehensive_ft
+-- item 104 FT for Z953229 changed reflected.
+
+-- item 103 FT # Pending. Change reflected in comprehensive_ft
+
+-- item 102 FT # Pending. Change reflected in comprehensive_ft
+
+-- item 96 FT # Change reflected in comprehensive_ft
+
+-- item 95 FT # Change reflected in comprehensive_ft
+
+-- item 93 FT # Pending. Change reflected in comprehensive_ft
+
+-- item 91 FT # Change reflected in comprehensive_ft
+
+-- item 87 FT # R217305 and P192294 have been fixed (though pacfin_gear_group is set to twl in pacfin and not net, but I think that's correct)
+
+-- item 83 FT # X271336 looks like change was implemented.
+
+-- item 80 FT # Change reflected in comprehensive_ft
+
+-- item 77 FT # Change reflected in comprehensive_ft for X239550
+
+-- item 76 FT # Change reflected in comprehensive_ft 
+
+-- item 66 FT # Change reflected in comprehensive_ft 
+
+-- item 65 FT # Change reflected in comprehensive_ft 
+
+-- item 64 FT # Change reflected in comprehensive_ft 
+
+-- item 61 FT # Change reflected in comprehensive_ft 
+
+-- item 60 FT # Change reflected in comprehensive_ft 
+
+-- item 59 FT # Change reflected in comprehensive_ft 
+
+-- item 58 FT # Change reflected in comprehensive_ft
+
+-- item 55 FT # Change reflected in comprehensive_ft 
+
+-- item 54 FT # Change reflected in comprehensive_ft # Permit flag
+
+-- item 50 FT # Change reflected in comprehensive_ft 
+
+-- item 49 FT # Change reflected in comprehensive_ft 
+
+-- item 47 FT # This was about the fishery designation and EDC is currently using the correct designation
+
+-- item 34 FT # Change reflected in comprehensive_ft 
+
+-- item 28 FT # Change reflected in comprehensive_ft
+
+-- item 22 FT # Change reflected in comprehensive_ft
+
+-- item 21 FT # 3948982 had been fixed to F
+
+-- item 19 FT # Change reflected in comprehensive_ft
+
+-- item 18 FT # Change reflected in comprehensive_ft
+
+-- item 15 NP # Change reflected in comprehensive_npac
+
+-- item 13 FT # Change reflected in comprehensive_ft
+
+-- item 8 FT # Change reflected in comprehensive_ft
+
+-- item 5 FT # Change reflected in comprehensive_ft
+
+-- item 4 FT # Change reflected in comprehensive_ft
+
+-- item 2 FT # Change reflected in comprehensive_ft

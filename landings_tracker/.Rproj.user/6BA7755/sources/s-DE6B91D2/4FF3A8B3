@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1593200565845.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "4FF3A8B3",
+    "lastKnownWriteTime" : 2089612976200,
+    "last_content_update" : 1593200565845,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "527DF012",
+        "caption" : "conftable",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=conftable&cache_key=527DF012",
+        "displayedObservations" : 33578,
+        "environment" : "",
+        "expression" : "conftable",
+        "object" : "conftable",
+        "preview" : 0,
+        "totalObservations" : 33578,
+        "variables" : 7
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

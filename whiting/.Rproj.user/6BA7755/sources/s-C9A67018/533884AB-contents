@@ -1,0 +1,435 @@
+library(shiny)
+library(shinyBS)
+library(ggplot2)
+library(grid)
+library(dplyr)
+library(scales)
+library(DT)
+
+load("mini_whiting.RData")
+data <- data_final %>%
+  # mutate(Value = case_when(
+  #   unit == '' ~ Value,
+  #   unit == 'thousands' ~ round(Value/1e3,2),
+  #   unit == 'millions' ~ round(Value/1e6,2),
+  #   unit == 'billions' ~ round(Value/1e9,2),
+  #   T ~ -999)) %>%
+  data.frame()
+
+##UI part of the app. The ui piece is not reactive and is used for setting up the permanent pieces of the app.
+ui <- fluidPage(
+  titlePanel("FISHEyE: Whiting mini-app"),
+  sidebarLayout(
+    sidebarPanel(uiOutput("tabs")),
+    mainPanel(
+      tabsetPanel(type = "tabs",
+                  tabPanel("Plot", 
+                           conditionalPanel(condition = "input.tab_type == 'Summary' & input.xaxisInput != 'Year'",
+                                            plotOutput("xyplot")),
+                           conditionalPanel(condition = "input.tab_type == 'Summary' & input.xaxisInput == 'Year'",
+                                            plotOutput("yearplot")),
+                           conditionalPanel(condition = "input.tab_type == 'By product type'",
+                                            plotOutput("productplot"))),
+                  tabPanel("Table", DT::dataTableOutput("table"))
+      )
+    )
+  ))
+
+##SERVER part of the app. The server piece contains all reactive components.
+server <- function(input, output, session) {
+##Reactive component of the sidebar using renderUI and uiOutput functions####
+  ##This allows us to update the sidebar based on other inputs##
+  
+  ##Summary tab components
+  ##Summary tab: yaxis options
+  output$yaxisInput <- renderUI({
+    if(input$xaxisInput == 'Year') {
+      if(input$linesInput == 'Sector') {
+        checkboxGroupInput("yaxisInput", "Y-Axis Variables:", choices = c('Purchase cost',
+                                                                       'Purchase weight',
+                                                                       'Purchase price per lb',
+                                                                       'Production value',
+                                                                       'Production weight',
+                                                                       'Production value per lb',
+                                                                       'Markup'), selected = 'Purchase cost')
+    ##Setting up the sidebar for when plotting multiple metrics on same graph. Only want certain metrics shown together
+      } else {
+        radioButtons('yaxisInput', 'Y-Axis Variables:', choices = c('Purchase cost',
+                                                                    'Purchase weight',
+                                                                    'Purchase price per lb'), selected = 'Purchase cost')
+    }
+
+    } else if(input$xaxisInput == 'Purchase weight') {
+        checkboxGroupInput('yaxisInput', 'Y-Axis Variables:', choices = 'Purchase cost', selected = 'Purchase cost')
+      } else {
+        checkboxGroupInput('yaxisInput', 'Y-Axis Variables:', choices = 'Production value', selected = 'Production value')
+      }
+  })
+  ##Summary tab: yaxis options when lines = Metric (added this as a conditionalPanel element)
+  output$yaxisbInput <- renderUI({
+    if(input$xaxisInput == 'Year') {
+      if(input$yaxisInput == 'Purchase cost') {
+      radioButtons('yaxisbInput', 'Y-Axis Variable 2:', choices = 'Production value', selected = 'Production value')
+    } else if(input$yaxisInput == 'Purchase weight') {
+      radioButtons('yaxisbInput', 'Y-Axis Variable 2:', choices = 'Production weight', selected = 'Production weight')
+    } else {
+      radioButtons('yaxisbInput', 'Y-Axis Variable 2:', choices = 'Production value per lb', selected = 'Production value per lb')
+    }}
+  })
+  ##Summary tab: graph line options
+  output$linesInput <- renderUI({
+    if(input$xaxisInput == 'Year') {
+      radioButtons('linesInput', 'Grouping Variable (multiple lines):', choices = c('Sector','Metric'), selected = 'Sector')
+    } else {
+      radioButtons('linesInput', 'Grouping Variable (multiple lines):', choices = 'Year', selected = 'Year')
+    }
+  })
+  ##Summary tab: graph facet options
+  output$facetInput <- renderUI({
+    if(input$xaxisInput == 'Year') {
+      if(input$linesInput == 'Sector') {
+      radioButtons('facetInput', 'Grouping Variable (multiple plots):', choices = 'Metric', selected = 'Metric')
+    } else{
+      radioButtons('facetInput', 'Grouping Variable (multiple plots):', choices = 'Sector', selected = 'Sector')
+    }} else {
+      radioButtons('facetInput', 'Grouping Variable (multiple plots):', choices = 'Sector', selected = 'Sector')
+    }
+  })
+  ##Summary tab: stat options
+  output$statInput <- renderUI({
+    radioButtons("statInput","Statistic:", choices = unique(data$Statistic), selected = "Median")
+  })
+  ##Summary tab: sector options
+  output$sectorInput <- renderUI({
+    checkboxGroupInput("sectorInput","Sector:", choices = unique(data$Sector), selected = "Mothership")
+  })
+  
+  ##Product tab components
+  ##Product tab: yaxis options (types of products). These are updated with the help of an 'observer'
+  output$yaxis2Input <- renderUI({
+    checkboxGroupInput("yaxis2Input", "", choices = c("Production value (Surimi)",
+                                                      #'Production value(Canned)',
+                                                      "Production value (Fillet)",
+                                                      "Production value (Headed-and-Gutted)",
+                                                      "Production value (Unprocessed)",
+                                                      "Production value (Fishmeal)",
+                                                      "Production value (Fish oil)",
+                                                      #"Production value (Fresh)",
+                                                      "Production value (Frozen)",
+                                                      #"Production value (Roe)",
+                                                      "Production value (Minced)", 
+                                                      #"Production value (Stomach)",
+                                                      "Production value (Other)"), selected = 'Production value (Surimi)')
+  })
+  ##Product tab: select type of metric (production weight, value, value per lb)
+  output$producttypeInput <- renderUI({
+    selectInput(inputId = 'producttypeInput',
+                label = "Y-Axis Variable",
+                choices = c('Production value', 'Production weight', 'Production value per lb'),
+                selectize = F)
+  })
+  ##Product tab: graph line options
+  output$lines2Input <- renderUI({
+    radioButtons("lines2Input", "Grouping Variable (multiple lines):", choices = c("Sector", "Metric"), selected = 'Sector')
+  })
+  ##Product tab: graph facet options
+  output$facet2Input <- renderUI({
+   if(input$lines2Input == 'Sector') {
+   radioButtons('facet2Input', "Grouping Variable (multiple plots):", choices = 'Metric', selected = 'Metric')
+   } else {
+     radioButtons('facet2Input', "Grouping Variable (multiple plots):", choices = 'Sector', selected = 'Sector')
+   }
+ })
+  ##Product tab: stat options
+  output$stat2Input <- renderUI({
+    radioButtons("stat2Input","Statistic:", choices = unique(data$Statistic), selected = "Median")
+  })
+  ##Product tab: sector options
+  output$sector2Input <- renderUI({
+    checkboxGroupInput("sector2Input","Sector:", choices = unique(data$Sector), selected = "Mothership")
+  })
+ 
+  ##Putting the summary and product tab together
+  output$tabs <- renderUI({
+    tabsetPanel(
+      tabPanel("Summary", 
+                radioButtons("xaxisInput", "X-Axis Variable:", choices = c('Year','Purchase weight','Purchase cost'), selected = "Year"),
+                uiOutput("yaxisInput"),
+               conditionalPanel(condition = "input.xaxisInput == 'Year' & input.linesInput == 'Metric'", uiOutput('yaxisbInput')),
+                uiOutput("linesInput"),
+                uiOutput("facetInput"),
+                uiOutput("statInput"),
+                uiOutput("sectorInput")),
+      tabPanel("By product type",
+               radioButtons("xaxis2Input", "X-Axis Variable:", choices = 'Year', selected = "Year"),
+               uiOutput("producttypeInput"),
+               uiOutput("yaxis2Input"),
+               uiOutput("lines2Input"),
+               uiOutput("facet2Input"),
+               uiOutput("stat2Input"),
+               uiOutput("sector2Input")),
+      id = "tab_type", type = c("tabs"))
+  })
+  
+  ##Observer
+  ##Observe the selection of metric within the product type tab
+  ##I was unable to get the list to update based on the selectInput without using observe
+  observe({
+    if(is.null(input$producttypeInput)) {
+      return()
+    } else if(input$producttypeInput == 'Production value') {
+      updateCheckboxGroupInput(session, "yaxis2Input", "", choices = c("Production value (Surimi)",
+                                                                       #'Production value(Canned)',
+                                                                       "Production value (Fillet)",
+                                                                       "Production value (Headed-and-Gutted)",
+                                                                       "Production value (Unprocessed)",
+                                                                       "Production value (Fishmeal)",
+                                                                       "Production value (Fish oil)",
+                                                                       #"Production value (Fresh)",
+                                                                       "Production value (Frozen)",
+                                                                       #"Production value (Roe)",
+                                                                       "Production value (Minced)", 
+                                                                       #"Production value (Stomach)",
+                                                                       "Production value (Other)"), selected = 'Production value (Surimi)')
+    } else if(input$producttypeInput == 'Production weight') {
+      updateCheckboxGroupInput(session, "yaxis2Input", "", choices = c("Production weight (Surimi)",
+                                                                       #"Production weight (Canned)",
+                                                                       "Production weight (Fillet)",
+                                                                       "Production weight (Headed-and-Gutted)",
+                                                                       "Production weight (Unprocessed)",
+                                                                       "Production weight (Fishmeal)",
+                                                                       "Production weight (Fish oil)",
+                                                                       #"Production weight (Fresh)",
+                                                                       "Production weight (Frozen)",
+                                                                       #"Production weight (Roe)",
+                                                                       "Production weight (Minced)",
+                                                                       #"Production weight (Stomach)",
+                                                                       "Production weight (Other)"), selected = 'Production weight (Surimi)')
+    } else {
+      updateCheckboxGroupInput(session, "yaxis2Input", "", choices = c("Production value per lb (Surimi)",
+                                                                       #"Production value per lb (Canned)",
+                                                                       "Production value per lb (Fillet)",
+                                                                       "Production value per lb (Headed-and-Gutted)",
+                                                                       "Production value per lb (Unprocessed)",
+                                                                       "Production value per lb (Fishmeal)",
+                                                                       "Production value per lb (Fish oil)",
+                                                                       #"Production value per lb (Fresh)",
+                                                                       "Production value per lb (Frozen)",
+                                                                       #"Production value per lb (Roe)",
+                                                                       "Production value per lb (Minced)",
+                                                                       #"Production value per lb (Stomach)",
+                                                                       "Production value per lb (Other)"), selected = 'Production value per lb (Surimi)')
+    }
+  })
+
+  ##creating the dataframe#####
+  ##Use reactive to reactively filter the dataframe based on inputs
+  filtered <- reactive({
+    if(input$tab_type == "Summary") {
+      if(input$xaxisInput == 'Year') {
+        data %>%
+          filter(Metric %in% c(input$yaxisInput, input$yaxisbInput),
+                 Statistic == input$statInput,
+                 Sector %in% c(input$sectorInput))
+      } else {
+      data %>%
+        filter(Metric %in% c(input$yaxisInput),
+               Statistic == input$statInput,
+               Sector %in% c(input$sectorInput)) %>%
+        merge(data %>%
+                filter(Metric == input$xaxisInput,
+                       Statistic == input$statInput,
+                       Sector %in% c(input$sectorInput)) %>%
+                mutate(xaxis = Value) %>%
+                select(-Metric, -Value))
+    }
+    } else {
+      data %>%
+        filter(Metric %in% c(input$yaxis2Input),
+               Statistic == input$stat2Input,
+               Sector %in% c(input$sector2Input))
+    }
+    })
+  
+  ##Preparing plots####
+  #greyless_ballard_terminal_pal <- c('#4C384C','#BC8787', '#CB6D4F', '#D49F12','#691C32', '#79863C', '#8F9EBD', '#33647F',  '#0C2340')
+  greyless_mountains_pal <- c('#C1052F','#D89B2C', '#C0CB81',
+                              '#648C1C','#6FB1C9',
+                              '#001B70','#595478',
+                              '#C0B3B6','#B56C97')
+  #plot(rep(1,9), col=(greyless_mountains_pal), pch=19,cex=8)
+  
+  ##set colors for lines
+  lineColor <- c(
+    'Catcher-Processor' = '#001B70',
+    'Mothership' = '#C1052F',
+    'Processor' = '#648C1C',
+    'Purchase cost' = '#595478',
+    'Purchase weight' = '#595478',
+    'Purchase price per lb' = '#595478',
+    'Production value' = '#D89B2C',
+    'Production weight' = '#D89B2C',
+    'Production value per lb' = '#D89B2C',
+    "Production value (Surimi)" = '#C1052F',
+    "Production weight (Surimi)" = '#C1052F',
+    "Production value per lb (Surimi)" = '#C1052F',
+    "Production value (Fillet)" = '#D89B2C',
+    "Production weight (Fillet)" = '#D89B2C',
+    "Production value per lb (Fillet)" = '#D89B2C',
+    "Production value (Headed-and-gutted)" = '#C0CB81',
+    "Production weight (Headed-and-gutted)" = '#C0CB81',
+    "Production value per lb (Headed-and-gutted)" = '#C0CB81',
+    "Production value (Unprocessed)" = '#648C1C',
+    "Production weight (Unprocessed)" = '#648C1C',
+    "Production value per lb (Unprocessed)" = '#648C1C',
+    "Production value (Fishmeal)" = '#6FB1C9',
+    "Production weight (Fishmeal)" = '#6FB1C9',
+    "Production value per lb (Fishmeal)" = '#6FB1C9',
+    "Production value (Fish oil)" = '#001B70',
+    "Production weight (Fish oil)" = '#001B70',
+    "Production value per lb (Fish oil)" = '#001B70',
+    # "Production value (Roe)" = 'green',
+    # "Production weight (Roe)" = 'green',
+    # "Production value per lb (Roe)" = 'green',
+    "Production value (Minced)" = '#595478',
+    "Production weight (Minced)" = '#595478',
+    "Production value per lb (Minced)" = '#595478',
+    # "Production value (Stomach)" = 'purple',
+    # "Production weight (Stomach)" = 'purple',
+    # "Production value per lb (Stomach)" = 'purple',
+    "Production value (Other)" = '#C0B3B6',
+    "Production weight (Other)" = '#C0B3B6',
+    "Production value per lb (Other)" = '#C0B3B6',
+    "Production value (Frozen)" = '#B56C97',
+    "Production weight (Frozen)" = '#B56C97',
+    "Production value per lb (Frozen)" = '#B56C97'
+    )
+  
+  ##Defining standard plot elements
+  point_size <- 4
+  line_size <- 0.75
+  
+  ##Experimenting with plotting multiple plots instead of using facet_wrap. 
+  # multi_graphs <- function(data, point_size, line_size, lineColor, na.rm = T,...) {
+  #   list <- unique(data$Metric)
+  #   for (i in seq_along(list)) {
+  #     ggplot(subset(data, data$Metric == list[i]),
+  #            aes(x = Year,
+  #                y = Value)) +
+  #       scale_fill_manual(values = lineColor) +
+  #       scale_color_manual(values = lineColor) +
+  #       theme_minimal() +
+  #       theme(text = element_text(size = 14),
+  #             axis.text = element_text(size = 12),
+  #             strip.text = element_text(size = 14)) +
+  #       geom_point(aes(color = Sector), size = point_size) +
+  #       geom_line(aes(color = Sector), size = line_size)
+  #   }
+  # }
+  ##Plot for when year is on the x-axis in the summary tab
+  output$yearplot <- renderPlot({
+    if(is.null(filtered())){
+      return()
+    } 
+    if(input$linesInput == 'Sector') {
+      ggplot(filtered(),
+             aes(x = Year,
+                 y = Value,
+                 group = Sector)) +
+        scale_fill_manual(values = lineColor) +
+        scale_color_manual(values = lineColor) +
+        theme_minimal() +
+        theme(text = element_text(size = 14),
+              axis.text = element_text(size = 12),
+              strip.text = element_text(size = 14)) +
+        geom_point(aes(color = Sector), size = point_size) +
+        geom_line(aes(color = Sector), size = line_size) +
+        #facet_wrap(~ylab, scales = 'free_y', ncol = 2) +
+        facet_wrap(~Metric, scales = 'free_y', ncol = 2) +
+        labs(y = input$statInput)
+    } else {
+      ggplot(filtered(),
+             aes(x = Year,
+                 y = Value,
+                 group = Metric)) +
+        scale_fill_manual(values = lineColor) +
+        scale_color_manual(values = lineColor) +
+        theme_minimal() +
+        theme(text = element_text(size = 14),
+              axis.text = element_text(size = 12),
+              strip.text = element_text(size = 14)) +
+        geom_point(aes(color = Metric), size = point_size) +
+        geom_line(aes(color = Metric), size = line_size) +
+        facet_wrap(~Sector, scales = 'free_y', ncol = 2) +
+        labs(y = input$statInput)
+    }
+  }, height = 800, width = 1100)
+  
+  
+  ##Plot for the product tab
+  output$productplot <- renderPlot({
+    if(is.null(filtered())) {
+      return()
+    }
+    if(input$lines2Input == 'Sector') {
+      ggplot(filtered(),
+             aes(x = Year,
+                 y = Value,
+                 group = Sector)) +
+        scale_fill_manual(values = lineColor) +
+        scale_color_manual(values = lineColor) +
+        theme_minimal() +
+        theme(text = element_text(size = 14),
+              axis.text = element_text(size = 12),
+              strip.text = element_text(size = 14)) +
+        geom_point(aes(color = Sector), size = point_size) +
+        geom_line(aes(color = Sector), size = line_size) +
+        # facet_wrap(~ylab, scales = 'free_y', ncol = 2) +
+        facet_wrap(~Metric, scales = 'free_y', ncol = 2) +
+        labs(y = input$stat2Input)
+    } else {
+      ggplot(filtered(),
+             aes(x = Year,
+                 y = Value,
+                 group = Metric)) +
+        scale_fill_manual(values = lineColor) +
+        scale_color_manual(values = lineColor) +
+        theme_minimal() +
+        theme(text = element_text(size = 14),
+              axis.text = element_text(size = 12),
+              strip.text = element_text(size = 14)) +
+        geom_point(aes(color = Metric), size = point_size) +
+        geom_line(aes(color = Metric), size = line_size) +
+        facet_wrap(~Sector, scales = 'free_y', ncol = 2) +
+        labs(y = input$stat2Input)
+    }
+  }, height = 800, width = 1100)
+  
+  ##Plot for when year is NOT on the x-axis in the summary tab.
+  output$xyplot <- renderPlot({
+    if(is.null(filtered())) {
+      return()
+    }
+    ggplot(filtered(),
+           aes(x = xaxis,
+               y = Value)) +
+      geom_point(size = point_size) +
+      geom_text(aes(label = Year), hjust = 0.1, vjust = 0.1) +
+      theme_minimal() +
+      theme(text = element_text(size = 14),
+            axis.text = element_text(size = 12),
+            strip.text = element_text(size = 14)) +
+      facet_wrap(~Sector, scales = 'free_y', ncol = 2) +
+      labs(y = input$yaxisInput,
+           x = input$xaxisInput)
+  }, height = 800, width = 1100)
+  
+  ##Creating the data table
+  output$table <- DT::renderDataTable({
+    filtered() 
+    # %>%
+    #   select(-unit, -ylab)
+  })
+}
+
+shinyApp(ui = ui, server = server)

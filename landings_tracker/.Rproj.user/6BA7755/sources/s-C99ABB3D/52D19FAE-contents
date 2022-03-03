@@ -1,0 +1,69 @@
+library(DBI)
+library(odbc)
+library(getPass)
+
+
+# ifqpub <- DBI::dbConnect(odbc::odbc(),
+#   host   = "nwcdbp1.nwfsc.noaa.gov",
+#   UID    = 'vizekas',
+#   PWD    = 'Brody%jeter272',
+#   dsn = 'ifq',
+#   port = 1581)
+
+ifqpub <- DBI::dbConnect(odbc::odbc(),
+                         host   = "nwcdbp1.nwfsc.noaa.gov",
+                         UID    = 'edcsurvey',
+                         PWD    = 'Edsee4U!me4Ever',
+                         dsn = 'ifq',
+                         port = 1581)
+
+# ifqadmin <- DBI::dbConnect(odbc::odbc(),
+#                          host   = "nwcdbp1.nwfsc.noaa.gov",
+#                          UID    = 'edcsurvey',
+#                          PWD    = 'Edsee4U!me4Ever',
+#                          dsn = 'ifqadmin',
+#                          port = 1581)
+
+# ifqdev <- DBI::dbConnect(odbc::odbc(),
+#                          host   = "nwcdbp1.nwfsc.noaa.gov",
+#                          UID    = 'edcsurvey',
+#                          PWD    = 'WHVLyczulef*$%',
+#                          dsn = 'ifqdev',
+#                          port = 1581)
+
+
+
+framdw <- DBI::dbConnect(odbc::odbc(), 
+  host   = "nwcdbp1.nwfsc.noaa.gov",
+  UID    = 'vizekas',
+  PWD    = 'Brody%jeter272',
+  dsn = 'framdw',
+  port = 1521)
+
+
+
+# ifqdev <- DBI::dbConnect(odbc::odbc(),
+#                          host   = "nwcdbd1.nwfsc.noaa.gov",
+#                          UID    = 'vizekas',
+#                          PWD    = 'Brody@jeter272',
+#                          dsn = 'ifqdev',
+#                          port = 1581)
+
+pacfin <- DBI::dbConnect(odbc::odbc(),
+                         host   = "nwcdbd1.nwfsc.noaa.gov",
+                         UID    = 'avizek',
+                         PWD    = 'Jeter@brody272',
+                          dsn = 'pacfin',
+                         port = 1581)
+
+# framdwdv <- DBI::dbConnect(odbc::odbc(),
+#                            host   = "nwcdbd1.nwfsc.noaa.gov",
+#                            UID    = 'fram_analysis',
+#                            PWD    = 'Fr@m!sR0lling$321',
+#                            dsn    = 'framdwdv',
+#                            port = 1521)
+
+#suppress <- dbSendQuery(framdw, "alter session set current_schema = FRAM_ANALYSIS_CURRENT")
+
+
+

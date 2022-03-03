@@ -1,0 +1,31 @@
+source("C:/Program Files/R/connectioninfoROracle.r")
+preventingprintingtoconsole <- dbSendQuery(framdw, "alter session set current_schema=FRAM_ANALYSIS")
+currentyear <- 2018
+defl <- dbGetQuery(framdw, paste0("select year, defl", currentyear, "/100 as defl from edc_gdp_defl"))
+trawl_ground_fish <- c('Non-whiting midwater trawl', 
+                       'Non-whiting, non-DTS trawl with trawl endorsement',
+                       'DTS trawl with trawl endorsement')
+kit_dat <- dbGetQuery(framdw, "select sum(rev) rev, sum(lbs) lbs, year, vessel_id, fisherycode
+                      from edc_cv_revlbsdas 
+                      where year between 2009 and 2018
+                      group by fisherycode, year, vessel_id")
+fisheries <- dbGetQuery(framdw, "select fisherycode, fishery from edc_fisheries")
+
+kit_dat_grndtrwl <- merge(kit_dat, fisheries, all.x = T) %>%
+  group_by(YEAR, FISHERY, VESSEL_ID) %>%
+  summarize(REV = sum(REV),
+            LBS = sum(LBS)) %>%
+  melt(id.vars = c('YEAR','VESSEL_ID','FISHERY')) %>%
+  # apply conf treatment
+  PreTreat(c('YEAR', 'FISHERY','variable'),
+           valvar="value", confunit ="VESSEL_ID", zeroNAtreatment = 'NAaszero') %>%
+  group_by(YEAR, FISHERY, variable) %>%
+  summarize(VALUE = sum(value, na.rm = T)) %>%
+  dcast(YEAR + FISHERY ~ variable, value.var = 'VALUE') %>%
+  filter(FISHERY %in% trawl_ground_fish) %>%
+  # apply inflation
+  merge(defl) %>%
+  mutate(REV = REV/DEFL) %>%
+  select(-DEFL)
+
+write.csv(kit_dat_grndtrwl, "R:/Confidential/Research/COVID-19/grndtwl_lbsrev_4kit.csv")

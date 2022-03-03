@@ -1,0 +1,25 @@
+{
+    "id": "71D6A140",
+    "path": "~/landings-tracker/cumul_prep_fn.R",
+    "project_path": "cumul_prep_fn.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1600972533682.0,
+    "source_on_save": false,
+    "relative_order": 13,
+    "properties": {
+        "cursorPosition": "7,10",
+        "scrollLine": "0",
+        "tempName": "Untitled3"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1600719641,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1600719641,
+    "read_only": false,
+    "read_only_alternatives": []
+}

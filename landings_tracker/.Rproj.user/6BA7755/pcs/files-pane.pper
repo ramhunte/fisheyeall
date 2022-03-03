@@ -1,0 +1,9 @@
+{
+    "path" : "~/landings-tracker",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

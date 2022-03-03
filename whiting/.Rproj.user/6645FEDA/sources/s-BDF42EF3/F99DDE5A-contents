@@ -1,0 +1,7 @@
+-- !preview conn=DBI::dbConnect(RSQLite::SQLite())
+
+-- ! All files to dev
+pscp -P 22 -r C:/Users/Ashley.Vizek/Documents/fisheye-mini-whiting/  avizek@nwcrweb.nwfsc2.noaa.gov:/srv/shiny-server/fisheye/whiting
+
+-- ! All files to prod
+pscp -P 22 -r C:/Users/Ashley.Vizek/Documents/fisheye-mini-whiting/  avizek@nwcshiny.nwfsc.noaa.gov:/srv/shiny-server/fisheye/whiting

@@ -1,0 +1,9 @@
+{
+    "path" : "~/FishEyeApp/PerformanceMetrics",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

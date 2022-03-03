@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1596559100892.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "613928640",
+    "id" : "22897B2",
+    "lastKnownWriteTime" : 1597339610,
+    "last_content_update" : 1597339610989,
+    "path" : "~/landings-tracker/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+        "cursorPosition" : "31,90",
+        "docOutlineVisible" : "0",
+        "scrollLine" : "16"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

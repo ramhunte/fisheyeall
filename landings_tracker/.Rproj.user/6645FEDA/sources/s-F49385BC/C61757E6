@@ -1,0 +1,32 @@
+{
+    "id": "C61757E6",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1620231122357.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "expression": "day_prices",
+        "caption": "day_prices",
+        "totalObservations": 1186623,
+        "displayedObservations": 1186623,
+        "variables": 10,
+        "cacheKey": "78F7B367",
+        "object": "day_prices",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=day_prices&cache_key=78F7B367&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 8247620832883384352,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1620231122357,
+    "read_only": false,
+    "read_only_alternatives": []
+}

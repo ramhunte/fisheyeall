@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587593996453.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "4F4D1540",
+    "lastKnownWriteTime" : 1587595729,
+    "last_content_update" : 1587595729461,
+    "path" : "~/landings_tracker_2020/ticket_source_code.R",
+    "project_path" : "ticket_source_code.R",
+    "properties" : {
+        "cursorPosition" : "5,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
