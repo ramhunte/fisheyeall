@@ -14,6 +14,7 @@ load("data/FRperfmetrics.RData")
   # data load moved to serverhead
   # data is loaded from serverHead.R load call
   if (input$Sect_sel == "CV") {
+    browser()
     dat <- CVperfmetrics %>%
       data.table()
   } else if (input$Sect_sel == "M") {

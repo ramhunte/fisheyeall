@@ -2,15 +2,20 @@
 ## lib <- .Library
 ## .Library <- .libPaths()[1]
 ## .libPaths("/srv/shiny-server/fisheye/PerformanceMetrics/renv/library/R-4.1/x86_64-redhat-linux-gnu")
+#.libPaths("/usr/lib64/R/shiny_library/fisheye")
 .libPaths("/usr/lib64/R/shiny_library/fisheye")
 
 #library(appFrame)
+#detach(unload = TRUE)
+
 source('appFrame.R')
+
 library(shinyjs)
 library(shinyWidgets)
 library(shinyBS)
 library(bsplus)
 library(shinycssloaders)
+
 #options(shiny.server = NULL)
 #options(shiny.error = browser)
 # custom css functions
@@ -18,8 +23,6 @@ library(shinycssloaders)
 wellPanelSub <- function(...){div(class = "well-sub", ...)}
 # calls .css selector for radioButton header
 wellPanelHeading <- function(...){div(class = "well-radioHeading", ...)} 
-
-
 
 function(request) {
   fluidPage(title = "FISHEyE",
@@ -185,7 +188,8 @@ function(request) {
     #                           href='https://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/'> FISHEyE</a>- Performance Metrics </strong></p> 
     #                       </div>")), htmlOutput("SectPrint")
     # ),
-    navbarPage(id="page", collapsible=TRUE, inverse=F,
+   
+     navbarPage(id="page", collapsible=TRUE, inverse=F,
       title="",
       
       tabPanel("Explore the data", value="results",    
@@ -204,8 +208,8 @@ function(request) {
               ),
 
               # Metrics
-              tags$div(class="header collapsed", "Metric") %>% bs_attach_collapse("collapse1"),
-              bs_collapse(id = "collapse1",
+              tags$div(class="header collapsed", "Metric") %>% bsplus::bs_attach_collapse("collapse1"),
+              bsplus::bs_collapse(id = "collapse1",
                           content = tags$div(column(12, uiOutput('metrics'),
                                                     style = "background:white; padding: 10px;margin-below:4px;border-color: #bce8f1;")),
                           show = TRUE
@@ -213,8 +217,8 @@ function(request) {
 
               # Filters
               conditionalPanel(condition="input.Sect_sel=='CV' || input.Sect_sel=='FR'", 
-                               tags$div(class="header collapsed", "Filter by: fisheries, location, size")%>% bs_attach_collapse("collapse2"),
-                               bs_collapse(id = "collapse2",
+                               tags$div(class="header collapsed", "Filter by: fisheries, location, size")%>% bsplus::bs_attach_collapse("collapse2"),
+                               bsplus::bs_collapse(id = "collapse2",
                                            content = tags$div(column(12, uiOutput('filters'),
                                                                      uiOutput("Variableselect"),
                                                                      style = "background:white; padding: 10px;margin-below:4px;border-color: #bce8f1;")),
@@ -223,8 +227,8 @@ function(request) {
                                )),
               
               # Additional Filters
-              tags$div(class="header collapsed", "Additional Filters")%>% bs_attach_collapse("collapse3"),
-              bs_collapse(id = "collapse3",
+              tags$div(class="header collapsed", "Additional Filters")%>% bsplus::bs_attach_collapse("collapse3"),
+              bsplus::bs_collapse(id = "collapse3",
                           content = tags$div(column(12,
                                                     fluidRow(
                                                       column(6, uiOutput("FishWhitingselect")),
@@ -263,7 +267,7 @@ function(request) {
 
           mainPanel(
             tabsetPanel(id = "tabs",
-                        tabPanel("Visualize the Data", value="Panel1", plotOutput("PlotMain") %>% withSpinner(color="#0dc5c1"), style ="min-height: 1600px;"),
+                        tabPanel("Visualize the Data", value="Panel1", plotOutput("PlotMain") %>% shinycssloaders::withSpinner(color="#0dc5c1"), style ="min-height: 1600px;"),
                         tabPanel("Dataset", value="Panel2", dataTableOutput("TableMain")),
                         tabPanel("Description", 
                                  conditionalPanel(condition="input.Ind_sel == 'Processor characteristics' || input.Ind_sel == 'Vessel characteristics'",
@@ -311,3 +315,4 @@ function(request) {
     appFrameFooterScrolling()
   ) # end fluid Page
 }
+

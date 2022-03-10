@@ -1,5 +1,6 @@
 doPlotPrep <- reactive({
   if (PermitPlot()) {
+
     #removeNAs
     #print(input$demStats)
     dat <- subset(DatSub(), is.na(DatSub()$VALUE) == FALSE)

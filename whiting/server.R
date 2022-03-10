@@ -1,4 +1,6 @@
-.libPaths(c("/usr/lib64/R/shiny_library/fisheye", .libPaths()))
+.libPaths("/usr/lib64/R/shiny_library/fisheye")
+
+#detach(unload = TRUE)
 
 library(shiny)
 library(shinyjs)

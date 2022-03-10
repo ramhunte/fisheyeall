@@ -1,3 +1,4 @@
+
 library(shiny)
 
 ## These placeholder values go into the footer HTML files.
@@ -24,7 +25,7 @@ appFrameFooterFixed <- function(
 appFrameFooterScrolling <- function(
     displayAppsURL="http://dataexplorer.nwfsc.noaa.gov",
     contactURL="http://www.nwfsc.noaa.gov/contact/feedback.cfm") {
-   
+
     html <- includeHTML(system.file('www','footerScrolling.html',
                                     package='appFrame'))
 
@@ -37,6 +38,7 @@ appFrameFooterScrolling <- function(
 }
 
 appFrameHeaderFixed <- function(overlapHeight=7) {
+    browser()
     tagList(includeHTML(system.file('www','headerFixed.html',
                                     package='appFrame')),
             includeCSS(system.file('www','header.css',
