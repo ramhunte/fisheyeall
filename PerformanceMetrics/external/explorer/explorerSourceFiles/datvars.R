@@ -1,13 +1,13 @@
-load("PerformanceMetrics/data/CVperfmetrics.RData") 
-load("PerformanceMetrics/data/Mperfmetrics.RData") 
+load("PerformanceMetrics/data/CVperfmetrics.RData")
+load("PerformanceMetrics/data/Mperfmetrics.RData")
 load("PerformanceMetrics/data/CPperfmetrics.RData")
-load("PerformanceMetrics/data/FRperfmetrics.RData") 
+load("PerformanceMetrics/data/FRperfmetrics.RData")
 
-currentyear <- 2019
-currentyearFR <- 2018
+currentyear <- 2020
+currentyearFR <- 2020
 nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net revenue', 'Total cost net revenue')
 
-# CV 
+# CV
   datVars_cv <- with(
     CVperfmetrics,
     list(
@@ -38,18 +38,18 @@ nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net
       ##Vessel characteristics metrics##
       METRIC1 =  c(
         'Number of vessels',
-        "Vessel length", 
+        "Vessel length",
         "Vessel replacement value",
         "Vessel market value",
         "Vessel horsepower",
         "Vessel fuel capacity",
-        "Number of fisheries", 
-        "Proportion of ex-vessel revenue from catch share fishery" = "Proportion of ex-vessel revenue from CS fishery", 
+        "Number of fisheries",
+        "Proportion of ex-vessel revenue from catch share fishery" = "Proportion of ex-vessel revenue from CS fishery",
         "Revenue diversification"
-      ), 
+      ),
       ##Labor - crew metrics###
       METRIC2 = c(
-        "Number of crew", 
+        "Number of crew",
         "Number of crew-days",
         'Crew payments',
         "Crew wage per year",
@@ -68,19 +68,19 @@ nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net
         "Days at sea",
         'Trips',
         "Landed weight",
-        "Fuel use per day", 
+        "Fuel use per day",
         "Annual fuel use",
         "Speed while fishing",
-        "Gini coefficient", 
+        "Gini coefficient",
         "Share of landings by state",
         "Seasonality"
       ),
       ##When grouping by Metrics, don't include 'Share of landings by state'
       METRIC3a = c(
-        "Days at sea", 
+        "Days at sea",
         'Trips',
         "Landed weight",
-        "Fuel use per day", 
+        "Fuel use per day",
         "Annual fuel use",
         "Speed while fishing"
       ),
@@ -90,8 +90,8 @@ nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net
         'Labor',
         'Cost recovery fees',
         'Fuel',
-        'Observers/EM', 
-        'Other variable costs', 
+        'Observers/EM',
+        'Other variable costs',
         'All fixed costs',
         'Fishing gear',
         'On-board equipment',
@@ -102,9 +102,9 @@ nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net
       )
     )
   )
-  
-save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")  
-  
+
+save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
+
 # FR
   datVars_fr <- with(
     FRperfmetrics,
@@ -188,8 +188,8 @@ save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
     )
   )
 
-  save(datVars_fr, file = "PerformanceMetrics/data/datvars_fr.RData") 
-  
+  save(datVars_fr, file = "PerformanceMetrics/data/datvars_fr.RData")
+
 # MS
   datVars_ms <- with(
     Mperfmetrics,
@@ -254,7 +254,7 @@ save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
         "Gini coefficient",
         "Seasonality",
         'Days fishing, processing, and steaming in AK',
-        'Days steaming between the WC and AK', 
+        'Days steaming between the WC and AK',
         'Purchase weight (Alaska)'
       ),
       ##When grouping by Metrics, don't include 'Seasonsality'
@@ -267,7 +267,7 @@ save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
         'Gini coefficient',
         'Seasonality',
         'Days fishing, processing, and steaming in AK',
-        'Days steaming between the WC and AK', 
+        'Days steaming between the WC and AK',
         'Purchase weight (Alaska)'
       ),
       COSTS = c(
@@ -287,11 +287,11 @@ save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
         'Employment impacts')
     )
   )
-  
-  save(datVars_ms, file = "PerformanceMetrics/data/datvars_ms.RData") 
+
+  save(datVars_ms, file = "PerformanceMetrics/data/datvars_ms.RData")
 
 # CP
-  
+
   datVars_cp <- with(
     CPperfmetrics,
     list(
@@ -373,7 +373,7 @@ save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
       ),
       COSTS = c(
         "All variable costs",
-        'Cost recovery fees', 
+        'Cost recovery fees',
         "Fuel",
         "Labor",
         "Observers",
@@ -388,5 +388,4 @@ save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")
         'Employment impacts')
     )
   )
-  save(datVars_cp, file = "PerformanceMetrics/data/datvars_cp.RData") 
-  
+  save(datVars_cp, file = "PerformanceMetrics/data/datvars_cp.RData")
