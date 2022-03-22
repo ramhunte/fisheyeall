@@ -4,8 +4,8 @@
 source("C:/Program Files/R/connectioninfoROracle.r")
 preventingprintingtoconsole <- dbSendQuery(framdw, "alter session set current_schema=FRAM_ANALYSIS")
 
-currentyear <- 2019
-frcurrentyear <- 2019
+currentyear <- 2020
+frcurrentyear <- 2020
 
 #Check which libraries are installed and install ones that are not
 need<-c("daff","sqldf",'reshape2','lazyeval','tidyr','doBy','lubridate','reldist','antitrust','dplyr','data.table', 'bazar')
@@ -14,7 +14,7 @@ ins<-installed.packages()[,1]
 if(length(Get)>0){install.packages(Get)} 
 eval(parse(text=paste("library(",need,")")))
 
-library(EDCReport)
+# library(EDCReport)
 library(edcdataprep)
 
 ##-----------------------------##
@@ -81,6 +81,7 @@ ms_prod_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weigh
                             variable == 'VALUE' ~ 'Production value'),
          VALUE = value) %>%
   select(-value, -variable)
+
 
 # Calculate weight and value for all products
 ms_prod_tot <- ms_prod_raw %>%
@@ -203,12 +204,13 @@ data_combined <- rbind(fr_full, cpms_full,
 # We are pulling the summarized final data for impacts so we don't need to do anything to it and can just bind to final whiting dataset
 # set directory to pull in files from fisheyeapp
 setwd('..')
-load("fisheyeapp/PerformanceMetrics/data/CVperfmetrics.RData") 
-load("fisheyeapp/PerformanceMetrics/data/Mperfmetrics.RData") 
-load("fisheyeapp/PerformanceMetrics/data/CPperfmetrics.RData")
+load("fisheyeall/PerformanceMetrics/data/CVperfmetrics.RData") 
+load("fisheyeall/PerformanceMetrics/data/Mperfmetrics.RData") 
+load("fisheyeall/PerformanceMetrics/data/CPperfmetrics.RData")
 #load("PerformanceMetrics/data/FRperfmetrics.RData") 
 # set directory back to fisheyewhiting
-setwd('fisheyewhiting')
+setwd('fisheyeall/whiting')
+
 
 ms_impacts <- filter(Mperfmetrics, tab == 'Impacts') %>%
   dplyr::select(-c(inclAK,CS,CATEGORY,AGID,VARIABLE,metric_flag,conf,flag,tab,lower,upper,whitingv)) %>%
@@ -221,9 +223,10 @@ ms_impacts <- filter(Mperfmetrics, tab == 'Impacts') %>%
            tab = 'Summary',
            Order = NA_real_
            )
+
 # Pull impacts for at-sea vessels
-atsea_impacts <- filter(CVperfmetrics, tab == 'Impacts', CATEGORY == 'Fisheries', VARIABLE == 'At-sea Pacific whiting', whitingv == 'All vessels') %>%
-  dplyr::select(-c(inclAK,CS,CATEGORY,AGID,VARIABLE,metric_flag,conf,flag,tab,lower,upper,whitingv)) %>%
+atsea_impacts <- filter(CVperfmetrics, METRIC %in% c('Employment impacts', 'Income impacts'), CATEGORY == 'Fisheries', VARIABLE == 'At-sea Pacific whiting', whitingv == 'All vessels') %>%
+  dplyr::select(-c(inclAK,CS,CATEGORY,AGID,VARIABLE,metric_flag,conf,flag,lower,upper,whitingv)) %>%
   rename(Year = YEAR,
          Metric = METRIC,
          Statistic = STAT,
@@ -234,12 +237,16 @@ atsea_impacts <- filter(CVperfmetrics, tab == 'Impacts', CATEGORY == 'Fisheries'
          tab = 'Summary',
          Order = NA_real_
   )
+
+
 # combine at sea vessel and mothership
 mscv_impacts <- full_join(ms_impacts, atsea_impacts) %>%
   mutate(Value = Value + Value_atsea,
          N = N + N_atsea,
          Year = as.numeric(Year)) %>%
-  dplyr::select(-N_atsea, -Value_atsea)
+  dplyr::select(-N_atsea, -Value_atsea, -origN)
+
+
 
 # cp impacts
 cp_impacts <- filter(CPperfmetrics, tab == 'Impacts') %>%
@@ -298,8 +305,10 @@ data_rates_full <- rbind(data_combined, rates_raw, perc)
 
 
 # Confidentiality treatment ###########
-data_rates_full_treated <- PreTreat(data_rates_full, variables = c('YEAR','METRIC','PRODUCT','SECTOR'), valvar = 'VALUE',
-                                   confunit = 'COMPANY', dontsum = T, drop = F)
+data_rates_full_treated <- confTreat(data_rates_full, variables = c('YEAR','METRIC','PRODUCT','SECTOR'), valvar = 'VALUE',
+                                   confunit = 'COMPANY', drop = F)
+
+
 # Summarizing data#####
 # Mean, median, total
 data_all_smry <- data_rates_full_treated %>%
@@ -482,6 +491,8 @@ final <- data_final_format %>%
   select(-rm) %>%
   rbind(mscv_impacts) %>%
   rbind(cp_impacts)
+
+
 ##-----------------------------##
 # -------Compare function-----####
 ##-----------------------------##
@@ -491,15 +502,16 @@ old <- mini_whiting %>%
   ungroup() %>%
   mutate(Metric = case_when(Metric == 'Purchase cost' ~ 'Purchase value',
                             T ~ Metric),
-         N = as.numeric(N))
+         N = as.numeric(N), 
+         Year = as.numeric(Year))
 new <- final %>%
   select(-tab, -ylab) %>%
   mutate(N = as.numeric(N),
          Year = as.numeric(Year))
 
-head(old)
-head(new)
 gg <- comparefun(old, new, c('N','Value','Variance', 'q25','q75'), 'wide')
+
+
 # Check missing combos
 gg2 <- filter(gg, combomiss == 'Missing combo', Metric != 'Recovery rate')
 gg3 <- filter(gg, combomiss == 'Fine')
