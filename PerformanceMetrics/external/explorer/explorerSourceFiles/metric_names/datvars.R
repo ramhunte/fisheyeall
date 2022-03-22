@@ -4,7 +4,7 @@ load("PerformanceMetrics/data/CPperfmetrics.RData")
 load("PerformanceMetrics/data/FRperfmetrics.RData") 
 
 currentyear <- 2020
-currentyearFR <- 2019
+currentyearFR <- 2020
 nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net revenue', 'Total cost net revenue')
 
 # CV 
