@@ -3,7 +3,6 @@
 
 #detach(unload = TRUE)
 
-#this is a small change in the ui to test git --delete after 3/10
 
 library(shiny)
 library(shinyjs)
