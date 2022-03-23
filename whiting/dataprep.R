@@ -31,6 +31,7 @@ dbids_ms <- dbGetQuery(framdw, paste("
     and survey_type = 'MOTHERSHIP'
     and ADJ_YEAR between 2009 and ", currentyear, ")"))
 
+
 # taking out the stormie c - a cp that isn't in the at-sea whiting fishery
 dbids_cp <- dbGetQuery(framdw, paste("
   select distinct edcsurvey_dbid
@@ -52,12 +53,14 @@ cp_prod_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weigh
          VALUE = value) %>%
   select(-value, -variable)
 
+
 # Calculate weight and value for all product types
 cp_prod_tot <- cp_prod_raw %>%
   group_by(VESSEL_ID, YEAR, COMPANY, SECTOR, METRIC) %>%
   summarize(VALUE = sumNA(VALUE, na.rm = T),
             PRODUCT = 'All products') %>%
   data.frame()
+
 
 # CP Catch
 cp_catch_raw <- dbGetQuery(framdw, paste0("select vessel_id, year, lbs value, company
@@ -67,6 +70,7 @@ cp_catch_raw <- dbGetQuery(framdw, paste0("select vessel_id, year, lbs value, co
   mutate(SECTOR = 'Catcher-Processor',
          METRIC = 'Purchase (or catch) weight',
          PRODUCT = NA_real_) 
+
 
 # (2) MS Data Pull#####
 # MS Production
@@ -97,7 +101,8 @@ ms_purc_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weigh
                                           from edc_ms_purchase
                                           where year <=", currentyear,
                                          "and edcsurvey_dbid in (", xfn(dbids_ms), ")
-                                          and type = 'Paid'")) %>%
+                                          and type = 'Paid' 
+                                          and species = 'Pacific whiting'")) %>%
   reshape2::melt(id.vars = c('VESSEL_ID','YEAR','COMPANY')) %>%
   mutate(SECTOR = 'Mothership',
          METRIC = case_when(variable == 'WEIGHT' ~ 'Purchase (or catch) weight',
@@ -105,6 +110,8 @@ ms_purc_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weigh
          VALUE = value,
          PRODUCT = NA_real_) %>%
   select(-value, -variable)
+
+
 
 # (3) Full CP/MS data#####
 cpms_full <- rbind(cp_prod_raw, cp_prod_tot, cp_catch_raw,
@@ -200,6 +207,7 @@ data_combined <- rbind(fr_full, cpms_full,
                            T ~ VALUE)) %>%
   select(-DEFL)
 
+
 # (8) Pull in CP/MS impacts ######
 # We are pulling the summarized final data for impacts so we don't need to do anything to it and can just bind to final whiting dataset
 # set directory to pull in files from fisheyeapp
@@ -239,6 +247,7 @@ atsea_impacts <- filter(CVperfmetrics, METRIC %in% c('Employment impacts', 'Inco
   )
 
 
+
 # combine at sea vessel and mothership
 mscv_impacts <- full_join(ms_impacts, atsea_impacts) %>%
   mutate(Value = Value + Value_atsea,
@@ -265,6 +274,7 @@ cp_impacts <- filter(CPperfmetrics, tab == 'Impacts') %>%
 ##-------Data analysis--------####
 ##----------------------------##
 
+
 ##Calculating rates####
 rates_raw <- data_combined %>%
   mutate(PRODUCT = case_when(METRIC %in% c('Purchase value','Purchase (or catch) weight') ~ 'All products',
@@ -284,6 +294,8 @@ rates_raw <- data_combined %>%
   mutate(METRIC = variable,
          VALUE = value) %>%
   select(-variable, -value)
+
+
 
 # Calculating percent of total production weight/value by product type
 perc <- filter(data_combined, PRODUCT == 'All products') %>%
@@ -521,6 +533,7 @@ gg2_ck <- filter(final, Metric == 'Other (Production value)' & Statistic == 'Mea
 
 thres <- filter(gg, Value_percDiff > 0.05)
 
+
 ##-----------------------------##
 ##Remove metrics that we dont want to include#####
 ##-----------------------------##
@@ -536,3 +549,4 @@ final <- final[c('Year','Sector','Metric','Statistic','N','Value','Variance','q2
 mini_whiting <- final
 rownames(mini_whiting) <- NULL
 saveRDS(mini_whiting, file = "mini_whiting.RDS")
+
