@@ -63,6 +63,13 @@ prodTabwt <- filter(prodTab, grepl('Production weight', Metric))
 prodTabprice <- filter(prodTab, grepl('Production price', Metric))
 sumTab <- filter(data, tab == 'Summary')
 sumTab$Metric <- sort(sumTab$Metric, decreasing = T)
+tacTab <- filter(data, tab == 'TACU'  & Statistic == "Total")
+# tacTab$Metric <- sort(tacTab$Metric, decreasing = T)
+
+
+
+# tacTab$Metric <- factor(tacTab$Metric, levels=c("CW for TAC", "Unused TAC"))
+
 
 
 ## SERVER part of the app.####
@@ -108,6 +115,24 @@ shinyServer(function(input, output, session) {
     checkboxGroupInput("sector2Input","Sector", choices = unique(prodTab$Sector), selected = c("Catcher-Processor", "Mothership", "Shoreside"))
   })
   
+  
+  
+  ##TAC tab components####
+  ##TAC tab: yaxis options
+  output$yaxis3Input <- renderUI({
+    checkboxGroupInput("yaxis3Input", "Metric", choices = unique(tacTab$Metric), selected = c('CW for TAC','Unused TAC'))
+  })
+  
+  ##TAC tab: stat options
+  # output$stat3Input <- renderUI({
+  #   radioButtons("stat3Input","Statistic", choices = unique(tacTab$Statistic), selected = "Total")
+  # })
+  ##TAC tab: sector options
+  output$sector3Input <- renderUI({
+    checkboxGroupInput("sector3Input","Sector", choices = unique(tacTab$Sector), selected = c("All", "Catcher-Processor","Mothership","Shoreside"))
+  })
+  
+  
   # Download button#####
   output$download_Table <- renderUI({
     tags$div(class = "actbutton",
@@ -126,6 +151,9 @@ shinyServer(function(input, output, session) {
                uiOutput("yaxis2Input"),
                uiOutput("stat2Input"),
                uiOutput("sector2Input")),
+      tabPanel("Total Allowable Catch Utilization",
+               uiOutput("yaxis3Input"),
+               uiOutput("sector3Input")),
       id = "tab_type", type = c("tabs"))
   })
   
@@ -144,7 +172,7 @@ shinyServer(function(input, output, session) {
      }
   })
   
-  
+
   
   ##creating the dataframe for graph#####
   ##Use reactive to reactively filter the dataframe based on inputs
@@ -154,13 +182,20 @@ shinyServer(function(input, output, session) {
           filter(Metric %in% input$yaxisInput,
                  Statistic == input$statInput,
                  Sector %in% input$sectorInput)
-    } else {
+    } else if(input$tab_type == "By product type") {
       data %>%
         filter(Metric %in% input$yaxis2Input,
                Statistic == input$stat2Input,
                Sector %in% input$sector2Input) 
+    } else if (input$tab_type == "Total Allowable Catch Utilization") {
+      data %>%
+        filter(Metric %in% input$yaxis3Input,
+               Statistic == "Total",
+               Sector %in% input$sector3Input) 
     }
   }) 
+  
+
 
   #creating the dataframe for data table#####
   ##Use reactive to reactively filter the dataframe based on inputs
@@ -170,11 +205,16 @@ shinyServer(function(input, output, session) {
           filter(Metric %in% input$yaxisInput,
                  Statistic == input$statInput,
                  Sector %in% input$sectorInput)
-      } else {
+      } else if(input$tab_type == "By product type") {
         data_table %>%
           filter(Metric %in% input$yaxis2Input,
                  Statistic == input$stat2Input,
                  Sector %in% input$sector2Input) 
+      } else if(input$tab_type == "Total Allowable Catch Utilization") {
+        data_table %>%
+          filter(Metric %in% input$yaxis3Input,
+                 Statistic == "Total",
+                 Sector %in% input$sector3Input) 
       }
     })
   dt_dat <- reactive({
@@ -267,6 +307,10 @@ shinyServer(function(input, output, session) {
     # "Round (Production price (per lb))" = '#B56C97'
   )
   
+  #tac color 
+  tacColor <- c('Unused TAC' = '#D8DEE9',
+                'CW for TAC' = '#4C566A')
+  
   ##Defining standard plot elements
   point_size <- 4
   line_size <- 0.75
@@ -321,6 +365,29 @@ shinyServer(function(input, output, session) {
         labs(y = input$stat2Input) +
         scale_x_continuous(breaks= pretty_breaks())
   }, height = 800, width = 1100)
+  
+  ##Plot for Utilized TAC
+
+  output$tacplot <- renderPlot({
+    if(is.null(filtered())){
+      return()
+    }
+    ggplot(filtered(),
+           aes(x = Year,
+               y = Value,
+               group = Metric, 
+               fill = Metric)) +
+      scale_fill_manual(values = tacColor) +
+      theme_minimal() +
+      theme(text = element_text(size = 14),
+            axis.text = element_text(size = 12),
+            strip.text = element_text(size = 14)) +
+      geom_bar(position="stack", stat="identity") +
+      facet_wrap(~Sector, scales = 'free_y', ncol = 2) +
+      labs(y = input$stat3Input) +
+      scale_x_continuous(breaks= pretty_breaks())
+  }, height = 800, width = 1100)
+  
   
   ##Creating the data table
   output$table <- DT::renderDataTable({

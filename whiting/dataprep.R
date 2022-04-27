@@ -17,6 +17,8 @@ eval(parse(text=paste("library(",need,")")))
 # library(EDCReport)
 library(edcdataprep)
 
+options(scipen=n)
+
 ##-----------------------------##
 ##Data pieces####
 ##----------------------------##
@@ -38,6 +40,8 @@ dbids_cp <- dbGetQuery(framdw, paste("
   from edcsurvey_edcdata_v where vessel_id != '936611'
     and survey_type = 'CATCHER PROCESSOR'
     and ADJ_YEAR between 2009 and ", currentyear, ""))
+
+
 
 # (1) CP Data Pull #####
 # CP Production
@@ -69,7 +73,31 @@ cp_catch_raw <- dbGetQuery(framdw, paste0("select vessel_id, year, lbs value, co
                                            and edcsurvey_dbid in (", xfn(dbids_cp), ")")) %>%
   mutate(SECTOR = 'Catcher-Processor',
          METRIC = 'Purchase (or catch) weight',
-         PRODUCT = NA_real_) 
+         PRODUCT = NA_real_)
+
+
+cp_company <- dbGetQuery(framdw, paste0("select distinct vessel_id, company
+                                           from edc_cp_lbsdas
+                                           where year <=", currentyear, "
+                                           and edcsurvey_dbid in (", xfn(dbids_cp), ")"))
+
+
+cp_catch_raw_tac <- dbGetQuery(framdw, paste0("select proc AS VESSEL_ID, year, lbs value
+                                           from edc_fish_mv
+                                           where year <=", currentyear, "
+                                          and vss_dbid in (", xfn(dbids_cp), ")
+                                          and spid = 'PWHT' 
+                                          and sector = 'CATCHER PROCESSOR'
+                                          and fleet <> 'TI'")) %>%
+  left_join(cp_company) %>%
+  # distinct() %>%
+  group_by(VESSEL_ID, YEAR, COMPANY) %>%
+  summarize(VALUE = sum(VALUE)) %>%
+  mutate(SECTOR = 'Catcher-Processor',
+         METRIC = 'CW for TAC',
+         PRODUCT = NA_real_) %>% 
+  filter(!(YEAR == 2010 & VESSEL_ID %in% c('579450', '904767')))
+
 
 
 # (2) MS Data Pull#####
@@ -95,13 +123,16 @@ ms_prod_tot <- ms_prod_raw %>%
   data.frame()
 
 
+
+
 # MS Purchase
 # Filter by 'Paid'. Do not include weight received but not paid for.
+
 ms_purc_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weight, cost
                                           from edc_ms_purchase
                                           where year <=", currentyear,
                                          "and edcsurvey_dbid in (", xfn(dbids_ms), ")
-                                          and type = 'Paid' 
+                                          and type = 'Paid'
                                           and species = 'Pacific whiting'")) %>%
   reshape2::melt(id.vars = c('VESSEL_ID','YEAR','COMPANY')) %>%
   mutate(SECTOR = 'Mothership',
@@ -113,11 +144,41 @@ ms_purc_raw <- dbGetQuery(framdw, paste0("select vessel_id, company, year, weigh
 
 
 
+ms_company <- dbGetQuery(framdw, paste0("select distinct vessel_id, company
+                                           from edc_ms_purchase
+                                           where year <=", currentyear, "
+                                           and edcsurvey_dbid in (", xfn(dbids_ms), ")"))
+
+
+# ms_purc_raw_tac <- dbGetQuery(framdw, paste0("select proc vessel_id, year, lbs WEIGHT
+#                                           from edc_fish_mv 
+#                                           where year <=", currentyear, "
+#                                           and ms_dbid in (", xfn(dbids_ms), ")
+#                                           and spid = 'PWHT'
+#                                           and sector = 'MOTHERSHIP'
+#                                           and fleet <> 'TI'")) %>% 
+#   left_join(ms_company) %>% 
+#   # distinct() %>%
+#   group_by(VESSEL_ID, YEAR, COMPANY) %>%
+#   summarize(WEIGHT = sum(WEIGHT)) %>%
+#   reshape2::melt(id.vars = c('VESSEL_ID','YEAR','COMPANY')) %>%
+#   mutate(SECTOR = 'Mothership',
+#          METRIC = case_when(variable == 'WEIGHT' ~ 'CW for TAC'),
+#          VALUE = value,
+#          PRODUCT = NA_real_) %>%
+#   select(-value, -variable)
+
+
+ms_purc_raw_tac <- ms_purc_raw %>% filter(METRIC == 'Purchase (or catch) weight') %>% 
+  mutate(METRIC = case_when(METRIC == 'Purchase (or catch) weight' ~ 'CW for TAC')) 
+
+
 # (3) Full CP/MS data#####
-cpms_full <- rbind(cp_prod_raw, cp_prod_tot, cp_catch_raw,
-                   ms_prod_raw, ms_prod_tot, ms_purc_raw) %>%
+cpms_full <- rbind(cp_prod_raw, cp_prod_tot, cp_catch_raw, cp_catch_raw_tac,
+                   ms_prod_raw, ms_prod_tot, ms_purc_raw, ms_purc_raw_tac) %>%
   mutate(PRODUCT = case_when(PRODUCT == 'Round' ~ 'Frozen whole/Round',
                              T ~ PRODUCT))
+
 
 
 # (4) FR Data Pull#####
@@ -126,10 +187,10 @@ fr_purc_raw <- dbGetQuery(framdw, paste0("
   select sum(WEIGHT) weight, sum(COST) cost, GHID, SURVEY_YEAR year
   from EDC_FR_PURCHASE
   where survey_year <=", frcurrentyear, "
-    and TYPE = 'Paid' 
+    and TYPE = 'Paid'
     and fishery_group = 'Pacific whiting'
     and species_cd = 'Pacific whiting'
-  group by ghid, survey_year")) %>%
+  group by ghid, survey_year")) %>% 
   reshape2::melt(id.vars = c('GHID','YEAR')) %>%
   mutate(METRIC = case_when(variable == 'WEIGHT' ~ 'Purchase (or catch) weight',
                             variable == 'COST' ~ 'Purchase value'),
@@ -138,7 +199,26 @@ fr_purc_raw <- dbGetQuery(framdw, paste0("
          SECTOR = 'Shoreside') %>%
   select(-variable, -value)
 
-# FR Production
+fr_purc_raw_tac <- dbGetQuery(framdw, paste0("
+              select lbs weight, proc_ghid as GHID, year
+              from edc_fish_mv 
+              where year <=", frcurrentyear, "
+              and quota_sp = 'Pacific whiting'
+              and sector = 'SHORESIDE' 
+              and fleet <> 'TI'
+              and year > 2008
+              ")) %>% distinct() %>% 
+  filter(!is.na(GHID)) %>% 
+  group_by(GHID, YEAR) %>% 
+  summarize(WEIGHT = sum(WEIGHT)) %>% 
+  reshape2::melt(id.vars = c('GHID','YEAR')) %>%
+  mutate(METRIC = 'CW for TAC',
+         VALUE = value,
+         PRODUCT = NA_real_,
+         SECTOR = 'Shoreside') %>%
+  select(-variable, -value) 
+
+
 fr_prod_raw <- dbGetQuery(framdw, paste0("select WEIGHT, value, GHID, SURVEY_YEAR year, product
   from EDC_FR_PRODUCTION
   where survey_year <=", frcurrentyear, "and fishery_group = 'Pacific whiting' and species_cd = 'Pacific whiting'")) %>%
@@ -149,6 +229,7 @@ fr_prod_raw <- dbGetQuery(framdw, paste0("select WEIGHT, value, GHID, SURVEY_YEA
          VALUE = value) %>%
   select(-value, -variable)
 
+
 fr_prod_tot <- fr_prod_raw %>%
   group_by(GHID, YEAR, SECTOR, METRIC) %>%
   summarize(VALUE = sumNA(VALUE, na.rm = T),
@@ -156,13 +237,14 @@ fr_prod_tot <- fr_prod_raw %>%
   data.frame()
 
 # (5) Full FR data#####
-fr_full <- rbind(fr_prod_raw, fr_purc_raw, fr_prod_tot) %>%
+fr_full <- rbind(fr_prod_raw, fr_purc_raw, fr_prod_tot, fr_purc_raw_tac) %>%
   # Match with CP/MS
   mutate(PRODUCT = case_when(PRODUCT == 'Frozen' ~ 'Frozen whole/Round',
                              T ~ PRODUCT),
          COMPANY = GHID,
          VESSEL_ID = GHID) %>%
   select(-GHID)
+
 
 # (6) TAC data####
 tac <- dbGetQuery(framdw, paste0("select year, mothership, catcher_processor, shoreside from edc_pwht_alloc 
@@ -175,6 +257,7 @@ tac <- dbGetQuery(framdw, paste0("select year, mothership, catcher_processor, sh
          Metric = 'Total allowable catch, non-tribal',
          Year = YEAR) %>%
   select(-variable, -value, -YEAR)
+
 
 tac_all <- tac %>%
   group_by(Year, Metric) %>%
@@ -196,6 +279,8 @@ tac_final <- tac_all2 %>%
           mutate(Statistic = 'Median')) %>%
   rbind(tac_all2 %>%
           mutate(Statistic = 'Mean'))
+
+
 # (7) CP/MS and FR combined and deflated ####
 data_combined <- rbind(fr_full, cpms_full,
                        (fr_full %>%
@@ -208,9 +293,12 @@ data_combined <- rbind(fr_full, cpms_full,
   select(-DEFL)
 
 
+
+
 # (8) Pull in CP/MS impacts ######
 # We are pulling the summarized final data for impacts so we don't need to do anything to it and can just bind to final whiting dataset
 # set directory to pull in files from fisheyeapp
+setwd('..')
 setwd('..')
 load("fisheyeall/PerformanceMetrics/data/CVperfmetrics.RData") 
 load("fisheyeall/PerformanceMetrics/data/Mperfmetrics.RData") 
@@ -312,6 +400,20 @@ perc <- filter(data_combined, PRODUCT == 'All products') %>%
   rename(METRIC = variable,
          VALUE = value)
 
+unused_tac <- filter(data_combined, METRIC %in% c('CW for TAC')) %>% 
+  group_by(YEAR, SECTOR, METRIC, PRODUCT) %>% 
+  summarize(Value_pw = sum(VALUE)) %>% 
+  left_join(tac_final, by = c(c('YEAR' = 'Year'), c('SECTOR' = 'Sector'))) %>% 
+  mutate(METRIC = 'Unused TAC', 
+         VALUE = Value-Value_pw, 
+         N_total = NA) %>% 
+  select(-Value_pw, -Value, -Metric, -N_total, -PRODUCT) %>% 
+  rename(Metric = 'METRIC',
+         Year = 'YEAR', 
+         Sector = 'SECTOR', 
+         Value = 'VALUE') %>% 
+  distinct()
+
 
 data_rates_full <- rbind(data_combined, rates_raw, perc)
 
@@ -323,6 +425,7 @@ data_rates_full_treated <- confTreat(data_rates_full, variables = c('YEAR','METR
 
 # Summarizing data#####
 # Mean, median, total
+
 data_all_smry <- data_rates_full_treated %>%
   group_by(YEAR, SECTOR, PRODUCT, METRIC) %>%
   summarize(Mean = mean(VALUE, na.rm = T),
@@ -342,7 +445,7 @@ data_all_smry <- data_rates_full_treated %>%
                                       'Percent by value','Percent by weight') & STATISTIC == 'Total' ~ 1,
                         T ~ 0)) %>%
   filter(rm != 1) %>%
-  select(-variable,-value, -rm)
+  select(-variable,-value, -rm) 
 
 # Total for rates
 rates_tot <- data_rates_full_treated %>%
@@ -388,10 +491,12 @@ rates_tot_full <- rbind(rates_tot, perc_tot) %>%
           select(-VARIANCE, -q25, -q75, -STATISTIC, -VALUE) %>%
           distinct())
 
+
+
 # Final summarized dataset####
 data_final <- rbind(data_all_smry, rates_tot_full) %>%
   mutate(
-         Metric = as.character(case_when(!is.na(PRODUCT) & PRODUCT != 'All products' ~ paste0(PRODUCT, " (", METRIC, ")"),
+        Metric = as.character(case_when(!is.na(PRODUCT) & PRODUCT != 'All products' ~ paste0(PRODUCT, " (", METRIC, ")"),
                                          T ~ METRIC)),
          Year = YEAR,
          Sector = as.character(SECTOR),
@@ -400,6 +505,8 @@ data_final <- rbind(data_all_smry, rates_tot_full) %>%
          Variance = VARIANCE) %>%
   select(-c(PRODUCT, YEAR, SECTOR, METRIC, STATISTIC, VALUE, VARIANCE)) %>%
   as.data.frame()
+
+
 
 ##-----------------------------##
 # Formatting of final dataset#####
@@ -449,8 +556,11 @@ data_final_allcombosnew <- full_join(data_final_0notincluded, all_combos) %>%
   select(-conf, -N_total)
 
   # Final formatting
+
+
+
 data_final_format <- data_final_allcombosnew %>%
-  rbind(tac_final) %>%
+  rbind(tac_final, unused_tac) %>%
   mutate(Value = case_when(Metric %in% c('Purchase value','Purchase price (per lb)','Markup') 
                            & Sector == 'Catcher-Processor' ~ NA_real_,
                            T ~ Value),
@@ -475,6 +585,8 @@ data_final_format <- data_final_allcombosnew %>%
                          grepl('Fish oil', Metric) ~ 'Product',
                          grepl('Unprocessed', Metric) ~ 'Product',
                          grepl('Other', Metric) ~ 'Product',
+                         grepl('CW for TAC', Metric) ~ 'TACU',
+                         grepl('Unused TAC', Metric) ~ 'TACU',
                          T ~ 'Summary')) %>%
   group_by(Metric, Statistic) %>%
   mutate(
@@ -521,6 +633,9 @@ new <- final %>%
   mutate(N = as.numeric(N),
          Year = as.numeric(Year))
 
+
+
+## 
 gg <- comparefun(old, new, c('N','Value','Variance', 'q25','q75'), 'wide')
 
 
@@ -532,7 +647,6 @@ gg3 <- filter(gg, combomiss == 'Fine')
 gg2_ck <- filter(final, Metric == 'Other (Production value)' & Statistic == 'Mean')
 
 thres <- filter(gg, Value_percDiff > 0.05)
-
 
 ##-----------------------------##
 ##Remove metrics that we dont want to include#####
@@ -549,4 +663,6 @@ final <- final[c('Year','Sector','Metric','Statistic','N','Value','Variance','q2
 mini_whiting <- final
 rownames(mini_whiting) <- NULL
 saveRDS(mini_whiting, file = "mini_whiting.RDS")
+
+mini_whiting
 

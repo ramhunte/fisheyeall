@@ -37,7 +37,10 @@ shinyUI(fluidPage(
                                                conditionalPanel(condition = "input.tab_type == 'Summary'",
                                                                 plotOutput("yearplot")),
                                                conditionalPanel(condition = "input.tab_type == 'By product type'",
-                                                                plotOutput("productplot")), style = "min-height: 1000px"),
+                                                                plotOutput("productplot")), 
+                                               conditionalPanel(condition = "input.tab_type == 'Total Allowable Catch Utilization'",
+                                                                plotOutput("tacplot")),
+                                               style = "min-height: 1000px"),
                                       tabPanel("Table", DT::dataTableOutput("table"))
                                       )
                           )
