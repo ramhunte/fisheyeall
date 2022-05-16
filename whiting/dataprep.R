@@ -94,7 +94,7 @@ cp_catch_raw_tac <- dbGetQuery(framdw, paste0("select proc AS VESSEL_ID, year, l
   group_by(VESSEL_ID, YEAR, COMPANY) %>%
   summarize(VALUE = sum(VALUE)) %>%
   mutate(SECTOR = 'Catcher-Processor',
-         METRIC = 'CW for TAC',
+         METRIC = 'Catch weight, non-tribal',
          PRODUCT = NA_real_) %>% 
   filter(!(YEAR == 2010 & VESSEL_ID %in% c('579450', '904767')))
 
@@ -163,14 +163,14 @@ ms_company <- dbGetQuery(framdw, paste0("select distinct vessel_id, company
 #   summarize(WEIGHT = sum(WEIGHT)) %>%
 #   reshape2::melt(id.vars = c('VESSEL_ID','YEAR','COMPANY')) %>%
 #   mutate(SECTOR = 'Mothership',
-#          METRIC = case_when(variable == 'WEIGHT' ~ 'CW for TAC'),
+#          METRIC = case_when(variable == 'WEIGHT' ~ 'Catch weight, non-tribal'),
 #          VALUE = value,
 #          PRODUCT = NA_real_) %>%
 #   select(-value, -variable)
 
 
 ms_purc_raw_tac <- ms_purc_raw %>% filter(METRIC == 'Purchase (or catch) weight') %>% 
-  mutate(METRIC = case_when(METRIC == 'Purchase (or catch) weight' ~ 'CW for TAC')) 
+  mutate(METRIC = case_when(METRIC == 'Purchase (or catch) weight' ~ 'Catch weight, non-tribal')) 
 
 
 # (3) Full CP/MS data#####
@@ -212,7 +212,7 @@ fr_purc_raw_tac <- dbGetQuery(framdw, paste0("
   group_by(GHID, YEAR) %>% 
   summarize(WEIGHT = sum(WEIGHT)) %>% 
   reshape2::melt(id.vars = c('GHID','YEAR')) %>%
-  mutate(METRIC = 'CW for TAC',
+  mutate(METRIC = 'Catch weight, non-tribal',
          VALUE = value,
          PRODUCT = NA_real_,
          SECTOR = 'Shoreside') %>%
@@ -247,16 +247,17 @@ fr_full <- rbind(fr_prod_raw, fr_purc_raw, fr_prod_tot, fr_purc_raw_tac) %>%
 
 
 # (6) TAC data####
-tac <- dbGetQuery(framdw, paste0("select year, mothership, catcher_processor, shoreside from edc_pwht_alloc 
-                                 where final = 'FINAL' and year <=", currentyear,"")) %>%
-  reshape2::melt(id.vars = 'YEAR') %>%
+tac <- dbGetQuery(framdw, paste0("select year, mothership, catcher_processor, shoreside, final from edc_pwht_alloc 
+                                 where year between 2009 and ", currentyear,"")) %>%
+  reshape2::melt(id.vars = c('YEAR', 'FINAL')) %>%
   mutate(Sector = case_when(variable == 'MOTHERSHIP' ~ 'Mothership',
                             variable == 'CATCHER_PROCESSOR' ~ 'Catcher-Processor',
                             variable == 'SHORESIDE' ~ 'Shoreside'),
          Value = value,
-         Metric = 'Total allowable catch, non-tribal',
+         Metric = case_when(FINAL == 'ORIGINAL' ~ 'Total allowable catch, pre-allocation',
+                            FINAL == 'FINAL'  ~ 'Total allowable catch, post-allocation'), 
          Year = YEAR) %>%
-  select(-variable, -value, -YEAR)
+  select(-variable, -value, -YEAR, -FINAL)
 
 
 tac_all <- tac %>%
@@ -264,6 +265,7 @@ tac_all <- tac %>%
   summarize(Value = sum(Value)) %>%
   mutate(Sector = 'All') %>%
   data.frame()
+
 
 tac_all2 <- rbind(tac, tac_all) %>%
   mutate(N = NA_real_,
@@ -400,19 +402,48 @@ perc <- filter(data_combined, PRODUCT == 'All products') %>%
   rename(METRIC = variable,
          VALUE = value)
 
-unused_tac <- filter(data_combined, METRIC %in% c('CW for TAC')) %>% 
+
+# add percentages
+
+unused_tac <- filter(data_combined, METRIC %in% c('Catch weight, non-tribal')) %>% 
   group_by(YEAR, SECTOR, METRIC, PRODUCT) %>% 
   summarize(Value_pw = sum(VALUE)) %>% 
   left_join(tac_final, by = c(c('YEAR' = 'Year'), c('SECTOR' = 'Sector'))) %>% 
-  mutate(METRIC = 'Unused TAC', 
-         VALUE = Value-Value_pw, 
-         N_total = NA) %>% 
-  select(-Value_pw, -Value, -Metric, -N_total, -PRODUCT) %>% 
-  rename(Metric = 'METRIC',
-         Year = 'YEAR', 
-         Sector = 'SECTOR', 
-         Value = 'VALUE') %>% 
+  filter(Metric == 'Total allowable catch, post-allocation') %>% 
+  mutate(uTAC  = Value-Value_pw, 
+         pcw = Value_pw/Value, 
+         puTAC = 1 - pcw) %>% ungroup() %>% 
+  select(-Value_pw, -Value, -Metric, -PRODUCT, -METRIC) %>% 
+  tidyr::pivot_longer(uTAC:puTAC, names_to = "METRIC", values_to = "VALUE") %>% 
+  mutate(METRIC = case_when(METRIC == 'uTAC' ~ 'Unutilized TAC', 
+                            METRIC == 'pcw' ~ 'Percent Catch Weight, non-tribal', 
+                            METRIC == 'puTAC' ~ 'Percent Unutilized TAC', 
+                            T ~ METRIC)) %>% 
+    rename(Metric = 'METRIC',
+           Year = 'YEAR',
+           Sector = 'SECTOR',
+           Value = 'VALUE') %>%
+  
   distinct()
+
+
+# %>% 
+#   select(-Value_pw, -Value, -Metric, -N_total, -PRODUCT) %>% 
+#   rename(Metric = 'METRIC',
+#          Year = 'YEAR', 
+#          Sector = 'SECTOR', 
+#          Value = 'VALUE') %>% 
+#   distinct()
+# %>%
+#   mutate(METRIC = 'Unutilized TAC',
+#          VALUE = Value-Value_pw,
+#          N_total = NA) %>%
+#   select(-Value_pw, -Value, -Metric, -N_total, -PRODUCT) %>%
+#   rename(Metric = 'METRIC',
+#          Year = 'YEAR',
+#          Sector = 'SECTOR',
+#          Value = 'VALUE') %>%
+#   distinct()
 
 
 data_rates_full <- rbind(data_combined, rates_raw, perc)
@@ -559,6 +590,7 @@ data_final_allcombosnew <- full_join(data_final_0notincluded, all_combos) %>%
 
 
 
+
 data_final_format <- data_final_allcombosnew %>%
   rbind(tac_final, unused_tac) %>%
   mutate(Value = case_when(Metric %in% c('Purchase value','Purchase price (per lb)','Markup') 
@@ -585,10 +617,14 @@ data_final_format <- data_final_allcombosnew %>%
                          grepl('Fish oil', Metric) ~ 'Product',
                          grepl('Unprocessed', Metric) ~ 'Product',
                          grepl('Other', Metric) ~ 'Product',
-                         grepl('CW for TAC', Metric) ~ 'TACU',
-                         grepl('Unused TAC', Metric) ~ 'TACU',
+                         grepl('Catch weight, non-tribal', Metric) ~ 'TACU',
+                         grepl('Unutilized TAC', Metric) ~ 'TACU',
+                         grepl('Percent Catch Weight, non-tribal', Metric) ~ 'TACU',
+                         grepl('Percent Unutilized TAC', Metric) ~ 'TACU',
+                         grepl('Total allowable catch, pre-allocation', Metric) ~ 'TACU',
+                         grepl('Total allowable catch, post-allocation', Metric) ~ 'TACU',
                          T ~ 'Summary')) %>%
-  group_by(Metric, Statistic) %>%
+  group_by(Metric, Statistic) %>% 
   mutate(
     unit = case_when(max(Value, na.rm = T) < 1e3 ~ '',
                      max(Value, na.rm = T) < 1e6 ~ 'thousands',
@@ -603,8 +639,16 @@ data_final_format <- data_final_allcombosnew %>%
                        paste0(Metric, ": ", Statistic, " (", unit, " lbs)"),
                      Metric == 'Recovery rate' | grepl('Percent', Metric) ~ Metric,
                      Metric == 'Total allowable catch, non-tribal' ~ paste0(Metric, ": Total (", unit, ")"),
-                     T ~ paste0(Metric, " (", unit, ")"))) %>%
+                     T ~ paste0(Metric, " (", unit, ")")),
+    Statistic = case_when(Metric == 'Percent Catch Weight, non-tribal' ~ 'Percent',
+                          Metric == 'Percent Unutilized TAC' ~ 'Percent', 
+                          T~ Statistic), 
+    Metric = case_when(Metric == 'Percent Catch Weight, non-tribal' ~ 'Catch weight, non-tribal',
+                       Metric == 'Percent Unutilized TAC' ~ 'Unutilized TAC', 
+                       T ~ Metric)) %>% distinct() %>% 
   data.frame()
+
+
 
 # if FR and vessels are on different years then need to make sure we don't show "all" for the most current year.
 # Add impacts by rbind
@@ -643,10 +687,12 @@ gg <- comparefun(old, new, c('N','Value','Variance', 'q25','q75'), 'wide')
 gg2 <- filter(gg, combomiss == 'Missing combo', Metric != 'Recovery rate')
 gg3 <- filter(gg, combomiss == 'Fine')
 
+
 # units switched to millions because in 2018 shoreside had value of over million
 gg2_ck <- filter(final, Metric == 'Other (Production value)' & Statistic == 'Mean')
 
 thres <- filter(gg, Value_percDiff > 0.05)
+
 
 ##-----------------------------##
 ##Remove metrics that we dont want to include#####
@@ -664,5 +710,4 @@ mini_whiting <- final
 rownames(mini_whiting) <- NULL
 saveRDS(mini_whiting, file = "mini_whiting.RDS")
 
-mini_whiting
-
+View(mini_whiting)
