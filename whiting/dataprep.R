@@ -94,7 +94,7 @@ cp_catch_raw_tac <- dbGetQuery(framdw, paste0("select proc AS VESSEL_ID, year, l
   group_by(VESSEL_ID, YEAR, COMPANY) %>%
   summarize(VALUE = sum(VALUE)) %>%
   mutate(SECTOR = 'Catcher-Processor',
-         METRIC = 'Catch weight, non-tribal',
+         METRIC = 'Commercial catch',
          PRODUCT = NA_real_) %>% 
   filter(!(YEAR == 2010 & VESSEL_ID %in% c('579450', '904767')))
 
@@ -163,14 +163,14 @@ ms_company <- dbGetQuery(framdw, paste0("select distinct vessel_id, company
 #   summarize(WEIGHT = sum(WEIGHT)) %>%
 #   reshape2::melt(id.vars = c('VESSEL_ID','YEAR','COMPANY')) %>%
 #   mutate(SECTOR = 'Mothership',
-#          METRIC = case_when(variable == 'WEIGHT' ~ 'Catch weight, non-tribal'),
+#          METRIC = case_when(variable == 'WEIGHT' ~ 'Commercial catch'),
 #          VALUE = value,
 #          PRODUCT = NA_real_) %>%
 #   select(-value, -variable)
 
 
 ms_purc_raw_tac <- ms_purc_raw %>% filter(METRIC == 'Purchase (or catch) weight') %>% 
-  mutate(METRIC = case_when(METRIC == 'Purchase (or catch) weight' ~ 'Catch weight, non-tribal')) 
+  mutate(METRIC = case_when(METRIC == 'Purchase (or catch) weight' ~ 'Commercial catch')) 
 
 
 # (3) Full CP/MS data#####
@@ -212,7 +212,7 @@ fr_purc_raw_tac <- dbGetQuery(framdw, paste0("
   group_by(GHID, YEAR) %>% 
   summarize(WEIGHT = sum(WEIGHT)) %>% 
   reshape2::melt(id.vars = c('GHID','YEAR')) %>%
-  mutate(METRIC = 'Catch weight, non-tribal',
+  mutate(METRIC = 'Commercial catch',
          VALUE = value,
          PRODUCT = NA_real_,
          SECTOR = 'Shoreside') %>%
@@ -254,8 +254,8 @@ tac <- dbGetQuery(framdw, paste0("select year, mothership, catcher_processor, sh
                             variable == 'CATCHER_PROCESSOR' ~ 'Catcher-Processor',
                             variable == 'SHORESIDE' ~ 'Shoreside'),
          Value = value,
-         Metric = case_when(FINAL == 'ORIGINAL' ~ 'Total allowable catch, pre-allocation',
-                            FINAL == 'FINAL'  ~ 'Total allowable catch, post-allocation'), 
+         Metric = case_when(FINAL == 'ORIGINAL' ~ 'Initial allocation',
+                            FINAL == 'FINAL'  ~ 'Final allocation'), 
          Year = YEAR) %>%
   select(-variable, -value, -YEAR, -FINAL)
 
@@ -405,19 +405,19 @@ perc <- filter(data_combined, PRODUCT == 'All products') %>%
 
 # add percentages
 
-unused_tac <- filter(data_combined, METRIC %in% c('Catch weight, non-tribal')) %>% 
+unused_tac <- filter(data_combined, METRIC %in% c('Commercial catch')) %>% 
   group_by(YEAR, SECTOR, METRIC, PRODUCT) %>% 
   summarize(Value_pw = sum(VALUE)) %>% 
   left_join(tac_final, by = c(c('YEAR' = 'Year'), c('SECTOR' = 'Sector'))) %>% 
-  filter(Metric == 'Total allowable catch, post-allocation') %>% 
+  filter(Metric == 'Final allocation') %>% 
   mutate(uTAC  = Value-Value_pw, 
          pcw = Value_pw/Value, 
          puTAC = 1 - pcw) %>% ungroup() %>% 
   select(-Value_pw, -Value, -Metric, -PRODUCT, -METRIC) %>% 
   tidyr::pivot_longer(uTAC:puTAC, names_to = "METRIC", values_to = "VALUE") %>% 
-  mutate(METRIC = case_when(METRIC == 'uTAC' ~ 'Unutilized TAC', 
-                            METRIC == 'pcw' ~ 'Percent Catch Weight, non-tribal', 
-                            METRIC == 'puTAC' ~ 'Percent Unutilized TAC', 
+  mutate(METRIC = case_when(METRIC == 'uTAC' ~ 'Unutilized allocation, post-reapportionment', 
+                            METRIC == 'pcw' ~ 'Percent Commercial catch', 
+                            METRIC == 'puTAC' ~ 'Percent Unutilized allocation, post-reapportionment', 
                             T ~ METRIC)) %>% 
     rename(Metric = 'METRIC',
            Year = 'YEAR',
@@ -435,7 +435,7 @@ unused_tac <- filter(data_combined, METRIC %in% c('Catch weight, non-tribal')) %
 #          Value = 'VALUE') %>% 
 #   distinct()
 # %>%
-#   mutate(METRIC = 'Unutilized TAC',
+#   mutate(METRIC = 'Unutilized allocation, post-reapportionment',
 #          VALUE = Value-Value_pw,
 #          N_total = NA) %>%
 #   select(-Value_pw, -Value, -Metric, -N_total, -PRODUCT) %>%
@@ -617,12 +617,12 @@ data_final_format <- data_final_allcombosnew %>%
                          grepl('Fish oil', Metric) ~ 'Product',
                          grepl('Unprocessed', Metric) ~ 'Product',
                          grepl('Other', Metric) ~ 'Product',
-                         grepl('Catch weight, non-tribal', Metric) ~ 'TACU',
-                         grepl('Unutilized TAC', Metric) ~ 'TACU',
-                         grepl('Percent Catch Weight, non-tribal', Metric) ~ 'TACU',
-                         grepl('Percent Unutilized TAC', Metric) ~ 'TACU',
-                         grepl('Total allowable catch, pre-allocation', Metric) ~ 'TACU',
-                         grepl('Total allowable catch, post-allocation', Metric) ~ 'TACU',
+                         grepl('Commercial catch', Metric) ~ 'TACU',
+                         grepl('Unutilized allocation, post-reapportionment', Metric) ~ 'TACU',
+                         grepl('Percent Commercial catch', Metric) ~ 'TACU',
+                         grepl('Percent Unutilized allocation, post-reapportionment', Metric) ~ 'TACU',
+                         grepl('Initial allocation', Metric) ~ 'TACU',
+                         grepl('Final allocation', Metric) ~ 'TACU',
                          T ~ 'Summary')) %>%
   group_by(Metric, Statistic) %>% 
   mutate(
@@ -640,12 +640,20 @@ data_final_format <- data_final_allcombosnew %>%
                      Metric == 'Recovery rate' | grepl('Percent', Metric) ~ Metric,
                      Metric == 'Total allowable catch, non-tribal' ~ paste0(Metric, ": Total (", unit, ")"),
                      T ~ paste0(Metric, " (", unit, ")")),
-    Statistic = case_when(Metric == 'Percent Catch Weight, non-tribal' ~ 'Percent',
-                          Metric == 'Percent Unutilized TAC' ~ 'Percent', 
+    Statistic = case_when(Metric == 'Percent Commercial catch' ~ 'Utilization by percent',
+                          Metric == 'Percent Unutilized allocation, post-reapportionment' ~ 'Utilization by percent', 
+                          (Metric == 'Commercial catch' & Statistic == 'Total') ~ 'Utilization by weight',
+                          (Metric == 'Unutilized allocation, post-reapportionment' & Statistic == 'Total') ~ 'Utilization by weight',
+                          (Metric == 'Initial allocation' & Statistic == 'Total') ~ 'Utilization by weight',
+                          (Metric == 'Final allocation' & Statistic == 'Total') ~ 'Utilization by weight',
                           T~ Statistic), 
-    Metric = case_when(Metric == 'Percent Catch Weight, non-tribal' ~ 'Catch weight, non-tribal',
-                       Metric == 'Percent Unutilized TAC' ~ 'Unutilized TAC', 
-                       T ~ Metric)) %>% distinct() %>% 
+    Metric = case_when(Metric == 'Percent Commercial catch' ~ 'Commercial catch',
+                       Metric == 'Percent Unutilized allocation, post-reapportionment' ~ 'Unutilized allocation, post-reapportionment', 
+                       T ~ Metric)) %>%
+  mutate(ylab = case_when(Statistic == 'Utilization by percent' ~ 'Attainment (%)', 
+                          Statistic == 'Utilization by weight' ~ 'Catch weight in metric tons (millions)', 
+                          T ~ ylab)) %>% 
+  distinct() %>% 
   data.frame()
 
 

@@ -63,9 +63,9 @@ prodTabwt <- filter(prodTab, grepl('Production weight', Metric))
 prodTabprice <- filter(prodTab, grepl('Production price', Metric))
 sumTab <- filter(data, tab == 'Summary')
 sumTab$Metric <- sort(sumTab$Metric, decreasing = T)
-tacTab <- filter(data, tab == 'TACU'  & Statistic == "Total")
-tacTabval <- filter(tacTab, !grepl('Percent', Metric))
-tacTabperc <- filter(tacTab, grepl('Percent', Metric))
+tacTab <- filter(data, tab == 'TACU' & Statistic %in% c('Utilization by weight', 'Utilization by percent'))
+tacTabval <- filter(tacTab, !grepl('percent', Metric))
+tacTabperc <- filter(tacTab, grepl('percent', Metric))
 
 unique(tacTab$Metric)
 
@@ -129,12 +129,12 @@ shinyServer(function(input, output, session) {
   
   ##TAC tab: yaxis options
   output$yaxis3Input <- renderUI({
-    checkboxGroupInput("yaxis3Input", "Metric", choices = c('Catch weight, non-tribal','Unutilized TAC', 'Total allowable catch, pre-allocation'), selected = c('Catch weight, non-tribal','Unutilized TAC'))
+    checkboxGroupInput("yaxis3Input", "Metric", choices = c('Commercial catch','Unutilized allocation, post-reapportionment', 'Initial allocation'), selected = c('Commercial catch','Unutilized allocation, post-reapportionment'))
   })
   
   ##TAC tab: stat options
   output$stat3Input <- renderUI({
-    radioButtons("stat3Input","Statistic", choices = c("Total", "Percent"), selected = "Total")
+    radioButtons("stat3Input","Statistic", choices = c("Utilization by weight", "Utilization by percent"), selected = "Utilization by weight")
   })
   ##TAC tab: sector options
   output$sector3Input <- renderUI({
@@ -142,6 +142,7 @@ shinyServer(function(input, output, session) {
   })
   
   
+
   
   # Download button#####
   output$download_Table <- renderUI({
@@ -188,9 +189,9 @@ shinyServer(function(input, output, session) {
 # 
 #   observe({
 #    if(input$valuetypeInput == 'Total Utilization') {
-#       updateCheckboxGroupInput(session, "yaxis3Input", "Metric", choices = unique(tacTabval$Metric), selected = c('Catch weight, non-tribal','Unutilized TAC'))
+#       updateCheckboxGroupInput(session, "yaxis3Input", "Metric", choices = unique(tacTabval$Metric), selected = c('Commercial catch','Unutilized allocation, post-reapportionment'))
 #     } else if(input$producttypeInput == 'Percent Utilization') {
-#       updateCheckboxGroupInput(session, "yaxis3Input", "Metric", choices = unique(tacTabperc$Metric), selected = c('Percent Catch Weight, non-tribal', 'Percent Unutilized TAC'))
+#       updateCheckboxGroupInput(session, "yaxis3Input", "Metric", choices = unique(tacTabperc$Metric), selected = c('Percent Commercial catch', 'Percent Unutilized allocation, post-reapportionment'))
 #     }
 #   })
 
@@ -218,7 +219,6 @@ shinyServer(function(input, output, session) {
   
 
 
-  
 
   #creating the dataframe for data table#####
   ##Use reactive to reactively filter the dataframe based on inputs
@@ -235,7 +235,7 @@ shinyServer(function(input, output, session) {
                  Sector %in% input$sector2Input) 
       } else if(input$tab_type == "Total Allowable Catch Utilization") {
         data_table %>%
-          filter(Metric %in% c('Catch weight, non-tribal', 'Total allowable catch, pre-allocation', 'Total allowable catch, post-allocation'),
+          filter(Metric %in% c(c('Commercial catch', 'Initial allocation', 'Final allocation')),
                  Statistic == input$stat3Input,
                  Sector %in% input$sector3Input) %>% 
           dplyr::select(-Variance, -N, -q25, -q75)
@@ -346,9 +346,9 @@ shinyServer(function(input, output, session) {
   )
   
   #tac color 
-  tacColor <- c('Unutilized TAC' = '#D8DEE9',
-                'Catch weight, non-tribal' = '#4C566A', 
-                'Total allowable catch, pre-allocation' = 'white')
+  tacColor <- c('Unutilized allocation, post-reapportionment' = '#D8DEE9',
+                'Commercial catch' = '#4C566A', 
+                'Initial allocation' = 'white')
   
   ##Defining standard plot elements
   point_size <- 4
@@ -412,9 +412,11 @@ shinyServer(function(input, output, session) {
       return()
     }
     
-    dat <- filtered()
+    dat <- filtered() 
     
-    dat$Metric <- factor(dat$Metric, levels = c('Unutilized TAC', 'Catch weight, non-tribal', 'Total allowable catch, pre-allocation'))
+    dat$Metric <- factor(dat$Metric, levels = c('Unutilized allocation, post-reapportionment', 'Commercial catch', 'Initial allocation'))  %>%  droplevels()
+    
+    ylabel <- dat$ylab
     
     ggplot(dat, aes(x = Year,
                     y = Value,
@@ -425,10 +427,11 @@ shinyServer(function(input, output, session) {
       theme(text = element_text(size = 14),
             axis.text = element_text(size = 12),
             strip.text = element_text(size = 14)) +
-      geom_bar(data = subset(dat, Metric != 'Total allowable catch, pre-allocation'), position ="stack", stat="identity", width=0.8) +
-      geom_bar(data = subset(dat, Metric == 'Total allowable catch, pre-allocation'), color = "grey95", position ="stack", stat="identity", alpha = 0.01, size = 1.25, width=0.9) +
-      facet_wrap(~Sector, ncol = 2) +
-      labs(y = input$stat3Input) +
+      geom_bar(data = subset(dat, Metric != 'Initial allocation'), position ="stack", stat="identity", width=0.8) +
+      geom_bar(data = subset(dat, Metric == 'Initial allocation'), color = "grey95", position ="stack", stat="identity", alpha = 0.01, size = 1.25, width=0.9) +
+      
+      facet_wrap(Sector ~ Statistic, ncol = 2) +
+      labs(y = ylabel) +
       scale_x_continuous(breaks= pretty_breaks())
   }, height = 800, width = 1100)
   
@@ -440,7 +443,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
+
   
   
   # Creating download buttons
