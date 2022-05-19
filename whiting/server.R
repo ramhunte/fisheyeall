@@ -346,7 +346,7 @@ shinyServer(function(input, output, session) {
   )
   
   #tac color 
-  tacColor <- c('Unutilized allocation, post-reapportionment' = '#D8DEE9',
+  tacColorFull <- c('Unutilized allocation, post-reapportionment' = '#D8DEE9',
                 'Commercial catch' = '#4C566A', 
                 'Initial allocation' = 'white')
   
@@ -415,6 +415,8 @@ shinyServer(function(input, output, session) {
     dat <- filtered() 
     
     dat$Metric <- factor(dat$Metric, levels = c('Unutilized allocation, post-reapportionment', 'Commercial catch', 'Initial allocation'))  %>%  droplevels()
+    
+    if(any(grepl('by weight', dat$Statistic))) tacColor <- tacColorFull else  tacColor <- tacColorFull[-3]
     
     ylabel <- dat$ylab
     
