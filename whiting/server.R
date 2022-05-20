@@ -67,8 +67,6 @@ tacTab <- filter(data, tab == 'TACU' & Statistic %in% c('Utilization by weight',
 tacTabval <- filter(tacTab, !grepl('percent', Metric))
 tacTabperc <- filter(tacTab, grepl('percent', Metric))
 
-unique(tacTab$Metric)
-
 
 
 
@@ -235,7 +233,7 @@ shinyServer(function(input, output, session) {
                  Sector %in% input$sector2Input) 
       } else if(input$tab_type == "Total Allowable Catch Utilization") {
         data_table %>%
-          filter(Metric %in% c(c('Commercial catch', 'Initial allocation', 'Final allocation')),
+          filter(Metric %in% c('Commercial catch', 'Initial allocation', 'Final allocation'),
                  Statistic == input$stat3Input,
                  Sector %in% input$sector3Input) %>% 
           dplyr::select(-Variance, -N, -q25, -q75)
