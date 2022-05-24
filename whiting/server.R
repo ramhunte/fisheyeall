@@ -139,7 +139,6 @@ shinyServer(function(input, output, session) {
     checkboxGroupInput("sector3Input","Sector", choices = unique(tacTab$Sector), selected = c("Catcher-Processor", "Mothership", "Shoreside"))
   })
   
-  
 
   
   # Download button#####
@@ -223,7 +222,7 @@ shinyServer(function(input, output, session) {
                  Sector %in% input$sector2Input) 
       } else if(input$tab_type == "Total Allowable Catch Utilization") {
         data_table %>%
-          filter(Metric %in% c('Commercial catch', 'Initial allocation', 'Final allocation'),
+          filter(Metric %in% input$yaxis3Input,
                  Statistic %in% input$stat3Input,
                  Sector %in% input$sector3Input) %>% 
           dplyr::select(-Variance, -N, -q25, -q75)
