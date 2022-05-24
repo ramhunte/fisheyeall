@@ -717,5 +717,3 @@ final <- final[c('Year','Sector','Metric','Statistic','N','Value','Variance','q2
 mini_whiting <- final
 rownames(mini_whiting) <- NULL
 saveRDS(mini_whiting, file = "mini_whiting.RDS")
-
-View(mini_whiting)

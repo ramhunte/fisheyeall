@@ -67,7 +67,7 @@ tacTab <- filter(data, tab == 'TACU' & Statistic %in% c('Utilization by weight',
 tacTabval <- filter(tacTab, !grepl('percent', Metric))
 tacTabperc <- filter(tacTab, grepl('percent', Metric))
 
-
+tacTab
 
 
 ## SERVER part of the app.####
@@ -132,7 +132,7 @@ shinyServer(function(input, output, session) {
   
   ##TAC tab: stat options
   output$stat3Input <- renderUI({
-    radioButtons("stat3Input","Statistic", choices = c("Utilization by weight", "Utilization by percent"), selected = "Utilization by weight")
+    radioButtons("stat3Input","Statistic", choices = unique(tacTab$Statistic), selected = "Utilization by weight")
   })
   ##TAC tab: sector options
   output$sector3Input <- renderUI({
@@ -182,16 +182,6 @@ shinyServer(function(input, output, session) {
     } 
   })
   
-  # 
-##TAC version  
-# 
-#   observe({
-#    if(input$valuetypeInput == 'Total Utilization') {
-#       updateCheckboxGroupInput(session, "yaxis3Input", "Metric", choices = unique(tacTabval$Metric), selected = c('Commercial catch','Unutilized allocation, post-reapportionment'))
-#     } else if(input$producttypeInput == 'Percent Utilization') {
-#       updateCheckboxGroupInput(session, "yaxis3Input", "Metric", choices = unique(tacTabperc$Metric), selected = c('Percent Commercial catch', 'Percent Unutilized allocation, post-reapportionment'))
-#     }
-#   })
 
   
   ##creating the dataframe for graph#####
@@ -210,7 +200,7 @@ shinyServer(function(input, output, session) {
     } else if (input$tab_type == "Total Allowable Catch Utilization") {
       data %>%
         filter(Metric %in% input$yaxis3Input,
-               Statistic == input$stat3Input,
+               Statistic %in% input$stat3Input,
                Sector %in% input$sector3Input) 
     }
   }) 
@@ -234,7 +224,7 @@ shinyServer(function(input, output, session) {
       } else if(input$tab_type == "Total Allowable Catch Utilization") {
         data_table %>%
           filter(Metric %in% c('Commercial catch', 'Initial allocation', 'Final allocation'),
-                 Statistic == input$stat3Input,
+                 Statistic %in% input$stat3Input,
                  Sector %in% input$sector3Input) %>% 
           dplyr::select(-Variance, -N, -q25, -q75)
       }
