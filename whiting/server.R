@@ -222,10 +222,9 @@ shinyServer(function(input, output, session) {
                  Sector %in% input$sector2Input) 
       } else if(input$tab_type == "Total Allowable Catch Utilization") {
         data_table %>%
-          filter(Metric %in% input$yaxis3Input,
+          filter(Metric %in%  c('Commercial catch','Final allocation', 'Initial allocation'),
                  Statistic %in% input$stat3Input,
-                 Sector %in% input$sector3Input) %>% 
-          dplyr::select(-Variance, -N, -q25, -q75)
+                 Sector %in% input$sector3Input) 
       }
     })
   dt_dat <- reactive({
