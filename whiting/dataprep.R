@@ -411,8 +411,8 @@ unused_tac <- filter(data_combined, METRIC %in% c('Commercial catch')) %>%
   left_join(tac_final, by = c(c('YEAR' = 'Year'), c('SECTOR' = 'Sector'))) %>% 
   filter(Metric == 'Final allocation') %>% 
   mutate(uTAC  = Value-Value_pw, 
-         pcw = Value_pw/Value, 
-         puTAC = 1 - pcw) %>% ungroup() %>% 
+         pcw = (Value_pw/Value)*100, 
+         puTAC = 100 - pcw) %>% ungroup() %>% 
   select(-Value_pw, -Value, -Metric, -PRODUCT, -METRIC) %>% 
   tidyr::pivot_longer(uTAC:puTAC, names_to = "METRIC", values_to = "VALUE") %>% 
   mutate(METRIC = case_when(METRIC == 'uTAC' ~ 'Unutilized allocation, post-reapportionment', 
