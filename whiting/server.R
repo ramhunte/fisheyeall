@@ -450,7 +450,7 @@ shinyServer(function(input, output, session) {
       # row.names(table) <- NULL
       table$source <- ""
       names(table)[names(table) == 'source'] <- "Sourced from the FISHEyE application (http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/PerformanceMetrics/) maintained by NOAA Fisheriess NWFSC"
-      write.csv(table, file)
+      write.csv(table, file, row.names = F)
     })
   
   output$Email <- renderUI({
