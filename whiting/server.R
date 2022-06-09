@@ -446,7 +446,7 @@ shinyServer(function(input, output, session) {
   output$dlTable <- downloadHandler(
     filename = function() { 'whitingTable.csv' },
     content = function(file) {
-      table <- filtered_dt()
+      table <- dt_dat()
       row.names(table) <- NULL
       table$source <- ""
       names(table)[names(table) == 'source'] <- "Sourced from the FISHEyE application (http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/PerformanceMetrics/) maintained by NOAA Fisheriess NWFSC"
