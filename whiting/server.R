@@ -447,7 +447,7 @@ shinyServer(function(input, output, session) {
     filename = function() { 'whitingTable.csv' },
     content = function(file) {
       table <- dt_dat()
-      row.names(table) <- NULL
+      row.names(table) <- FALSE
       table$source <- ""
       names(table)[names(table) == 'source'] <- "Sourced from the FISHEyE application (http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/PerformanceMetrics/) maintained by NOAA Fisheriess NWFSC"
       write.csv(table, file)
