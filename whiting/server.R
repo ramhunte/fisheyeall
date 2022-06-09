@@ -270,6 +270,14 @@ shinyServer(function(input, output, session) {
     dat <- select(dat, colnames(dat)[apply(dat, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )], 
                      -alwaysexclude) 
     
+    tac_col <- c('Year', 'Sector', 'Metric', 'Utilization by weight')
+    all_col <- colnames(dat)
+
+
+    dat <- if(input$tab_type == "Total Allowable Catch Utilization") {dat[, tac_col]} else {dat[, all_col]}
+    
+    # combine_post_clus_raw[, fr_sv_vi, with = FALSE]
+    
     return(dat)
   })
   
