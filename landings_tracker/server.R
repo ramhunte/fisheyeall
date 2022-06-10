@@ -11,11 +11,12 @@ library(data.table)
 library(lubridate)
 
 comp_dat_covid_app <- readRDS("comp_dat_covidapp.RDS") %>%
-  mutate(complete = case_when(is.na(complete) ~ 'complete',
-                              T ~ complete)) %>%
+    mutate(complete = 'complete') %>%
+  # mutate(complete = case_when(is.na(complete) ~ 'complete',
+  #                             T ~ complete)) %>%
   data.table()
 setkey(comp_dat_covid_app, State, Species)
-# split up the month and other filters befor joining to reduce size of df 
+# split up the month and other filters befor joining to reduce size of df
 addlfilters <- readRDS("addlfilters.RDS")
 month_filter <- select(addlfilters, State, Species, month_prop, select_month) %>%
   data.table()
@@ -30,7 +31,7 @@ list_of_species <- levels(comp_dat_covid_app$Species)
 list_of_stats <- unique(comp_dat_covid_app$Statistic)
 # state_max <- ceiling(max(addlfilters$state_prop))
 # month_max <- ceiling(max(addlfilters$month_prop))
-# 
+#
 # perc_min <-  floor(min(addlfilters$percchange, na.rm = T))
 # perc_max <- ceiling(max(addlfilters$percchange, na.rm = T))
 
@@ -62,7 +63,7 @@ data_table <- data[, `:=` (Value = round(Value, 2),
 shinyServer(function(input, output, session) {
   ##Reactive component of the sidebar using renderUI and uiOutput functions####
   ##This allows us to update the sidebar based on other inputs##
-  
+
   # Input that applies to all ####
   # Select type of output
   # output$layoutInput <- renderUI({
@@ -94,7 +95,7 @@ shinyServer(function(input, output, session) {
     tags$div(class = "actbutton",
              downloadButton("dlTable", "Download Data Table", class = "btn-primary"))
   })
-  
+
   # Input that applies to "custom input" ####
   # Select management group
   output$mgrpInput <- renderUI({
@@ -107,7 +108,7 @@ shinyServer(function(input, output, session) {
                        selected = c('All'),
                        inline = T)
   })
-  
+
   # state dropdown for seasonality
   output$state1Input <- renderUI({
     selectInput("state1Input", "Filter by state", choices = c('All','California','Oregon','Washington'), multiple = T,
@@ -131,18 +132,18 @@ shinyServer(function(input, output, session) {
   #               min = 0, max = state_max, value = c(10, state_max), step = 10)
   # })
   output$state_prop <- renderUI({
-    selectInput("state_prop", "Filter by percent contribution to state-wide fisheries revenue", 
+    selectInput("state_prop", "Filter by percent contribution to state-wide fisheries revenue",
                 choices = c('0-5%', '5.1-10%', '> 10%'),
                 multiple = F, selected = '> 10%')
   })
-  
+
   # Input that applies to seasonality ####
   # Filter by proportion of revenue by month
   output$month_select <- renderUI({
     selectInput("month_select", "", choices = unique(data_m$select_month),
                 multiple = F, selected = 'May')
   })
-  
+
   # output$month_prop <- renderUI({
   #   sliderInput("month_prop", label = "",
   #               min = 0, max = month_max, value = c(20,month_max), step = 10)
@@ -160,17 +161,17 @@ shinyServer(function(input, output, session) {
   #   selectInput("perc_change", "", choices = c('\u2265 35% decrease', '< 35% decrease', '< 35% increase', '\u2265 35% increase', 'Cannot be calculated'),
   #               multiple = F, selected = '\u2265 35% decrease')
   # })
-  
+
   output$download_Figure <- renderUI({
     tags$div(class = "actbutton",
              downloadButton("dlFigure", "Download Plot", class = "btn-primary"))
   })
-  
+
 # Reactive Data component ####
   filtered <- reactive({
     if(input$filter_ops == "Importance") {
       req(input$statInput)
-      
+
     data[(Statistic == input$statInput &
              Metric == input$metricInput &
              Cumulative == input$cumulInput &
@@ -205,7 +206,7 @@ shinyServer(function(input, output, session) {
           Interval == input$wkInput &
           State %in% c(input$regionInput))]
     }
-    
+
   })
 
   filtered_dt <- reactive({
@@ -217,7 +218,7 @@ shinyServer(function(input, output, session) {
   })
   #creating the dataframe for data table#####
   ##Use reactive to reactively filter the dataframe based on inputs
-  
+
   dt_dat <- reactive({
     if(is.null(filtered_dt())){
       return()
@@ -230,7 +231,7 @@ shinyServer(function(input, output, session) {
     }
     tabformatfun <- function(x) {
       rounding <- case_when(
-        any(dat$Value < 1) ~ 2, 
+        any(dat$Value < 1) ~ 2,
         all(dat$unit == '') ~ 1, T ~ 0)
       dollar   <- ifelse(grepl('$', dat$ylab, fixed = T), '$', '')
       val = formatC(x, format = 'f', dig = rounding, big.mark = ',')
@@ -240,13 +241,13 @@ shinyServer(function(input, output, session) {
     dat$Variance <- tabformatfun(dat$Variance)
     dat$q25 <-      tabformatfun(dat$q25)
     dat$q75 <-      tabformatfun(dat$q75)
-    
+
     valuetitle <- ifelse(any(dat$Statistic == ''), 'Value', as.character(unique(dat$Statistic)))
     vartitle <- ifelse(input$statInput %in% c('Total', ''), 'Variance',
                        ifelse(input$statInput == 'Median', 'Mean average deviation',
                               'Standard deviation'))
-    
-    # rename the columns 
+
+    # rename the columns
     dat <-
       rename(dat,
              !!quo_name(valuetitle)       := Value,
@@ -256,20 +257,20 @@ shinyServer(function(input, output, session) {
               Date                         = pre_date,
               Unit                         = unit,
              `Completeness status`            = complete)
-    
+
     alwaysexclude <- c('ylab','upper','lower','Type', 'Dates', 'Date_plot','no_pts', 'Dates_as_char',
-                       'Cumulative','Interval', 'conf_species', 'conf_state', 'percdiff','state_prop','percchange', 'N_vss', 
+                       'Cumulative','Interval', 'conf_species', 'conf_state', 'percdiff','state_prop','percchange', 'N_vss',
                        'N_buy', 'percchange1', 'state_prop1', 'baseline_as_year', 'CONF')
-    dat <- select(dat, colnames(dat)[apply(dat, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )], 
-                  -alwaysexclude) 
-    
+    dat <- select(dat, colnames(dat)[apply(dat, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )],
+                  -alwaysexclude)
+
     return(dat)
   })
-  
+
   # Validate function with custom error messages
   valfn <- reactive({
     # define cumulative message so we don't have to write it out over and over
-    cumul <- input$cumulInput == 'Y' & 
+    cumul <- input$cumulInput == 'Y' &
                 !input$metricInput %in% c('Exvessel revenue','Landed weight (mt)')
     cumul_m <- "Cumulative totals are only calculated for exvessel revenue and landed weight. Please adjust your selection."
     num <- input$statInput != 'Total' &
@@ -309,23 +310,23 @@ shinyServer(function(input, output, session) {
             } else if(num) {
               return(num_m)
             } else if(atsea) {
-              return(atsea_m) 
+              return(atsea_m)
            } else {
               return("Your selection yielded no results. Please choose another state or fishery.")
             }
           }
     }
   })
-  
 
-  
+
+
   lineColor<- c(
     '2015-2019' = 'lightgray',
     '2020' = 'deepskyblue2',
     '2021' = 'mediumblue',
     '2015-2019 Median' = 'red'
   )
-  
+
   plot_size <- reactive({
     size <- filtered() %>%
       summarize(count = length(unique(ylab)))
@@ -336,13 +337,13 @@ shinyServer(function(input, output, session) {
     }
     #print(h)
   })
-  
+
 plot_title <- reactive({
   case_when(input$filter_ops == "Importance" ~
               paste('Fisheries that represent', input$state_prop, 'of annual ex-vessel revenue for', toString(input$state_select)),
             input$filter_ops == 'Seasonality' ~
               paste('Fisheries that represent', input$month_prop, 'of', input$month_select, 'ex-vessel revenue for', toString(input$state1Input)),
-            # input$filter_ops == '2020 change' ~ 
+            # input$filter_ops == '2020 change' ~
             #   paste('Fisheries with a',  input$perc_change, 'in total ex-vessel revenue compared to 2014-2019'),
             T ~ '')
 })
@@ -409,8 +410,8 @@ reg_plot <-  print(ggplotly(main_plot,
           layout(
             margin = list(b = 100, l = 50, r = 50, t = 150),
             title = list(
-              text = 'Shorebased whiting: 2020/2021 cannot be shown by state because of confidentiality restrictions. 
-              Select "All" for current whiting landing info. Historical landings by state are shown for context. 
+              text = 'Shorebased whiting: 2020/2021 cannot be shown by state because of confidentiality restrictions.
+              Select "All" for current whiting landing info. Historical landings by state are shown for context.
               More info can be found on the Info page',
               font = list(
                 size = 12,
@@ -423,20 +424,20 @@ reg_plot <-  print(ggplotly(main_plot,
   reg_plot
 }
   })
-  
-  
+
+
   # end hover code from stack overflow
-  
+
   ##Creating the data table for download
   output$table <- DT::renderDT({
     shiny::validate(valfn())
-    datatable(dt_dat(), 
+    datatable(dt_dat(),
               rownames = FALSE,
     filter = "top",
       options = list(pageLength = 24, autoWidth = TRUE)
       )
   })
-  
+
   output$dlTable <- downloadHandler(
     filename = function() { 'landings_tracker_2021.csv' },
     content = function(file) {
@@ -446,7 +447,7 @@ reg_plot <-  print(ggplotly(main_plot,
       names(table)[names(table) == 'source'] <- "Sourced from the Landings Tracker 2021 application (http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/landings_tracker/) maintained by NOAA Fisheriess NWFSC"
       write.csv(table, file)
     })
-  
+
   #creating non-plotly plot for download
   plot_fun_download <- reactive({
     ptsize = ifelse(input$wkInput == 'Weekly', .1, 2.5)
@@ -491,7 +492,7 @@ reg_plot <-  print(ggplotly(main_plot,
       #  label = whitingtext, hjust = 0, vjust = 1) +
       ggtitle(plot_title())
   })
-  
+
   plotdl_sizew <- reactive({
     size <- filtered() %>%
       summarize(count = length(unique(ylab)))
@@ -502,7 +503,7 @@ reg_plot <-  print(ggplotly(main_plot,
     }
     #print(h)
   })
-  
+
   plotdl_sizeh <- reactive({
     size <- filtered() %>%
       summarize(count = length(unique(ylab)))
@@ -515,7 +516,7 @@ reg_plot <-  print(ggplotly(main_plot,
     }
     #print(h)
   })
-  
+
   output$dlFigure <- downloadHandler(
     filename = function() {"landings_tracker.png"},
     content = function(file) {

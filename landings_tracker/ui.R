@@ -1,5 +1,5 @@
 # set server library here
-# For instance: 
+# For instance:
 .libPaths(c("/usr/lib64/R/shiny_library/fisheye", .libPaths()))
 
 library(jsonlite)
@@ -10,8 +10,8 @@ library(DT)
 library(plotly)
 library(shinythemes)
 library(shinycssloaders)
-library(appFrame)
 
+source('appFrame.R')
 datpull_date <- readRDS('datpull_date.RDS')
 
 ##UI part of the app. The ui piece is not reactive and is used for setting up the permanent pieces of the app.
@@ -29,17 +29,17 @@ shinyUI(fluidPage(theme = shinytheme("cerulean"),
              title = "Landings Tracker",
              tabPanel("Explore the data", value = "results",
                       fluidRow(
-                        column(6, 
-                               h4(strong(paste0("This app is no longer being regularly updated. Data were last updated on August 4, 2021.
+                        column(6,
+                               h4(strong(paste0("This app is no longer being regularly updated. Data were last updated on June 09, 2022, but only data through 2021 are shown.
                                                 If you would like the most recent data summaries, please contact Erin Steiner - erin.steiner@noaa.gov."))))),#, format(datpull_date, format = "%B %d, %Y"), "."))))),
                       fluidRow(
                         column(6,
                                h5(em(HTML("This app was designed to be an exploratory tool to look at trends in fisheries landings.
                         Depending on the state and the fishery, the lag in data could be as little as a few days or
-                        as long as a month. The data that are likely still incomplete are labeled in the table and 
-                        visualized using a blue dotted line. More information about fish ticket completeness 
+                        as long as a month. The data that are likely still incomplete are labeled in the table and
+                        visualized using a blue dotted line. More information about fish ticket completeness
                                    can be found at http://pacfin.psmfc.org/."))))),
-                      
+
                       fluidRow(
                         column(3,
                         wellPanel(
@@ -72,13 +72,13 @@ shinyUI(fluidPage(theme = shinytheme("cerulean"),
                              uiOutput("download_Figure"))),
                         column(9,
                           tabsetPanel(type = "tabs",
-                                      tabPanel("Plot", 
+                                      tabPanel("Plot",
                                                column(8,
-                                               plotlyOutput("plot") %>% withSpinner(color="#0dc5c1")), 
+                                               plotlyOutput("plot") %>% withSpinner(color="#0dc5c1")),
                                                column(1, offset = 2,
                                              fluidRow(column(1,
                                                              h2(""))),
-                                             
+
                                              fluidRow(column(1,
                                                              h2(""))),
                                              fluidRow(column(1,
