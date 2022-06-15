@@ -18,6 +18,7 @@ library(lubridate)
 
 comp_dat_covid_app <- readRDS("comp_dat_covidapp.RDS") %>%
     mutate(complete = 'complete') %>%
+    subset(Year != '2022') %>%
   # mutate(complete = case_when(is.na(complete) ~ 'complete',
   #                             T ~ complete)) %>%
   data.table()
