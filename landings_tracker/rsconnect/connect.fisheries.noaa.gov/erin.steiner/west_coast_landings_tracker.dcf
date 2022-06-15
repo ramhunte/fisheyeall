@@ -1,0 +1,13 @@
+name: west_coast_landings_tracker
+title: West Coast Landings Tracker
+username: erin.steiner
+account: erin.steiner
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 128
+bundleId: 495
+url: https://connect.fisheries.noaa.gov/content/3b196616-ff73-4c54-8d15-d1779d6aad41/
+when: 1655145493.92551
+lastSyncTime: 1655145493.92552
+asMultiple: FALSE
+asStatic: FALSE
