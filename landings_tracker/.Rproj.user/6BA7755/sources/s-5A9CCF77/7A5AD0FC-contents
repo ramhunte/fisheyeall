@@ -1,5 +1,0 @@
-# Development
-pscp -r C:/Users/Ashley.Vizek/Documents/landings-tracker/  avizek@nwcrweb.nwfsc.noaa.gov:/srv/shiny-server/fisheye/landings_tracker
-
-# Production
-pscp -r C:/Users/Ashley.Vizek/Documents/landings-tracker/  avizek@nwcshiny.nwfsc.noaa.gov:/srv/shiny-server/fisheye/landings_tracker
