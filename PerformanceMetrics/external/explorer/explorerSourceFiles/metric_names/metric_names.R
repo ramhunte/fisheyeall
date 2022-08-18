@@ -268,7 +268,7 @@ other_fr <- data.frame(
   ),
   metric_link = c(
     "<a href = 'pmtechmemo.html#othergini' target = '_blank'>Gini coefficient</a>",
-    "<a href = 'pmtechmemo.html#othernonvessel' target = '_blank'>Percentage of purchases from non-vessel sourcest</a>",
+    "<a href = 'pmtechmemo.html#othernonvessel' target = '_blank'>Percentage of purchases from non-vessel sources</a>",
     "<a href = 'pmtechmemo.html#otherproductionprocessed' target = '_blank'>Percentage of production processed</a>"
     )
   )
