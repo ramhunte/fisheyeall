@@ -546,6 +546,15 @@ tagsdiv2004 <- tags$div(
           ticks = F
         )
       )
+
+
+defl_select <- selectInput("YEAR", "GDP Deflator Year:",
+                c("2021" = 2021,
+                  "2020" = 2020,
+                  "2019" = 2019))
+
+ 
+ 
 # choose which slider bar to display
   if (is.null(input$Ind_sel) || is.null(input$CategorySelect)) {
     tagsdiv2009
@@ -575,6 +584,7 @@ tagsdiv2004 <- tags$div(
         input$CategorySelect == 'Fisheries' &
         input$econSelect[1] %in% 'Revenue') {
       tagsdiv2004
+        defl_select
     }
     else {
       tagsdiv2009
@@ -582,6 +592,7 @@ tagsdiv2004 <- tags$div(
   }
   else if (input$Ind_sel == 'Labor' || input$Ind_sel == 'Cost' || input$Ind_sel == 'Impacts') {
     tagsdiv2009
+    defl_select
   }
 })
 
