@@ -1,7 +1,7 @@
 #serverre
 #.libPaths(c("/usr/lib64/R/shiny_library", .libPaths()))
 #library(appFrame)
-.libPaths("/usr/lib64/R/shiny_library/fisheye")
+# .libPaths("/usr/lib64/R/shiny_library/fisheye")
 #install.packages('https://ftp.osuosl.org/pub/cran/src/contrib/bsplus_0.1.1.tar.gz', repos = NULL, type = 'source')
 #test
 #detach(unload = TRUE)

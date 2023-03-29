@@ -38,7 +38,6 @@ appFrameFooterScrolling <- function(
 }
 
 appFrameHeaderFixed <- function(overlapHeight=7) {
-    browser()
     tagList(includeHTML(system.file('www','headerFixed.html',
                                     package='appFrame')),
             includeCSS(system.file('www','header.css',

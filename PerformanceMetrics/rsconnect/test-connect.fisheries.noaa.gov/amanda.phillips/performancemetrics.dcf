@@ -1,0 +1,13 @@
+name: performancemetrics
+title: PerformanceMetrics
+username: amanda.phillips
+account: amanda.phillips
+server: test-connect.fisheries.noaa.gov
+hostUrl: https://test-connect.fisheries.noaa.gov/__api__
+appId: 150
+bundleId: 610
+url: https://test-connect.fisheries.noaa.gov/content/b2dc43d2-deee-4150-afab-15fd5999f683/
+when: 1680120886.58469
+lastSyncTime: 1680120886.5847
+asMultiple: FALSE
+asStatic: FALSE

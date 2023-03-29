@@ -1,7 +1,7 @@
 # Variables needed for selectors (Excludes metrics which are listed in metric_names file to allow creation of the html links)
 
-currentyear <- 2020
-currentyearFR <- 2020
+currentyear <- 2021
+currentyearFR <- 2021
 nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net revenue', 'Total cost net revenue')
 
 # CV 
@@ -32,8 +32,8 @@ datVars_cv <- list(
     )
 )
 
-save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")  
-
+# save(datVars_cv, file = "PerformanceMetrics/data/datvars_cv.RData")  
+save(datVars_cv, file = "data/datvars_cv.RData")  
 # FR
 datVars_fr <- list(
     YEAR = 2004:currentyearFR,
@@ -58,8 +58,8 @@ datVars_fr <- list(
     )
 )
 
-save(datVars_fr, file = "PerformanceMetrics/data/datvars_fr.RData") 
-
+# save(datVars_fr, file = "PerformanceMetrics/data/datvars_fr.RData") 
+save(datVars_fr, file = "data/datvars_fr.RData") 
 # MS
 datVars_ms <- list(
     YEAR = 2004:currentyear,
@@ -86,7 +86,8 @@ datVars_ms <- list(
     )
 )
 
-save(datVars_ms, file = "PerformanceMetrics/data/datvars_ms.RData") 
+# save(datVars_ms, file = "PerformanceMetrics/data/datvars_ms.RData") 
+save(datVars_ms, file = "data/datvars_ms.RData") 
 
 # CP
 
@@ -115,4 +116,5 @@ datVars_cp <- list(
     )
 )
 
-save(datVars_cp, file = "PerformanceMetrics/data/datvars_cp.RData") 
+# save(datVars_cp, file = "PerformanceMetrics/data/datvars_cp.RData") 
+save(datVars_cp, file = "data/datvars_cp.RData") 
