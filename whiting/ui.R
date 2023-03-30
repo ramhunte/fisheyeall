@@ -1,9 +1,3 @@
-
-.libPaths("/usr/lib64/R/shiny_library/fisheye")
-
-#detach(unload = TRUE)
-
-
 library(shiny)
 library(shinyjs)
 library(shinyBS)
@@ -12,7 +6,9 @@ library(grid)
 #library(dplyr)
 # library(scales)
 # library(DT)
-library(appFrame)
+# library(appFrame)
+
+source('appFrame.R')
 
 ##UI part of the app. The ui piece is not reactive and is used for setting up the permanent pieces of the app.
 shinyUI(fluidPage(

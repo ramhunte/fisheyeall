@@ -5,10 +5,10 @@
 
 # DatMain: data load ####
 DatMain <- reactive({
-load("data/CVperfmetrics.rdata") 
-load("data/Mperfmetrics.rdata") 
-load("data/CPperfmetrics.rdata") 
-load("data/FRperfmetrics.rdata") 
+load("data/CVperfmetrics.Rdata") 
+load("data/Mperfmetrics.Rdata") 
+load("data/CPperfmetrics.Rdata") 
+load("data/FRperfmetrics.RData") 
 
 
   # data load moved to serverhead
