@@ -167,11 +167,11 @@ DatSubRaw <- reactive({
         
         datSub <- left_join(datSub.int, defladj(), by = 'YEAR') %>%
             mutate(
-                VALUE = VALUE/DEFL,
-                VARIANCE = VARIANCE/DEFL,
-                q25 = q25/DEFL,
-                q75 = q75/DEFL)
-        datSub[,ylab := gsub(")", paste0(" ", input$deflYearselect, " $)"), ylab, fixed = T)]
+                VALUE = ifelse(grepl('DEFLYR', ylab), VALUE/DEFL, VALUE),
+                VARIANCE = ifelse(grepl('DEFLYR', ylab), VARIANCE/DEFL, VARIANCE),
+                q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
+                q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75))
+        datSub[,ylab := gsub("DEFLYR", input$deflYearselect, ylab)]
         datSub[,DEFL := NULL]
         
         return(datSub)
@@ -204,24 +204,26 @@ DatSubTable <- reactive({
         
         return(val)
     }
-    
+ 
     datSub$VALUE <-    tabformatfun(datSub$VALUE)
     datSub$VARIANCE <- tabformatfun(datSub$VARIANCE)
     datSub$q25 <-      tabformatfun(datSub$q25)
     datSub$q75 <-      tabformatfun(datSub$q75)
-    
-    
+    datSub$DEFLYR <-   ifelse(!any(names(input) == 'deflYearselect'), NA_character_, input$deflYearselect)
+
+
     Ntitle <- ifelse(input$Sect_sel == "FR", 'Number of responses', 'Number of vessels')
     valuetitle <- ifelse(any(datSub$STAT == ''), 'Value', as.character(unique(datSub$STAT)))
     vartitle <- ifelse(metricstatselections()$stat %in% c('Total', ''), 'VARIANCE',
         ifelse(metricstatselections()$stat == 'Median', 'Median absolute deviation',
             'Standard deviation'))
     typetitle <- ifelse(input$Sect_sel == "FR", 'Processor type', 'Vessel type')
-    
+
     # rename the columns 
     datSub <-
         rename(datSub,
             Year                          = YEAR,
+            `Base year`                   = DEFLYR,
             Metric                        = METRIC,
             !!quo_name(valuetitle)       := VALUE,
             !!quo_name(vartitle)         := VARIANCE,
@@ -237,10 +239,11 @@ DatSubTable <- reactive({
     # need to redesign the fishak column and then this will work
     if(all(metricstatselections()$metric %in% c('Number of vessels', 'Number of processors'))) sometimesexclude = 'Total' else sometimesexclude = NULL
     
-    alwaysexclude <- c('metric_flag', 'conf', 'flag', 'unit', 'ylab', 'sort', 'CATEGORY', 'STAT', 'upper', 'lower', sometimesexclude)
+    alwaysexclude <- c('metric_flag', 'conf', 'flag', 'unit', 'ylab', 'sort', 'CATEGORY', 'STAT', 'upper', 
+        'lower', sometimesexclude)
     datSub <- select(datSub, colnames(datSub)[apply(datSub, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )], 
         -all_of(alwaysexclude))
-    
+
     return(datSub)
     
 })
@@ -357,7 +360,6 @@ output$download_Table <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
             downloadButton("dlTable", "Download Data Table", class = "btn btn-info"))
-        #    tags$div(actionButton("", "Download Data Table coming soon",class = "btn btn-info"))
         #    }
     }
 })
@@ -366,7 +368,6 @@ output$download_figure <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
             downloadButton("dlFigure", "Download Plot(s)", class = "btn btn-info"))
-        #    tags$div(actionButton("", "Download Plot(s) coming soon",class = "btn btn-info"))
     }
 })
 
