@@ -218,7 +218,7 @@ DatSubTable <- reactive({
     datSub$q25 <-      tabformatfun(datSub$q25)
     datSub$q75 <-      tabformatfun(datSub$q75)
     datSub$DEFLYR <-   ifelse(!any(names(input) == 'deflYearselect'), NA_character_, input$deflYearselect)
-
+#browser()
 
     Ntitle <- ifelse(input$Sect_sel == "FR", 'Number of responses', 'Number of vessels')
     valuetitle <- ifelse(any(datSub$STAT == ''), 'Value', as.character(unique(datSub$STAT)))
