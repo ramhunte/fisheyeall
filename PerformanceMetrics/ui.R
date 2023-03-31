@@ -251,6 +251,7 @@ function(request) {
                             fluidRow(
                                 column(4, uiOutput("download_figure")),
                                 column(4, uiOutput("download_Table")),
+                                column(4, uiOutput("download_RawData")),
                                 column(4, bookmarkButton())
                             )
                             

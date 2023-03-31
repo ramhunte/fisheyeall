@@ -364,6 +364,14 @@ output$download_Table <- renderUI({
     }
 })
 
+output$download_RawData <- renderUI({
+    if (PermitPlot()) {
+        tags$div(class = "actbutton",
+            downloadButton("dlRawData", "Download Raw Data", class = "btn btn-info"))
+        #    }
+    }
+})
+
 output$download_figure <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
