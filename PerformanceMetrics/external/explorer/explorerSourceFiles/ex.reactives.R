@@ -9,9 +9,7 @@ DatMain <- reactive({
     load("data/Mperfmetrics.Rdata")
     load("data/CPperfmetrics.Rdata")
     load("data/FRperfmetrics.RData")
-    load("data/gdp_defl.RData")
-    
-    
+
     # data load moved to serverhead
     # data is loaded from serverHead.R load call
     if (input$Sect_sel == "CV") {
@@ -29,6 +27,15 @@ DatMain <- reactive({
     }
     
 })
+
+gdpMain <- reactive({
+    
+    load("data/gdp_defl.RData")
+    
+    return(gdp_defl)
+    
+})
+    
 
 nrcomponents <- c('Revenue', 'Variable costs', 
     'Fixed costs', 'Variable cost net revenue', 
@@ -127,10 +134,11 @@ csselections <- reactive({
 
 defladj <- reactive({
     
-    gdp_defl$YEAR <- as.character(gdp_defl$YEAR)
-    gdp_defl$DEFL <- gdp_defl$DEFL/gdp_defl$DEFL[gdp_defl$YEAR == input$deflYearselect]
+    gdp <- gdpMain()
+    gdp$YEAR <- as.character(gdp$YEAR)
+    gdp$DEFL <- gdp$DEFL/gdp$DEFL[gdp$YEAR == input$deflYearselect]
     
-    return(gdp_defl)
+    return(gdp)
     
 })
 
