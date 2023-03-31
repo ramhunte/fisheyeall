@@ -6,9 +6,9 @@
 # DatMain: data load ####
 DatMain <- reactive({
     load("data/CVperfmetrics.Rdata") 
-    load("data/Mperfmetrics.Rdata") 
-    load("data/CPperfmetrics.Rdata") 
-    load("data/FRperfmetrics.RData") 
+    load("data/Mperfmetrics.Rdata")
+    load("data/CPperfmetrics.Rdata")
+    load("data/FRperfmetrics.RData")
     load("data/gdp_defl.RData")
     
     
@@ -43,6 +43,7 @@ DatVars <- reactive({
     outputOptions(output, "FishWhitingselectBox", suspendWhenHidden = FALSE)
     outputOptions(output, "fisheriesOptions", suspendWhenHidden = FALSE)
     outputOptions(output, "Yearselect", suspendWhenHidden = FALSE)
+    outputOptions(output, "deflYearselect", suspendWhenHidden = FALSE)
     outputOptions(output, "FishAkselect", suspendWhenHidden = FALSE)
     
     # create a list of variable names used in the sidebar inputs
@@ -122,6 +123,16 @@ csselections <- reactive({
     } else return('')
 })
 
+# Create deflators
+
+defladj <- reactive({
+    
+    gdp_defl$YEAR <- as.character(gdp_defl$YEAR)
+    gdp_defl$DEFL <- gdp_defl$DEFL/gdp_defl$DEFL[gdp_defl$YEAR == input$deflYearselect]
+    
+    return(gdp_defl)
+    
+})
 
 # DatSubTable: HUGE reactive for subsetting for data table####
 # Subset data for table
@@ -144,20 +155,32 @@ DatSubRaw <- reactive({
         }} else {
             datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1)]
         }
-    #if(input$demSelect == 'Vessel length') browser()
     
     datSubMetric <- datSubforSector[METRIC %in% metricstatselections()$metric]
     
-    
-    # stat <- ifelse(any(datSubMetric$STAT %in% metricstatselections()$stat), 
-    #     metricstatselections()$stat,
-    #     as.character(subset(datSubMetric, METRIC %in% metricstatselections()$metric, STAT)[2,1]))
-    
     # subset the sector specific data according to all of the fisheye toggles
-    datSub <- datSubMetric[STAT   %in% metricstatselections()$stat &
+    datSub.int <- datSubMetric[STAT %in% metricstatselections()$stat &
             inclAK %in% akselections() &
             CS     %in% csselections()]
+
+    if(input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
+        
+        datSub <- left_join(datSub.int, defladj(), by = 'YEAR') %>%
+            mutate(
+                VALUE = VALUE/DEFL,
+                VARIANCE = VARIANCE/DEFL,
+                q25 = q25/DEFL,
+                q75 = q75/DEFL)
+        datSub[,ylab := gsub(")", paste0(" ", input$deflYearselect, " $)"), ylab, fixed = T)]
+        datSub[,DEFL := NULL]
+        
+        return(datSub)
     
+    } else {
+        
+        return(datSub.int)
+
+    }
     
 })
 
@@ -188,7 +211,6 @@ DatSubTable <- reactive({
     datSub$q75 <-      tabformatfun(datSub$q75)
     
     
-    
     Ntitle <- ifelse(input$Sect_sel == "FR", 'Number of responses', 'Number of vessels')
     valuetitle <- ifelse(any(datSub$STAT == ''), 'Value', as.character(unique(datSub$STAT)))
     vartitle <- ifelse(metricstatselections()$stat %in% c('Total', ''), 'VARIANCE',
@@ -217,7 +239,7 @@ DatSubTable <- reactive({
     
     alwaysexclude <- c('metric_flag', 'conf', 'flag', 'unit', 'ylab', 'sort', 'CATEGORY', 'STAT', 'upper', 'lower', sometimesexclude)
     datSub <- select(datSub, colnames(datSub)[apply(datSub, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )], 
-        -alwaysexclude) 
+        -all_of(alwaysexclude))
     
     return(datSub)
     

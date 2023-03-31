@@ -226,6 +226,7 @@ function(request) {
                                     ),
                                     fluidRow(
                                         column(6, uiOutput("Yearselect")),
+                                        column(6, uiOutput("deflYearselect")),
                                         column(6, uiOutput("FishAkselect"))
                                     ),
                                     style = "background:white; padding: 10px;margin-below:4px;border-color: #bce8f1;"))
