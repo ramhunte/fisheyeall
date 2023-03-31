@@ -15,7 +15,7 @@ options(shiny.sanitize.errors = FALSE)
 
 
 shinyServer(
-  function(input, output, session) {    
-    source("external/explorer/explorer.R", local=T)    
-  }
+    function(input, output, session) {    
+        source("external/explorer/explorer.R", local=T)    
+    }
 )
