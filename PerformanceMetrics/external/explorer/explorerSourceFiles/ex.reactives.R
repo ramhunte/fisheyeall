@@ -9,6 +9,7 @@ load("data/CVperfmetrics.Rdata")
 load("data/Mperfmetrics.Rdata") 
 load("data/CPperfmetrics.Rdata") 
 load("data/FRperfmetrics.RData") 
+load("data/gdp_defl.RData")
 
 
   # data load moved to serverhead
