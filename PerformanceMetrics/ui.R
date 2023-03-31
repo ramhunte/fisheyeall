@@ -1,13 +1,3 @@
-# ## paths <- .libPaths()
-# ## lib <- .Library
-# ## .Library <- .libPaths()[1]
-# ## .libPaths("/srv/shiny-server/fisheye/PerformanceMetrics/renv/library/R-4.1/x86_64-redhat-linux-gnu")
-# #.libPaths("/usr/lib64/R/shiny_library/fisheye")
-# .libPaths("/usr/lib64/R/shiny_library/fisheye")
-
-#library(appFrame)
-#detach(unload = TRUE)
-
 source('appFrame.R')
 
 library(shinyjs)

@@ -35,29 +35,6 @@ doPlot <- function(dat, x, y) {
         reorder(dat4plot$ylab, dat4plot$sort)
       }
 
-    #if(input$demSelect == 'Vessel length') browser()
-    ##Not sure if we use this###
-    # dat4plot$thresh <- if(!(is.null(input[["Ind_sel"]]) & is.null(input[["LayoutSelect"]]))) {
-    #   if (input$Ind_sel == "Economic") {
-    #     length(unique(dat4plot$YEAR <= 2010))
-    #   }    else if (input$Ind_sel != "Economic") {
-    #     if (input$LayoutSelect) {
-    #       if (!is.na(max(dat4plot$VARIANCE))) {
-    #         data.frame(dat4plot %>% group_by(METRIC) %>% mutate(
-    #           threshold = max(VALUE, na.rm = T) + max(VARIANCE, na.rm = T) + max(VALUE, na.rm =
-    #               T) / 10
-    #         )) %>%
-    #           subset(select = c(threshold))
-    #       } else {
-    #         data.frame(dat4plot %>% group_by(METRIC) %>% mutate(threshold = max(VALUE, na.rm =
-    #             T) + max(VALUE, na.rm = T) / 10)) %>% subset(select = c(threshold))
-    #       }
-    #     } 
-    #   }  else {
-    #     0
-    #   }
-    # }
-    
     dat4plot$upper <-
       if (input$Ind_sel == "Economic") {
         if (input$AVE_MED == 'A') {
@@ -381,8 +358,6 @@ doPlot <- function(dat, x, y) {
     } else {
       g <- g
     }
-    
-    # if(length(unique(ssn$VARIABLE)) > 1 ) browser()
     #----- define facet -----#####
     if (!input$LayoutSelect) {
       g <- g + facet_wrap(~ sort2, ncol = 2)
@@ -593,7 +568,6 @@ doPlot <- function(dat, x, y) {
       legend.title = element_blank()
       #  text = element_text(family="sans", color = "red", size=rel(1.3))
     )
-#if(input$Sect_sel == "CV") browser()
     print(g)
     
   } else
