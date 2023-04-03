@@ -285,13 +285,13 @@ function(request) {
             # Link to Tech Memo #
             tabPanel(HTML('<a href = "https://repository.library.noaa.gov/view/noaa/31435" target = "_blank"
                     style="margin:-30px -1px">Documentation</a>')), # end right side column     
-            tabPanel(HTML('<i class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap"> Bulletin Board</i>'),
+            tabPanel(HTML('<i class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap;"></i> Bulletin Board'),
                 fluidRow(
                     column(12, htmlOutput("BlogText")),
                     column(5,  htmlOutput("BlogUpdates")),
                     column(1),
                     column(5,  htmlOutput("BlogResponses")))),
-            tabPanel(HTML('<i class="fa fa-envelope-o fa-fw" style="margin-right:9ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap"> Contact us</i>'),
+            tabPanel(HTML('<i class="fa fa-envelope-o fa-fw" style="margin-right:1ex;display:inline-block;vertical-align:bottom; float:left;white-space:nowrap"></i> Contact us'),
                 fluidRow(
                     column(12, htmlOutput("Email")))
             ),
@@ -307,4 +307,6 @@ function(request) {
         appFrameFooterScrolling()
     ) # end fluid Page
 }
+
+# class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap; font-familiy: Arial, Helvetica, sans-serif;font-size: 12pt"
 

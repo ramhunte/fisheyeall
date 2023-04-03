@@ -1,0 +1,13 @@
+name: performancemetrics2
+title: PerformanceMetrics
+username: amanda.phillips
+account: amanda.phillips
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 174
+bundleId: 685
+url: https://connect.fisheries.noaa.gov/content/ad3db079-0a4f-4a91-bb66-bbe2816c9b94/
+when: 1680538577.23766
+lastSyncTime: 1680538577.23767
+asMultiple: FALSE
+asStatic: FALSE
