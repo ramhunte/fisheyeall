@@ -367,7 +367,7 @@ PermitPlot <- reactive({
 output$download_Table <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
-            downloadButton("dlTable", "Download Data Table", class = "btn btn-info"))
+            downloadButton("dlTable", "Data Table", class = "btn btn-info"))
         #    }
     }
 })
@@ -375,7 +375,7 @@ output$download_Table <- renderUI({
 output$download_RawData <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
-            downloadButton("dlRawData", "Download Raw Data", class = "btn btn-info"))
+            downloadButton("dlRawData", "Raw Data", class = "btn btn-info"))
         #    }
     }
 })
@@ -383,7 +383,7 @@ output$download_RawData <- renderUI({
 output$download_figure <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
-            downloadButton("dlFigure", "Download Plot(s)", class = "btn btn-info"))
+            downloadButton("dlFigure", "Plot(s)", class = "btn btn-info"))
     }
 })
 
