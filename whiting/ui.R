@@ -39,11 +39,11 @@ shinyUI(fluidPage(
                         )),
              tabPanel("Information page",
                       source("description.R")$value),
-             tabPanel(HTML('<i class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap"> Bulletin Board</i>'),
+             tabPanel(HTML('<i class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap;"></i> Bulletin Board'),
                       fluidRow(
                         htmlOutput("BlogText")),
                         htmlOutput("BlogUpdates")),
-             tabPanel(HTML('<i class="fa fa-envelope-o fa-fw" style="margin-right:9ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap"> Contact us</i>'),
+             tabPanel(HTML('<i class="fa fa-envelope-o fa-fw" style="margin-right:1ex;display:inline-block;vertical-align:bottom; float:left;white-space:nowrap"></i> Contact us'),
                       fluidRow(
                         htmlOutput("Email"))),
              tabPanel(HTML('<a class="btn btn-warning", href="http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/"

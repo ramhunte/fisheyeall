@@ -62,7 +62,6 @@ tacTab <- filter(data, tab == 'TACU' & Statistic %in% c('Utilization by weight',
 tacTabval <- filter(tacTab, !grepl('percent', Metric))
 tacTabperc <- filter(tacTab, grepl('percent', Metric))
 
-tacTab
 
 
 ## SERVER part of the app.####
@@ -85,6 +84,16 @@ shinyServer(function(input, output, session) {
   output$sectorInput <- renderUI({
     checkboxGroupInput("sectorInput","Sector", choices = unique(sumTab$Sector), selected = c("Catcher-Processor","Mothership","Shoreside"))
   })
+  ##Summary tab: defl options
+  output$deflYearselect <- renderUI({
+    selectInput("deflYearselect", 
+                label = "GDP Deflator Year:",
+                choices = c("2021" = 2021,
+                                 "2020" = 2020,
+                                 "2019" = 2019))
+  })
+  
+  
   
   ##Product tab components####
   ##Product tab: yaxis options (types of products). These are updated with the help of an 'observer'
@@ -108,6 +117,13 @@ shinyServer(function(input, output, session) {
     checkboxGroupInput("sector2Input","Sector", choices = unique(prodTab$Sector), selected = c("Catcher-Processor", "Mothership", "Shoreside"))
   })
   
+  output$deflYear2select <- renderUI({
+    selectInput("deflYear2select", 
+                label = "GDP Deflator Year:",
+                choices = c("2021" = 2021,
+                            "2020" = 2020,
+                            "2019" = 2019))
+  })
   
   
   ##TAC tab components####
@@ -148,12 +164,14 @@ shinyServer(function(input, output, session) {
       tabPanel("Summary", 
                uiOutput("yaxisInput"),
                uiOutput("statInput"),
-               uiOutput("sectorInput")),
+               uiOutput("sectorInput"),
+               uiOutput("deflYearselect")),
       tabPanel("By product type",
                uiOutput("producttypeInput"),
                uiOutput("yaxis2Input"),
                uiOutput("stat2Input"),
-               uiOutput("sector2Input")),
+               uiOutput("sector2Input"),
+               uiOutput("deflYear2select")),
       tabPanel("Total Allowable Catch Utilization",
                uiOutput("yaxis3Input"),
                uiOutput("stat3Input"),
