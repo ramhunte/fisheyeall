@@ -1,12 +1,8 @@
 library(shiny)
 library(shinyjs)
 library(shinyBS)
-#library(ggplot2)
 library(grid)
-#library(dplyr)
-# library(scales)
-# library(DT)
-# library(appFrame)
+
 
 source('appFrame.R')
 

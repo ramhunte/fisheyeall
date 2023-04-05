@@ -9,7 +9,6 @@ library(DT)
 
 mini_whiting <- readRDS("mini_whiting.RDS")
 
-
 # Data formatting for plot ####
 data <- mini_whiting %>%
   mutate(Variance = case_when(
