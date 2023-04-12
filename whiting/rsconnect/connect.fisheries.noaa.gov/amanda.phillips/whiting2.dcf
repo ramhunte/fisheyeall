@@ -1,0 +1,13 @@
+name: whiting2
+title: whiting
+username: amanda.phillips
+account: amanda.phillips
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 176
+bundleId: 693
+url: https://connect.fisheries.noaa.gov/content/064ce89a-f9ac-433f-8375-9166e39fa4de/
+when: 1680816828.23379
+lastSyncTime: 1680816828.2338
+asMultiple: FALSE
+asStatic: FALSE

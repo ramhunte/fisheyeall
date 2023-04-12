@@ -11,7 +11,6 @@ library(data.table)
 mini_whiting <- readRDS("mini_whiting.RDS")
 load("gdp_defl.RData")
 
-
 # Data formatting for plot ####
 data <- mini_whiting %>%
   mutate(

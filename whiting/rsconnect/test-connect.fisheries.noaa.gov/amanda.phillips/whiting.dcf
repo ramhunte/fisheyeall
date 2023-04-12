@@ -5,9 +5,9 @@ account: amanda.phillips
 server: test-connect.fisheries.noaa.gov
 hostUrl: https://test-connect.fisheries.noaa.gov/__api__
 appId: 152
-bundleId: 636
+bundleId: 637
 url: https://test-connect.fisheries.noaa.gov/content/88697d4a-dba4-4311-8aa8-592d439ec002/
-when: 1680813188.91797
-lastSyncTime: 1680813188.91798
+when: 1680816764.38146
+lastSyncTime: 1680816764.38147
 asMultiple: FALSE
 asStatic: FALSE
