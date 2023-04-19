@@ -5,24 +5,10 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-library(connectwidgets)
 library(dplyr)
 library(htmltools)
 
-# 
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
-# 
-# client <- connect(
-#   server  = Sys.getenv("CONNECT_SERVER"),
-#   api_key = Sys.getenv("CONNECT_API_KEY")
-#   )
-# 
-# all_content <- client %>%
-#   content()
-# 
-# sample_content <- all_content %>%
-#   by_owner("amanda.phillips")
-
 
 ```
 
@@ -35,6 +21,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
     margin-left: auto;
     margin-right: auto;
     width: 100%;
+    max-width: 1600px;
 }
 
 .header a {
@@ -46,6 +33,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
   font-size: 20px;
   line-height: 35px;
   border-radius: 8px;
+  max-width: 1600px;
 }
 
 /* Change the background color on mouse-over */
@@ -73,6 +61,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
     margin-left: auto;
     margin-right: auto;
     width: 100%;
+    max-width: 1600px;
 }
 
 .main-container {
@@ -85,23 +74,30 @@ img.fisheye{
     box-shadow: 0 0 10px #000;
     border-bottom-right-radius: 15px;
     border-bottom-left-radius: 15px;
-    position: relative;
-    width: 100%
+    width: 100%;
+    max-width: 1600px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 
 .row {
-  width: 60%;
-  height: 60%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    column-gap: 100px;
 }
 
 .column {
-  flex: 20%;
-  padding: 15px;
-
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;  
+  padding : 20px 0px 20px 0px;
 }
 
 
@@ -139,10 +135,10 @@ img.fisheye{
 <div class="header">
   <img src="www/Pictures/noaalogo.png" style="float:left">
   <div class="header-right">
-  <a href="./contact.html" target="_blank">Contact Us</a>
+  <a href="https://connect.fisheries.noaa.gov/content/1aaaaa28-2414-478c-855a-b706ff554e90" target="_blank">Contact Us</a>
   <a href="./Resources.html" target="_blank">Resources</a>
   <a href="./Literature.html" target="_blank">Literature</a>
-  <a href="./About.html" target="_blank">About</a>
+  <a href="https://connect.fisheries.noaa.gov/content/ab65872c-9c82-4dca-943f-eb849160ff70" target="_blank">About</a>
   </div>
 </div>
 
@@ -151,23 +147,21 @@ img.fisheye{
 
 
 <a>
-<img class = "image fisheye" src="www/Pictures/homepage.png" alt ="fisheye Fisheries Economic Explorer">
+<img class = "image fisheye" src="www/Pictures/homepage_c.png" alt ="fisheye Fisheries Economic Explorer">
 </a>
+
 
 <div class="row">
   <div class="column">
-  <a href="./PerformanceMetrics">
+  <a href="https://connect.fisheries.noaa.gov/WestCoastCatchShares/">
     <img src="www/Pictures/perfmetricsbutton.png"></a>
   </div>
   <div class="column">
-  <a href="./whiting">
+  <a href="https://connect.fisheries.noaa.gov/Whiting/">
     <img src="www/Pictures/whitingbutton.png">
   </div>
-  <div class="column">
-  <a href="./landingstracker"> 
-    <img src="www/Pictures/landingstrackerbutton.png">
-  </div>
 </div>
+
 
 
 
