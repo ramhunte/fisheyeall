@@ -101,66 +101,6 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
     color:#2C3E50
 }
 
-.inline {
-  background-color: #f7f7f7;
-  border:solid 1px #B0B0B0;
-}
-.error {
-	font-weight: bold;
-	color: #FF0000;
-}
-.warning {
-	font-weight: bold;
-}
-.message {
-	font-style: italic;
-}
-.source, .output, .warning, .error, .message {
-	padding: 0 1em;
-  border:solid 1px #F7F7F7;
-}
-.source {
-  background-color: #f5f5f5;
-}
-.left {
-  text-align: left;
-}
-.right {
-  text-align: right;
-}
-.center {
-  text-align: center;
-}
-.hl.num {
-  color: #AF0F91;
-}
-.hl.str {
-  color: #317ECC;
-}
-.hl.com {
-  color: #AD95AF;
-  font-style: italic;
-}
-.hl.opt {
-  color: #000000;
-}
-.hl.std {
-  color: #585858;
-}
-.hl.kwa {
-  color: #295F94;
-  font-weight: bold;
-}
-.hl.kwb {
-  color: #B05A65;
-}
-.hl.kwc {
-  color: #55aa55;
-}
-.hl.kwd {
-  color: #BC5A65;
-  font-weight: bold;
-}
 
 .framefooterleftitem {
     border: 0 solid #CCCCCC;
@@ -197,25 +137,24 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 <div class="header">
   <img src="www/Pictures/noaalogo.png" style="float:left">
   <div class="header-right">
-  <a href="./contact.html" target="_blank">Contact Us</a>
-  <a href="./Resources.html" target="_blank">Resources</a>
-  <a href="./Literature.html" target="_blank">Literature</a>
-  <a href="./About.html" target="_blank">About</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_contact/" target="_blank">Contact Us</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_resources/" target="_blank">Resources</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_literature/" target="_blank">Literature</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_about/" target="_blank">About</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye/" target="_blank">Home</a>
   </div>
+</div>
     
 <div class="green_seperator"></div>
   
-</div>
+
 
 <div class="white-box">
 
 <div class = "fisheye-title">
-	FISHeries Economics Explorer (FISHEyE) 
-</div>              
-              
-<div class = "h3">
-About
+	About
 </div>
+              
 
 <div class = "body-text">
 Welcome to FISHeries Economics Explorer (FISHEyE)&mdash;an interactive tool for exploring data from the West Coast Groundfish Trawl Catch Share Program. FISHEyE provides metrics to track and evaluate the catch share program. The metrics are not intended to be interpreted as causal, directional, nor normative but, rather, to facilitate the examination of trends and changes. Data used in FISHEyE comes from the Economic Data Collection

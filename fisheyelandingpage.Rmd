@@ -135,10 +135,10 @@ img.fisheye{
 <div class="header">
   <img src="www/Pictures/noaalogo.png" style="float:left">
   <div class="header-right">
-  <a href="https://connect.fisheries.noaa.gov/content/1aaaaa28-2414-478c-855a-b706ff554e90" target="_blank">Contact Us</a>
-  <a href="./Resources.html" target="_blank">Resources</a>
-  <a href="./Literature.html" target="_blank">Literature</a>
-  <a href="https://connect.fisheries.noaa.gov/content/ab65872c-9c82-4dca-943f-eb849160ff70" target="_blank">About</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_contact/" target="_blank">Contact Us</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_resources/" target="_blank">Resources</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_literature/" target="_blank">Literature</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_about/" target="_blank">About</a>
   </div>
 </div>
 

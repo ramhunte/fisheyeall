@@ -1,0 +1,13 @@
+name: resources2
+title: Resources
+username: amanda.phillips
+account: amanda.phillips
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 185
+bundleId: 719
+url: https://connect.fisheries.noaa.gov/fisheye_resources/
+when: 1681945496.74257
+lastSyncTime: 1681945496.74258
+asMultiple: FALSE
+asStatic: TRUE

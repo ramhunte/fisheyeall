@@ -5,9 +5,9 @@ account: amanda.phillips
 server: connect.fisheries.noaa.gov
 hostUrl: https://connect.fisheries.noaa.gov/__api__
 appId: 182
-bundleId: 707
-url: https://connect.fisheries.noaa.gov/content/ab65872c-9c82-4dca-943f-eb849160ff70/
-when: 1681929546.57391
-lastSyncTime: 1681929546.57392
+bundleId: 720
+url: https://connect.fisheries.noaa.gov/fisheye_about/
+when: 1681945560.81612
+lastSyncTime: 1681945560.81613
 asMultiple: FALSE
 asStatic: TRUE
