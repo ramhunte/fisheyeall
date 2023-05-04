@@ -8,20 +8,20 @@ AFCONTACTURL <- "CONTACTURLGOESHERE"
 AFDISPLAYAPPSURL <- "DISPLAYAPPSURLGOESHERE"
 
 appFrameFooterFixed <- function(
-    displayAppsURL="http://dataexplorer.nwfsc.noaa.gov",
+    displayAppsURL="https://connect.fisheries.noaa.gov/fisheye/fisheyelandingpage.html",
     contactURL="http://www.nwfsc.noaa.gov/contact/feedback.cfm") {
-   
+
     html <- includeHTML(file.path('www','footerFixed.html'))
 
     html <- gsub(x=html, pattern=AFCONTACTURL, replacement=contactURL)
     html <- gsub(x=html, pattern=AFDISPLAYAPPSURL,
                  replacement=displayAppsURL)
-    
+
     tagList(html, includeCSS(file.path('www','footer.css')))
 }
 
 appFrameFooterScrolling <- function(
-    displayAppsURL="http://dataexplorer.nwfsc.noaa.gov",
+    displayAppsURL="https://connect.fisheries.noaa.gov/fisheye/fisheyelandingpage.html",
     contactURL="http://www.nwfsc.noaa.gov/contact/feedback.cfm") {
 
     html <- includeHTML(file.path('www','footerScrolling.html'))
@@ -29,7 +29,7 @@ appFrameFooterScrolling <- function(
     html <- gsub(x=html, pattern=AFCONTACTURL, replacement=contactURL)
     html <- gsub(x=html, pattern=AFDISPLAYAPPSURL,
                  replacement=displayAppsURL)
-    
+
     tagList(html, includeCSS(file.path('www','footer.css')))
 }
 

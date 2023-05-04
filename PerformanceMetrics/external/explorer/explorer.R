@@ -25,9 +25,9 @@ observeEvent(input$ipo, {
   session$sendCustomMessage(type = 'testmessage',
                             if(input$LayoutSelect) {
                             message = 'See the Definitions Page for a description of each metric. Not all metrics may be applicable for a given statistic.'
-                            } else { 
+                            } else {
                               message = 'See the Definitions Page for a description of each metric. Not all statistics may be applicable for a given metric.'}
-                       
+
                               )
 })
 observeEvent(input$FRr, {
@@ -94,12 +94,12 @@ observeEvent(input$iwhiting, {
 ##bsPopover('iwhiting', 'Title', content='test', trigger='click')
 
 scale_height <- function(){
- if(length(input$VariableSelect)<=2){ 
-   700 }  else if(length(input$VariableSelect)>2 & length(input$VariableSelect)<=4) { 
-     800}  else if(length(input$VariableSelect)>4 & length(input$VariableSelect)<=6) { 
-       900} else if(length(input$VariableSelect)>6 & length(input$VariableSelect)<=8) { 
+ if(length(input$VariableSelect)<=2){
+   700 }  else if(length(input$VariableSelect)>2 & length(input$VariableSelect)<=4) {
+     800}  else if(length(input$VariableSelect)>4 & length(input$VariableSelect)<=6) {
+       900} else if(length(input$VariableSelect)>6 & length(input$VariableSelect)<=8) {
          1000} else if(length(input$VariableSelect)>8 & length(input$VariableSelect)<=10) {
-           1100} else { 
+           1100} else {
              1200 }
 }
 
@@ -155,7 +155,7 @@ output$PlotMain3 <- renderPlot({
   doPlot(dat = DatSub(), x = "YEAR", y = "VALUE")
 },  height=400, width = 700)
 
-output$TableMain <- renderDataTable({ 
+output$TableMain <- renderDataTable({
   validate(need(
     !(sum(!is.na(as.numeric(DatSub()$VALUE))) ==0 & metricstatselections()$stat == 'Total'),
     paste(
@@ -170,7 +170,7 @@ output$TableMain <- renderDataTable({
   ))
   table <- DatSubTable()
   table
-  
+
 })
 
 
@@ -183,7 +183,7 @@ output$dlTable <- downloadHandler(
       table <- DatSubTable()
       row.names(table) <- NULL
       table$source <- ""
-      names(table)[names(table) == 'source'] <- "Sourced from the FISHEyE application (http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/PerformanceMetrics/) maintained by NOAA Fisheriess NWFSC. Technical information can be found here: https://repository.library.noaa.gov/view/noaa/31435"
+      names(table)[names(table) == 'source'] <- "Sourced from the FISHEyE application (https://connect.fisheries.noaa.gov/WestCoastCatchShares/) maintained by NOAA Fisheriess NWFSC. Technical information can be found here: https://repository.library.noaa.gov/view/noaa/31435"
       write.csv(table, file)
     })
 
@@ -204,7 +204,7 @@ output$dlFigure <- downloadHandler(
   filename = function() {'perfmetricsPlot.pdf'},
   content = function(file){
      if(!PermitPlot()) return()
-   
+
     pdf(file = file, width=10.25, height=7.5, onefile=T)
     if(length(input$VariableSelect)<=6){
             doPlotDownload(dat = DatSub(), x = "YEAR", y = "VALUE")
@@ -228,7 +228,7 @@ output$hover_info <- renderUI({
        input$LayoutSelect & length(input$econSelect)==1){
       lvls <- levels(as.factor(dat$YEAR))
     } else {
-      lvls <- rep(levels(as.factor(dat$YEAR)),2) 
+      lvls <- rep(levels(as.factor(dat$YEAR)),2)
     }
     hover=input$plot_hover
 
@@ -239,16 +239,16 @@ output$hover_info <- renderUI({
  #     if(hover$x<.89){
  #         (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
  #     } else {
- #         (hover$x-.2 - hover$domain$left) / (hover$domain$right - hover$domain$left) 
+ #         (hover$x-.2 - hover$domain$left) / (hover$domain$right - hover$domain$left)
  #       }#
 #    top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
     top_pct <- .15#hover$domain$top
-    
+
     # calculate distance from left and bottom side of the picture in pixels
     #left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
     left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
     top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-  
+
     # create style property fot tooltip
     # background color is set so tooltip is a bit transparent
     # z-index is set so we are sure are tooltip will be on top
@@ -256,8 +256,8 @@ output$hover_info <- renderUI({
                     "left:", left_px-16, #left_px -5,
                     "px; top:", top_px + .1, "px;"
                    )
-    
-    
+
+
 #  # actual tooltip created as wellPanel
     ###WITHIN PLOT
     wellPanel(
@@ -268,19 +268,19 @@ output$hover_info <- renderUI({
              'Canary rockfish and petrale sole are declared rebult.', tags$br(),
              'Dover sole and thornyhead limits increased.'))
       } else if(lvls[round(length(lvls)*input$plot_hover$x)]==2014) {
-        tags$div('Fishery participants can buy and sell quota shares.', tags$br(), 
+        tags$div('Fishery participants can buy and sell quota shares.', tags$br(),
                  'Non-whiting groundfish gets MSC certification',tags$br(),
-                 'Russia implements ongoing trade sanctions.')  
+                 'Russia implements ongoing trade sanctions.')
       }else if(lvls[round(length(lvls)*input$plot_hover$x)]==2013) {
-        paste0('Ban on year-end quota pound transfers is lifted.')  
+        paste0('Ban on year-end quota pound transfers is lifted.')
       }else if(lvls[round(length(lvls)*input$plot_hover$x)]==2012) {
-        paste0('Widow rockfish is declared rebuilt.')  
+        paste0('Widow rockfish is declared rebuilt.')
       }else if(lvls[round(length(lvls)*input$plot_hover$x)]==2011) {
-        tags$div(HTML("T&#333;hoku earthquake and tsunami hits Japan."), tags$br(), 
-                 "Sablefish prices are high.", tags$br(), 
-                 "Fishery participants can lease quota pounds.")  
+        tags$div(HTML("T&#333;hoku earthquake and tsunami hits Japan."), tags$br(),
+                 "Sablefish prices are high.", tags$br(),
+                 "Fishery participants can lease quota pounds.")
       }else if(lvls[round(length(lvls)*input$plot_hover$x)]==2010) {
-        paste0('Petrale sole is declared overfished.')  
+        paste0('Petrale sole is declared overfished.')
       }else if(lvls[round(length(lvls)*input$plot_hover$x)]==2009) {
         tags$div('Sector-specific quota allocation for bycatch species.', tags$br(),
         'Pacific whiting gets MSC certification.')
@@ -289,7 +289,7 @@ output$hover_info <- renderUI({
   }
 })
 
-    
+
     #Interactives plots trial
     #######
     output$click_info <- renderUI({
@@ -299,41 +299,41 @@ output$hover_info <- renderUI({
            input$LayoutSelect & length(input$econSelect)==1){
           lvls <- levels(as.factor(dat$YEAR))
         } else {
-          lvls <- rep(levels(as.factor(dat$YEAR)),2) 
+          lvls <- rep(levels(as.factor(dat$YEAR)),2)
         }
         click=input$plot_click
-        
+
         #  # actual tooltip created as wellPanel
-        ####BELOW PLOT 
+        ####BELOW PLOT
     wellPanel(
       if (lvls[round(length(lvls)*input$plot_click$x)]==2015) {
         tags$div(tags$p('The Blob (first detected in 2013) and El', HTML("Ni&ntilde;o"), 'converge, leading to record low biomass of key prey species for many catch share species; catch attainment is lower for Pacific whiting.', tags$a(href='http://www.nationalgeographic.com/magazine/2016/09/warm-water-pacific-coast-algae-nino/', 'Click here for more details.', target='_blank'),tags$br(),
                         'Council establishes catch limits for unfished and unmanaged forage fish.
                         Dover sole limits increased by over 100% and Longspine thornyhead limits increased by 60%.'))
       } else if(lvls[round(length(lvls)*input$plot_click$x)]==2014) {
-        tags$div('Fishery participants can buy and sell quota shares.', tags$br(), 
-                 'Russia implements an import ban on agricultural and processed food exports from the USA, EU, Norway, Canada, and Australia.', 
-                  tags$a(href='https://www.nytimes.com/2014/08/08/world/europe/russia-sanctions.html','Read this NYTimes article for background.', target='_blank'), 
+        tags$div('Fishery participants can buy and sell quota shares.', tags$br(),
+                 'Russia implements an import ban on agricultural and processed food exports from the USA, EU, Norway, Canada, and Australia.',
+                  tags$a(href='https://www.nytimes.com/2014/08/08/world/europe/russia-sanctions.html','Read this NYTimes article for background.', target='_blank'),
                   'The ban is still in place.
-                 According to a', tags$a(href='http://trade.ec.europa.eu/doclib/docs/2015/december/tradoc_154025.pdf' , 'paper in Chief Economist Note,', target='_blank'), 
+                 According to a', tags$a(href='http://trade.ec.europa.eu/doclib/docs/2015/december/tradoc_154025.pdf' , 'paper in Chief Economist Note,', target='_blank'),
                  'the impact of the ban on the US fisheries industry has been minimal.', tags$br(),
-                 'Non-whiting groundfish gets Marine Stewardship Council certification.')  
+                 'Non-whiting groundfish gets Marine Stewardship Council certification.')
       }else if(lvls[round(length(lvls)*input$plot_click$x)]==2013) {
-        paste0('Ban on year-end quota pound transfers is lifted')  
+        paste0('Ban on year-end quota pound transfers is lifted')
       }else if(lvls[round(length(lvls)*input$plot_click$x)]==2012) {
-        paste0('Widow rockfish, a species that was constraining co-occurring target species, is declared rebuilt.')  
+        paste0('Widow rockfish, a species that was constraining co-occurring target species, is declared rebuilt.')
       }else if(lvls[round(length(lvls)*input$plot_click$x)]==2011) {
-        tags$div(HTML("T&#333;hoku earthquake and tsunami hits Japan."), tags$br(), 
-                 "Sablefish prices are high.", tags$br(), 
-                 "Fishery participants can lease quota pounds but cannot yet purchase quota shares.")  
+        tags$div(HTML("T&#333;hoku earthquake and tsunami hits Japan."), tags$br(),
+                 "Sablefish prices are high.", tags$br(),
+                 "Fishery participants can lease quota pounds but cannot yet purchase quota shares.")
       }else if(lvls[round(length(lvls)*input$plot_click$x)]==2010) {
-        paste0('Petrale sole is declared overfished.')  
+        paste0('Petrale sole is declared overfished.')
       }else if(lvls[round(length(lvls)*input$plot_click$x)]==2009) {
         paste0('Sector-specific bycatch species quota allocation ends race-to-fish for constraining species between at-sea motherships.
-               Pacific whiting gets MSC certification.')  
+               Pacific whiting gets MSC certification.')
       }
     )
-    
+
   }
 })
 #######
