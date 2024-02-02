@@ -11,7 +11,6 @@ output$metrics <- renderUI({
             tabPanel("Economic", uiOutput("econSelect"),  uiOutput("econStats")),
             tabPanel("Labor",    uiOutput("crewSelect"),  uiOutput("crewStats")),
             tabPanel("Cost",     uiOutput("costSelect"),  uiOutput("costStats")),
-            tabPanel("Impacts", uiOutput("impactSelect"), uiOutput("impactStats")),
             tabPanel("Other",    uiOutput("otherSelect"), uiOutput("otherStats")),
             id = "Ind_sel", type = c("tabs"))
     } else {

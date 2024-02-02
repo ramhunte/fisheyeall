@@ -1,4 +1,4 @@
-# source('appFrame.R')
+source('appFrame.R')
 library(stats)
 library(shiny)
 library(shinyBS)

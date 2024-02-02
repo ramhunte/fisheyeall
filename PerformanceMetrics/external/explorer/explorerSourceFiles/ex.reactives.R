@@ -6,9 +6,13 @@
 # DatMain: data load ####
 DatMain <- reactive({
     load("data/CVperfmetrics.RData") 
-    load("data/Mperfmetrics.RData")
-    load("data/CPperfmetrics.RData")
-    load("data/FRperfmetrics.RData")
+    CVperfmetrics <- dat
+    load("./data/Mperfmetrics.RData")
+    Mperfmetrics <- dat
+    load("./data/CPperfmetrics.RData")
+    CPperfmetrics <- dat
+    load("./data/FRperfmetrics.RData")
+    FRperfmetrics <- dat
 
     # data load moved to serverhead
     # data is loaded from serverHead.R load call
@@ -367,7 +371,7 @@ PermitPlot <- reactive({
 output$download_Table <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
-            downloadButton("dlTable", "Data Table", class = "btn btn-info"))
+            downloadButton("dlTable", "Download Data Table", class = "btn btn-info"))
         #    }
     }
 })
@@ -375,7 +379,7 @@ output$download_Table <- renderUI({
 output$download_RawData <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
-            downloadButton("dlRawData", "Raw Data", class = "btn btn-info"))
+            downloadButton("dlRawData", "Download Raw Data", class = "btn btn-info"))
         #    }
     }
 })
@@ -383,7 +387,7 @@ output$download_RawData <- renderUI({
 output$download_figure <- renderUI({
     if (PermitPlot()) {
         tags$div(class = "actbutton",
-            downloadButton("dlFigure", "Plot(s)", class = "btn btn-info"))
+            downloadButton("dlFigure", "Download Plot(s)", class = "btn btn-info"))
     }
 })
 

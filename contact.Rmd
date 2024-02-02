@@ -152,8 +152,8 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 We look forward to receiving feedback and questions. Please email us at
 
 <a
-href="mailto:nwfsc.fisheye@noaa.gov?subject=FISHEyE"
-target="_blank" >nmfs.nwfsc.fisheye@noaa.gov</a>
+href="mailto:nwfsc.edc@noaa.gov?subject=FISHEyE"
+target="_blank" >nwfsc.edc@noaa.gov</a>
 </div>
 
 <div class = "body-text">
@@ -165,8 +165,7 @@ Northwest Fisheries Science Center
 
 <div class = "body-text">
 <b>Amanda Phillips</b><br>
-Contractor-ECS Federal, Inc.<br>
-In support of NMFS <br>
+Natural Resource Management Specialist<br>
 ‪(206) 861-1249‬<br>
 Northwest Fisheries Science Center
 </div>
