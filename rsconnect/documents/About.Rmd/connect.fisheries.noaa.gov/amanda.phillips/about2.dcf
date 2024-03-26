@@ -1,0 +1,13 @@
+name: about2
+title: About
+username: amanda.phillips
+account: amanda.phillips
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 182
+bundleId: 720
+url: https://connect.fisheries.noaa.gov/fisheye_about/
+when: 1681945560.81612
+lastSyncTime: 1681945560.81613
+asMultiple: FALSE
+asStatic: TRUE

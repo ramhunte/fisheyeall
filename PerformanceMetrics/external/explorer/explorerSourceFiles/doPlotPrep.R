@@ -17,7 +17,6 @@ doPlotPrep <- reactive({
         unit == 'billions' ~ x / 1e9, 
         T ~ -999)
     }
-    #browser()
     dat4plot <- mutate(dat,
       VARIANCE = convertfunction(VARIANCE),
       q25      = convertfunction(q25),

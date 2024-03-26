@@ -1,0 +1,252 @@
+---
+title: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(htmltools)
+
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+```
+
+```{css, echo = FALSE}
+
+.header {
+  overflow: hidden;
+  background-color: white;
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 2000px;
+}
+
+.header a {
+  float: right;
+  color: black;
+  text-align: center;
+  padding: 18px;
+  text-decoration: none;
+  font-size: 20px;
+  line-height: 35px;
+  border-radius: 8px;
+  max-width: 2000px;
+}
+
+.header a:hover {
+  background-color: #a7daf5;
+  color: black;
+}
+
+.main-container {
+    background-color: #042155;
+    max-width: 100%;
+}
+
+.white-box {
+    background-color: white;
+    color: black;
+    max-width: 2000px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.green_seperator {
+    background-color: #a7daf5;
+    clear: both;
+    height: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 2000px;
+}
+
+.fisheye-title {
+    padding : 20px 0px 20px 35px;
+    font-family: Arial Narrow;
+    font-weight: bold;
+    font-size: 48px;
+    color: #1a5d99;
+}
+
+.h3 {
+    padding : 20px 0px 20px 35px;
+    font-size: 19.0pt;
+    font-family: "Helvetica", sans-serif;
+    color: #2C3E50
+
+}
+
+.italic-title {
+    padding : 20px 0px 20px 35px;
+    font-size: 14.0pt;
+    font-family: "Helvetica", sans-serif;
+    color: #2C3E50
+
+}
+
+.body-text {
+    line-height: 16.05pt;
+    text-align: start;
+    padding : 3px 35px 20px 35px;
+    font-size: 11.5pt;
+    font-family: "Helvetica", sans-serif;
+    color:#2C3E50
+}
+
+.framefooterleftitem {
+    border: 0 solid #CCCCCC;
+    color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #042155;
+    height: 3em;
+    float : left;
+    padding : 0px 15px 0px 3px;
+}
+
+.framefooterrightitem {
+    border: 0 solid #CCCCCC;
+    color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #042155;
+    height: 3em;
+    float : right;
+    padding : 0px 15px 0px 3px;
+}
+
+
+
+<head>
+<style type="text/css">
+</style>
+  <title>Data Explorer</title>
+</head>
+
+<div class="header">
+  <img src="www/Pictures/noaalogo.png" style="float:left">
+  <div class="header-right">
+  <a href="https://connect.fisheries.noaa.gov/fisheye_contact/" target="_blank">Contact Us</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_resources/" target="_blank">Resources</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_literature/" target="_blank">Literature</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_about/" target="_blank">About</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye/" target="_blank">Home</a>
+  </div>
+
+<div class="green_seperator"></div>
+  
+</div>
+
+<div class="white-box">
+
+<div class = "fisheye-title">
+	Literature
+</div>              
+              
+
+<ul id="lit">
+<li><a href="https://repository.library.noaa.gov/view/noaa/4601">
+  Brinson, A.A. and E. M. Thunberg. 2013.  
+</a>The Economic Performance of U.S. Catch Share Programs. U.S. Dept. of Commer., NOAA Technical Memorandum NMFS-NWFSC.</li>
+<li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522489?casa_token=60fRmHSYTn4AAAAA:iIx3h65zZdZlluMW_pnMvoKK1HMj7S0PVjXi6_ZHJ15dYquEiUCTymIEyTOwm-rCKqg8e5WGSRz8iQ">
+  Errend, M., L. Pfeiffer, E. Steiner, M. Guldin, and A. Warlick. 2019. 
+</a>Economic Outcomes for Harvesters under the West Coast Groundfish Trawl Catch Share Program: Have Goals and Objectives Been Met? Coastal Management 46(6): 564–86.</li>
+<li><a href="https://www.journals.uchicago.edu/doi/pdfplus/10.1086/698200">
+  Guldin, M., and C. Anderson. 2018. 
+</a>Catch Shares and Shoreside Processors: A Costs and Earnings Exploration into the Downstream Sector. Marine Resource Economics 33(3): 289–307.</li>
+<li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522490?casa_token=pp8e0_4fPuIAAAAA:GclcPiVrqVMobpH-RmmvA7Pro2VBAEd9uqgYBso9cNNrD4djhXmO-ySNZDiPmqYUTkNGCN7LjMP_pQ">
+  Guldin, M., A. Warlick, M. Errend, L. Pfeiffer, and E. Steiner. 2019. 
+</a>Shorebased Processor Outcomes Under Catch Shares. Coastal Management: 1–16.</li>
+<li><a href="https://www.sciencedirect.com/science/article/pii/S0308597X16305711">
+  Holland, D., E. Steiner, and A. Warlick. 2017. 
+</a>Can Vessel Buybacks Pay off: An Evaluation of an Industry Funded Fishing Vessel Buyback. Marine Policy 82: 8–15.</li>
+<li><a href="https://repository.library.noaa.gov/view/noaa/12958">
+  Holland, D., and K. Norman. 2015. 
+</a>The Anatomy of a Multispecies Individual Fishing Quota (IFQ) Market. US Dept. of Commer., NOAA Technical Memorandum NMFS-NWFSC.</li>
+<li><a href="https://www.journals.uchicago.edu/doi/full/10.1086/687829">
+  Holland, D. 2016. Development of the Pacific Groundfish Trawl IFQ Market. Marine Resource Economics 31(4): 453–64.
+</a></li>
+<li><a href="https://www.frontiersin.org/articles/10.3389/fmars.2019.00600/full?utm_source=F-AAE&utm_medium=EMLF&utm_campaign=MRK_1117095_45_Marine_20191008_arts_A">
+  Holland, D., and C. Martin. 2019. 
+</a>Bycatch Quotas, Risk Pools, and Cooperation in the Pacific Whiting Fishery. Frontiers in Marine Science 6: 600.</li>
+<li><a href="https://afspubs.onlinelibrary.wiley.com/doi/pdf/10.1080/02755947.2017.1330784">
+  Leonard, J., and E. Steiner. 2017.
+</a>Initial Economic Impacts of the U.S. Pacific Coast Groundfish Fishery Individual Fishing Quota Program. North American Journal of Fisheries Management 37(4): 862–81.</li>
+<li>
+  Lian, C. 2010. West Coast Limited Entry Groundfish Trawl Cost Earnings Survey Protocols and Results for 2004. NOAA Technical Memorandum NMFS-NWFSC.
+</li>
+<li><a href="https://www.journals.uchicago.edu/doi/pdfplus/10.1086/mre.24.4.42629661">
+  Lian, C., R. Singh, and Q. Weninger. 2010.
+</a>Fleet Restructuring, Rent Generation, and the Design of Individual Fishing Quota Programs: Empirical Evidence from the Pacific Coast Groundfish Fishery. Marine Resource Economics 24(4): 329–359.</li>
+<li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522491?casa_token=JWIdB6WXIoUAAAAA:jzBpQFT01ynuFukJpxTGd5DXciPtAByGTs8SRb8YsSWp6Htjl-VRJ6U9Lvrvr_g0b8dbMKw8V2JNoQ">
+  Russell, S., M. Van Oostenburg and A. Vizek. 2019.
+</a>Adapting to Catch Shares: Perspectives of West Coast Groundfish Trawl Participants. Coastal Management 46(6): 603-620.</li>
+<li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2016.1208864?casa_token=NPdQORkALQ4AAAAA:-SVRlmSXrDQyDoYE4fVfGxVAwiJGavk-AQgwH6whiSHQu2cbxqTQkdmgeD-qEI2sOwmZz4O_p7mbKg">
+  Russell, S., A. Arias-Arthur, K. Sparks, and A. Varney. 2016. 
+</a>West Coast Communities and Catch Shares: The Early Years of Social Change. Coastal Management 44(5): 441-451.</li>
+<li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522495?casa_token=kleV_InHz4cAAAAA:7FlXK7KVj-mGtdqrLrcstSlGRelKo-KshnnUcRrFUj5Qq_trxwRsaZlYU1TU4D-xa-2pekmQm0kLpg">
+  Steiner, E., S. Russell, A. Vizek, and A. Warlick. 2019.
+</a>Crew in the West Coast Groundfish Catch Share Program: Changes in Compensation and Job Satisfaction. Coastal Management 46(6): 656–676. https://doi.org/10.1080/08920753.2018.1522495.</li>
+<li><a href="https://spo.nmfs.noaa.gov/sites/default/files/TM154.pdf">
+  Thunberg, E., J. Agar, S. Crosson, B. Garber-Yonts, A. Harley, A. Kitts, T. Lee, C. Lian, C. Liese, M. Pan, L. Perruso, G. Silva, D. Squires, E. Steiner, and S. Stohs. 2015.
+</a>A Snapshot of NOAA Fisheries Data Collection of Commercial Fishery Costs. U.S. Dept of Commer., NOAA Technical Memorandum NMFS-NWFSC.</li>
+<li><a href="https://www.tandfonline.com/doi/abs/10.1080/08941920.2020.1777491">
+  Vizek, A., M. Van Oostenburg, and S. Russell. 2020.
+</a>The transition to catch shares management in the West Coast groundfish trawl fishery: changing job attitudes and adjusting fishing participation plans. Society and Natural Resources 33(10): 1175-1193.</li>
+<li><a href="https://www.sciencedirect.com/science/article/pii/S0308597X17307911">
+  Warlick, A., E. Steiner, and M. Guldin. 2018.
+</a>History of the West Coast Groundfish Trawl Fishery: Tracking Socioeconomic Characteristics across Different Management Policies in a Multispecies Fishery. Marine Policy 93: 9–21.</li>
+</ul>
+
+<div class = "italic-title">
+Additional reports
+</div>
+<ul id="lit">
+<li>
+<a href="https://www.pcouncil.org/documents/2017/01/trawl-catch-share-review-main-document.pdf/">
+  West Coast Groundfish Trawl Catch Share Program: Five Year Review</a>
+</li>
+<li>
+  <a href="https://www.nwfsc.noaa.gov/research/divisions/fram/economic/economic_data_reports.cfm">
+    NWFSC EDC Program Reports</a><br><br>
+</li>
+</ul>
+
+<div class="framefooterleftitem">
+  <a href="http://www.nwfsc.noaa.gov/"> NWFSC </a>
+  |
+  <a href="http://www.nmfs.noaa.gov/"> NOAA Fisheries </a>
+  |
+  <a href="https://www.noaa.gov/"> NOAA </a>
+  |
+  <a href="http://www.nwfsc.noaa.gov/copyright.cfm"> Copyright policy </a>
+  |
+  <a href="http://www.nwfsc.noaa.gov/disclaimer.cfm"> Disclaimer </a>
+  |
+  <a href="http://www.nwfsc.noaa.gov/contact/feedback.cfm"> Feedback </a>
+  |
+  <a href="https://www8.nos.noaa.gov/survey/index.aspx?Location=dataexplorer"> NOAA customer satisfaction survey </a>
+  |
+  <a href="http://www.nmfs.noaa.gov/aboutus/privacy.html"> NOAA privacy policy </a>
+  |
+  <a href="https://www.cio.noaa.gov/services_programs/info_quality.html"> NOAA information quality </a>
+  </div>
+  
+<div class="framefooterrightitem">
+  <a href="http://www.nwfsc.noaa.gov/contact/feedback.cfm">
+  Problems with site? </a>
+  |
+  <a href=".."> Data Explorer </a>
+  |
+  </div>
+
+```

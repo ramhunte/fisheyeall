@@ -1,18 +1,10 @@
-
-.libPaths("/usr/lib64/R/shiny_library/fisheye")
-
-#detach(unload = TRUE)
-
-
 library(shiny)
 library(shinyjs)
 library(shinyBS)
-#library(ggplot2)
 library(grid)
-#library(dplyr)
-# library(scales)
-# library(DT)
-library(appFrame)
+
+
+source('appFrame.R')
 
 ##UI part of the app. The ui piece is not reactive and is used for setting up the permanent pieces of the app.
 shinyUI(fluidPage(
@@ -47,11 +39,11 @@ shinyUI(fluidPage(
                         )),
              tabPanel("Information page",
                       source("description.R")$value),
-             tabPanel(HTML('<i class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap"> Bulletin Board</i>'),
+             tabPanel(HTML('<i class="fa fa-thumb-tack" style="margin-right:2ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap;"></i> Bulletin Board'),
                       fluidRow(
                         htmlOutput("BlogText")),
                         htmlOutput("BlogUpdates")),
-             tabPanel(HTML('<i class="fa fa-envelope-o fa-fw" style="margin-right:9ex;display:inline-block;vertical-align:bottom;float:left;white-space:nowrap"> Contact us</i>'),
+             tabPanel(HTML('<i class="fa fa-envelope-o fa-fw" style="margin-right:1ex;display:inline-block;vertical-align:bottom; float:left;white-space:nowrap"></i> Contact us'),
                       fluidRow(
                         htmlOutput("Email"))),
              tabPanel(HTML('<a class="btn btn-warning", href="http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/"

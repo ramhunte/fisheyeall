@@ -187,6 +187,16 @@ output$dlTable <- downloadHandler(
       write.csv(table, file)
     })
 
+output$dlRawData <- downloadHandler(
+    filename = function() { 'perfmetricsRawData.csv' },
+    content = function(file) {
+      table <- DatSub()
+      row.names(table) <- NULL
+      #table$source <- ""
+      #names(table)[names(table) == 'source'] <- "Sourced from the FISHEyE application (http://dataexplorer.northwestscience.fisheries.noaa.gov/fisheye/PerformanceMetrics/) maintained by NOAA Fisheriess NWFSC. Technical information can be found here: https://repository.library.noaa.gov/view/noaa/31435"
+      write.csv(table, file)
+    })
+
 #####
 
 # render plot from  to pdf for download ####

@@ -8,41 +8,34 @@ AFCONTACTURL <- "CONTACTURLGOESHERE"
 AFDISPLAYAPPSURL <- "DISPLAYAPPSURLGOESHERE"
 
 appFrameFooterFixed <- function(
-    displayAppsURL="http://dataexplorer.nwfsc.noaa.gov",
+    displayAppsURL="https://connect.fisheries.noaa.gov/fisheye/fisheyelandingpage.html",
     contactURL="http://www.nwfsc.noaa.gov/contact/feedback.cfm") {
-   
-    html <- includeHTML(system.file('www','footerFixed.html',
-                                    package='appFrame'))
+
+    html <- includeHTML(file.path('www','footerFixed.html'))
 
     html <- gsub(x=html, pattern=AFCONTACTURL, replacement=contactURL)
     html <- gsub(x=html, pattern=AFDISPLAYAPPSURL,
                  replacement=displayAppsURL)
-    
-    tagList(html, includeCSS(system.file('www','footer.css',
-                                         package='appFrame')))
+
+    tagList(html, includeCSS(file.path('www','footer.css')))
 }
 
 appFrameFooterScrolling <- function(
-    displayAppsURL="http://dataexplorer.nwfsc.noaa.gov",
+    displayAppsURL="https://connect.fisheries.noaa.gov/fisheye/fisheyelandingpage.html",
     contactURL="http://www.nwfsc.noaa.gov/contact/feedback.cfm") {
 
-    html <- includeHTML(system.file('www','footerScrolling.html',
-                                    package='appFrame'))
+    html <- includeHTML(file.path('www','footerScrolling.html'))
 
     html <- gsub(x=html, pattern=AFCONTACTURL, replacement=contactURL)
     html <- gsub(x=html, pattern=AFDISPLAYAPPSURL,
                  replacement=displayAppsURL)
-    
-    tagList(html, includeCSS(system.file('www','footer.css',
-                                         package='appFrame')))
+
+    tagList(html, includeCSS(file.path('www','footer.css')))
 }
 
 appFrameHeaderFixed <- function(overlapHeight=7) {
-    browser()
-    tagList(includeHTML(system.file('www','headerFixed.html',
-                                    package='appFrame')),
-            includeCSS(system.file('www','header.css',
-                                   package='appFrame')),
+    tagList(includeHTML(file.path('www','headerFixed.html')),
+            includeCSS(file.path('www','header.css')),
             div(style=paste("height:",
                     overlapHeight,
                     "em",
@@ -51,10 +44,8 @@ appFrameHeaderFixed <- function(overlapHeight=7) {
 }
 
 appFrameHeaderScrolling <- function(overlapHeight=7) {
-    tagList(includeHTML(system.file('www','headerScrolling.html',
-                                    package='appFrame')),
-            includeCSS(system.file('www','header.css',
-                                   package='appFrame')),
+    tagList(includeHTML(file.path('www','headerScrolling.html')),
+            includeCSS(file.path('www','header.css')),
             div(style=paste("height:",
                     overlapHeight,
                     "em",

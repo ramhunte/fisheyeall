@@ -1,0 +1,256 @@
+---
+title: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(htmltools)
+
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+```
+
+```{css, echo = FALSE}
+
+
+.header {
+  overflow: hidden;
+  background-color: white;
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 2000px;
+}
+
+.header a {
+  float: right;
+  color: black;
+  text-align: center;
+  padding: 18px;
+  text-decoration: none;
+  font-size: 20px;
+  line-height: 35px;
+  border-radius: 8px;
+  max-width: 2000px;
+}
+
+.header a:hover {
+  background-color: #a7daf5;
+  color: black;
+}
+
+.main-container {
+    background-color: #042155;
+    max-width: 100%;
+}
+
+.white-box {
+    background-color: white;
+    color: black;
+    max-width: 2000px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.green_seperator {
+    background-color: #a7daf5;
+    clear: both;
+    height: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 2000px;
+}
+
+.fisheye-title {
+    padding : 20px 0px 20px 35px;
+    font-family: Arial Narrow;
+    font-weight: bold;
+    font-size: 48px;
+    color: #1a5d99;
+}
+
+.h3 {
+    padding : 20px 0px 20px 35px;
+    font-size: 19.0pt;
+    font-family: "Helvetica", sans-serif;
+    color: #2C3E50
+
+}
+
+.italic-title {
+    padding : 20px 0px 20px 35px;
+    font-size: 14.0pt;
+    font-family: "Helvetica", sans-serif;
+    color: #2C3E50
+
+}
+
+.body-text {
+    line-height: 16.05pt;
+    text-align: start;
+    padding : 3px 35px 20px 35px;
+    font-size: 11.5pt;
+    font-family: "Helvetica", sans-serif;
+    color:#2C3E50
+}
+
+
+.framefooterleftitem {
+    border: 0 solid #CCCCCC;
+    color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #042155;
+    height: 3em;
+    float : left;
+    padding : 0px 15px 0px 3px;
+}
+
+.framefooterrightitem {
+    border: 0 solid #CCCCCC;
+    color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #042155;
+    height: 3em;
+    float : right;
+    padding : 0px 15px 0px 3px;
+}
+
+
+
+<head>
+<style type="text/css">
+</style>
+  <title>Data Explorer</title>
+</head>
+
+<div class="header">
+  <img src="www/Pictures/noaalogo.png" style="float:left">
+  <div class="header-right">
+  <a href="https://connect.fisheries.noaa.gov/fisheye_contact/" target="_blank">Contact Us</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_resources/" target="_blank">Resources</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_literature/" target="_blank">Literature</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye_about/" target="_blank">About</a>
+  <a href="https://connect.fisheries.noaa.gov/fisheye/" target="_blank">Home</a>
+  </div>
+</div>
+    
+<div class="green_seperator"></div>
+  
+
+
+<div class="white-box">
+
+<div class = "fisheye-title">
+	About
+</div>
+              
+
+<div class = "body-text">
+Welcome to FISHeries Economics Explorer (FISHEyE)&mdash;an interactive tool for exploring data from the West Coast Groundfish Trawl Catch Share Program. FISHEyE provides metrics to track and evaluate the catch share program. The metrics are not intended to be interpreted as causal, directional, nor normative but, rather, to facilitate the examination of trends and changes. Data used in FISHEyE comes from the Economic Data Collection
+<a href="https://www.nwfsc.noaa.gov/research/divisions/fram/economic/overview.cfm" target="_blank">(EDC)</a> Program and the Pacific Fisheries Information Network 
+<a href="http://pacfin.psmfc.org/" target="_blank">(PacFIN).</a> As part of the catch share program, participants of the fishery are required to complete <a
+href="https://www.nwfsc.noaa.gov/research/divisions/fram/economic/overview.cfm"
+target="_blank"> EDC survey forms</a> as stated in <a
+href="http://www.ecfr.gov/cgi-bin/text-idx?SID=06f0c396e52e564ce22a048aa910f49f&node=50:13.0.1.1.1.4.1.5&rgn=div8"
+target="_blank" > regulation 50 CFS 660.114. </a> Data collection began in 2009, two years prior to implementing the catch share program. All vessels that participate in the catch share program must report data for all fisheries they participate in, including non-catch share fisheries.
+
+</div>
+
+<div class = "h3">
+West Coast Groundfish Trawl Catch Share Fishery
+</div>
+
+<div class = "body-text">
+The fishery consists of cooperatives for the at-sea mothership and catcher-processor fleets, and an individual fishing quota (IFQ) program for the shorebased trawl fleet (catcher vessels, and first receivers and shorebased processors). The catch share program was implemented in 2011 with several goals, including:
+
+<ul type=disc style='box-sizing: border-box'>
+ <li mso-list:l5 level1 lfo1;tab-stops:list .5in;>Provide for a viable, profitable, and efficient groundfish fishery;
+     </ul>
+     
+     <ul type=disc style='box-sizing: border-box'>
+  <li mso-list:l5 level1 lfo1;tab-stops:list .5in;>Increase operational flexibility;
+     </ul>
+
+     <ul type=disc style='box-sizing: border-box'>
+ <li mso-list:l5 level1 lfo1;tab-stops:list .5in;>Minimize adverse effects on fishing communities and other fisheries to the extent practical;
+     </ul>
+
+     <ul type=disc style='box-sizing: border-box'>
+  <li mso-list:l5 level1 lfo1;tab-stops:list .5in;>Promote measurable economic and employment benefits through the seafood catching, processing, distribution, and support sectors of the industry.
+
+</ul>
+
+Please refer to the links in the
+<a href="./Resources.html"> Resources </a> section for more detailed information about the fishery.
+</div>
+
+<div class = "italic-title">
+<i>A note about confidentiality</i>
+</div>
+
+<div class ="body-text">
+Data confidentiality requirements do not allow us to show individual observations. Therefore, we aggregate or summarize the data to protect individual confidentiality. Data queries that would display confidential data are not plotted or made available to download. In these cases, the number of observations will be shown in the data table, but the value will be shown as “NA”.
+
+Where possible, data are reported for all vessels combined, whiting vessels, and non-whiting vessels. If there are fewer than three vessels in either the whiting or non-whiting category we will only report the “All vessels” category. More information on data confidentiality requirements can be found in the <a
+href="http://www.nwfsc.noaa.gov/research/divisions/fram/documents/Administration_Operations_Report_2014.pdf"
+target="_blank">EDC Administration and Operations Report.</a>
+</div>
+
+<div class = "italic-title">
+<i>Disclaimer</i>
+</div>
+
+<div class = "body-text">
+The data used in this application are periodically updated and subject to change. Data updates are recorded in the FISHEyE blog.
+</div>
+
+<div class = "italic-title">
+<i>Acknowledgements</i>
+</div>
+
+<div class = "body-text">
+There are numerous individuals to thank for their contributions in developing FISHEyE. We thank the Northwest Fisheries Science Center (NWFSC) economists and application developers, Scientific Data Management staff, and Information Technology staff. We thank PacFIN for providing landings information. NMFS Office of Science and Technology and NMFS Office of Sustainable Fisheries provided support. Numerous individuals reviewed the application and we    thank them for their helpful comments and suggestions. Finally and very importantly, we thank the members of the West Coast fishing industry who have supplied information to the EDC Program.
+</div>
+
+</div>
+
+<div class="framefooterleftitem">
+  <a href="http://www.nwfsc.noaa.gov/"> NWFSC </a>
+  |
+  <a href="http://www.nmfs.noaa.gov/"> NOAA Fisheries </a>
+  |
+  <a href="https://www.noaa.gov/"> NOAA </a>
+  |
+  <a href="http://www.nwfsc.noaa.gov/copyright.cfm"> Copyright policy </a>
+  |
+  <a href="http://www.nwfsc.noaa.gov/disclaimer.cfm"> Disclaimer </a>
+  |
+  <a href="http://www.nwfsc.noaa.gov/contact/feedback.cfm"> Feedback </a>
+  |
+  <a href="https://www8.nos.noaa.gov/survey/index.aspx?Location=dataexplorer"> NOAA customer satisfaction survey </a>
+  |
+  <a href="http://www.nmfs.noaa.gov/aboutus/privacy.html"> NOAA privacy policy </a>
+  |
+  <a href="https://www.cio.noaa.gov/services_programs/info_quality.html"> NOAA information quality </a>
+  </div>
+  
+<div class="framefooterrightitem">
+  <a href="http://www.nwfsc.noaa.gov/contact/feedback.cfm">
+  Problems with site? </a>
+  |
+  <a href=".."> Data Explorer </a>
+  |
+  </div>
+
+```

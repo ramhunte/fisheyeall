@@ -1,0 +1,13 @@
+name: about
+title: About
+username: amanda.phillips
+account: amanda.phillips
+server: test-connect.fisheries.noaa.gov
+hostUrl: https://test-connect.fisheries.noaa.gov/__api__
+appId: 162
+bundleId: 651
+url: https://test-connect.fisheries.noaa.gov/content/3a8ebd3e-0395-44da-905c-f94071f03da3/
+when: 1681929108.29601
+lastSyncTime: 1681929108.29602
+asMultiple: FALSE
+asStatic: TRUE

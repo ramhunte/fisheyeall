@@ -1,0 +1,13 @@
+name: literature
+title: Literature
+username: amanda.phillips
+account: amanda.phillips
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 186
+bundleId: 718
+url: https://connect.fisheries.noaa.gov/fisheye_literature/
+when: 1681945398.14578
+lastSyncTime: 1681945398.14579
+asMultiple: FALSE
+asStatic: TRUE

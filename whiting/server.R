@@ -1,7 +1,3 @@
-.libPaths("/usr/lib64/R/shiny_library/fisheye")
-
-#detach(unload = TRUE)
-
 library(shiny)
 library(shinyjs)
 library(shinyBS)
@@ -10,13 +6,15 @@ library(grid)
 library(dplyr)
 library(scales)
 library(DT)
+library(data.table)
 
 mini_whiting <- readRDS("mini_whiting.RDS")
-
+load("gdp_defl.RData")
 
 # Data formatting for plot ####
 data <- mini_whiting %>%
-  mutate(Variance = case_when(
+  mutate(
+    Variance = case_when(
     unit == '' ~ Variance,
     unit == 'thousands' ~ Variance/1e3,
     unit == 'millions' ~ Variance/1e6,
@@ -67,7 +65,6 @@ tacTab <- filter(data, tab == 'TACU' & Statistic %in% c('Utilization by weight',
 tacTabval <- filter(tacTab, !grepl('percent', Metric))
 tacTabperc <- filter(tacTab, grepl('percent', Metric))
 
-tacTab
 
 
 ## SERVER part of the app.####
@@ -90,6 +87,16 @@ shinyServer(function(input, output, session) {
   output$sectorInput <- renderUI({
     checkboxGroupInput("sectorInput","Sector", choices = unique(sumTab$Sector), selected = c("Catcher-Processor","Mothership","Shoreside"))
   })
+  ##Summary tab: defl options
+  output$deflYearselect <- renderUI({
+    selectInput("deflYearselect", 
+                label = "GDP Deflator Year:",
+                choices = c("2021" = 2021,
+                                 "2020" = 2020,
+                                 "2019" = 2019))
+  })
+  
+  
   
   ##Product tab components####
   ##Product tab: yaxis options (types of products). These are updated with the help of an 'observer'
@@ -113,6 +120,13 @@ shinyServer(function(input, output, session) {
     checkboxGroupInput("sector2Input","Sector", choices = unique(prodTab$Sector), selected = c("Catcher-Processor", "Mothership", "Shoreside"))
   })
   
+  output$deflYear2select <- renderUI({
+    selectInput("deflYear2select", 
+                label = "GDP Deflator Year:",
+                choices = c("2021" = 2021,
+                            "2020" = 2020,
+                            "2019" = 2019))
+  })
   
   
   ##TAC tab components####
@@ -153,12 +167,14 @@ shinyServer(function(input, output, session) {
       tabPanel("Summary", 
                uiOutput("yaxisInput"),
                uiOutput("statInput"),
-               uiOutput("sectorInput")),
+               uiOutput("sectorInput"),
+               uiOutput("deflYearselect")),
       tabPanel("By product type",
                uiOutput("producttypeInput"),
                uiOutput("yaxis2Input"),
                uiOutput("stat2Input"),
-               uiOutput("sector2Input")),
+               uiOutput("sector2Input"),
+               uiOutput("deflYear2select")),
       tabPanel("Total Allowable Catch Utilization",
                uiOutput("yaxis3Input"),
                uiOutput("stat3Input"),
@@ -182,44 +198,110 @@ shinyServer(function(input, output, session) {
   })
   
 
+  # defladj <- reactive({
+  # 
+  #   gdp <- gdp_defl
+  #   gdp$Year <- gdp$YEAR
+  #   gdp$DEFL <- gdp$DEFL/gdp$DEFL[gdp$YEAR == input$deflYearselect]
+  # 
+  #   return(gdp)
+  # 
+  # })
+
   
-  ##creating the dataframe for graph#####
-  ##Use reactive to reactively filter the dataframe based on inputs
   filtered <- reactive({
+    
     if(input$tab_type == "Summary") {
+      
+      gdp_defl$Year <- gdp_defl$YEAR
+      gdp_defl$DEFL <- gdp_defl$DEFL/gdp_defl$DEFL[gdp_defl$Year == input$deflYearselect]
+
         data %>%
           filter(Metric %in% input$yaxisInput,
                  Statistic == input$statInput,
-                 Sector %in% input$sectorInput)
+                 Sector %in% input$sectorInput) %>% 
+        left_join(gdp_defl, by = 'Year') %>% 
+        mutate(
+          Value = ifelse(grepl('DEFLYR', ylab), Value/DEFL, Value),
+          Variance = ifelse(grepl('DEFLYR', ylab), Variance/DEFL, Variance),
+          q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
+          q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75),
+          ylab = ifelse(grepl('DEFLYR', ylab), 
+                        gsub("DEFLYR", input$deflYearselect, ylab),
+                        ylab)) 
+      
     } else if(input$tab_type == "By product type") {
+      
+      gdp_defl$Year <- gdp_defl$YEAR
+      gdp_defl$DEFL <- gdp_defl$DEFL/gdp_defl$DEFL[gdp_defl$Year == input$deflYear2select]
+      
       data %>%
         filter(Metric %in% input$yaxis2Input,
                Statistic == input$stat2Input,
-               Sector %in% input$sector2Input) 
+               Sector %in% input$sector2Input) %>% 
+        left_join(gdp_defl, by = 'Year') %>% 
+        mutate(
+          Value = ifelse(grepl('DEFLYR', ylab), Value/DEFL, Value),
+          Variance = ifelse(grepl('DEFLYR', ylab), Variance/DEFL, Variance),
+          q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
+          q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75),
+          ylab = ifelse(grepl('DEFLYR', ylab), 
+                        gsub("DEFLYR", input$deflYearselect, ylab),
+                        ylab)) 
+      
     } else if (input$tab_type == "Total Allowable Catch Utilization") {
       data %>%
         filter(Metric %in% input$yaxis3Input,
                Statistic %in% input$stat3Input,
                Sector %in% input$sector3Input) 
     }
+    
+    
+
   }) 
   
-
 
 
   #creating the dataframe for data table#####
   ##Use reactive to reactively filter the dataframe based on inputs
   filtered_dt <- reactive({
       if(input$tab_type == "Summary") {
+        
+        gdp_defl$Year <- gdp_defl$YEAR
+        gdp_defl$DEFL <- gdp_defl$DEFL/gdp_defl$DEFL[gdp_defl$Year == input$deflYearselect]
+        
         data_table %>%
           filter(Metric %in% input$yaxisInput,
                  Statistic == input$statInput,
-                 Sector %in% input$sectorInput)
+                 Sector %in% input$sectorInput) %>% 
+          left_join(gdp_defl, by = 'Year') %>% 
+          mutate(
+            Value = ifelse(grepl('DEFLYR', ylab), Value/DEFL, Value),
+            Variance = ifelse(grepl('DEFLYR', ylab), Variance/DEFL, Variance),
+            q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
+            q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75),
+            DeflYr = ifelse(grepl('DEFLYR', ylab), input$deflYearselect, NA_character_)) %>% 
+          select(-YEAR, -DEFL)
+        
+        
       } else if(input$tab_type == "By product type") {
+        
+        gdp_defl$Year <- gdp_defl$YEAR
+        gdp_defl$DEFL <- gdp_defl$DEFL/gdp_defl$DEFL[gdp_defl$Year == input$deflYear2select]
+        
         data_table %>%
           filter(Metric %in% input$yaxis2Input,
                  Statistic == input$stat2Input,
-                 Sector %in% input$sector2Input) 
+                 Sector %in% input$sector2Input) %>% 
+          left_join(gdp_defl, by = 'Year') %>% 
+          mutate(
+            Value = ifelse(grepl('DEFLYR', ylab), Value/DEFL, Value),
+            Variance = ifelse(grepl('DEFLYR', ylab), Variance/DEFL, Variance),
+            q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
+            q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75),
+            DeflYr = input$deflYearselect) %>% 
+          select(-YEAR, -DEFL)
+        
       } else if(input$tab_type == "Total Allowable Catch Utilization") {
         data_table %>%
           filter(Metric %in%  c('Commercial catch','Final allocation', 'Initial allocation'),
