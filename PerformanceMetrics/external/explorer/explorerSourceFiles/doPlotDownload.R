@@ -347,7 +347,7 @@ xlab <- function() {
         ssn <- mutate(dat, 
                       VALUE = as.Date(VALUE, origin = "2014-01-01", format = "%Y-%m-%d"),
                       sort2 = reorder(VARIABLE, sort))
-        g <- ggplot(ssn, aes_string(x = x, y = y , group = groupVar), environment =
+        g <- ggplot(ssn, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
                       environment()) 
         # otherwise normal plot:
       } else {
@@ -355,14 +355,14 @@ xlab <- function() {
         dat$bystategrp <- paste0(dat$AGID, dat$whitingv)
         g <-
           # I think this is where the NAs are getting removed which causes lines to be connected through suppressed/missing values #removeNAs
-          ggplot(dat, aes_string(x = x, y = y , group = groupVar), environment =
+          ggplot(dat, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
                    environment()) #+coord_cartesian(xlim = c(0, length(table(dat$YEAR))+1))
       }
     } else {
       #dat <- dat[order(dat$sort), ]
       g <-
         # I think this is where the NAs are getting removed which causes lines to be connected through suppressed/missing values #removeNAs
-        ggplot(dat, aes_string(x = x, y = y , group = groupVar), environment =
+        ggplot(dat, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
                  environment()) #+coord_cartesian(xlim = c(0, length(table(dat$YEAR))+1))
     }
     
@@ -371,19 +371,19 @@ xlab <- function() {
     if (input$Ind_sel == 'Other') {
       if (input$otherSelect == 'Share of landings by state') {
         g <-
-          g + geom_line(aes_string(colour = groupVar, group = 'bystategrp'), size = 1.5) +
+          g + geom_line(aes(colour = .data[[groupVar]], group = 'bystategrp'), size = 1.5) +
           geom_point(aes_string(colour = groupVar, shape = 'AGID', group = 'bystategrp'),
                      size = 4)
       } else {
-        g <- g + geom_line(aes_string(colour = groupVar), size = 1.5) +
-          geom_point(aes_string(colour = groupVar), size = 4)
+        g <- g + geom_line(aes(colour = .data[[groupVar]]), size = 1.5) +
+          geom_point(aes(colour = .data[[groupVar]]), size = 4)
       }} else {
-        g <- g + geom_line(aes_string(colour = groupVar), size = 1.5) +
-          geom_point(aes_string(colour = groupVar), size = 4)
+        g <- g + geom_line(aes(colour = .data[[groupVar]]), size = 1.5) +
+          geom_point(aes(colour = .data[[groupVar]]), size = 4)
       }
    }
-   g <- g + geom_line(aes_string(colour = groupVar), size = 0.75) +
-     geom_point(aes_string(colour = groupVar), size = 2)
+   g <- g + geom_line(aes(colour = .data[[groupVar]]), size = 0.75) +
+     geom_point(aes(colour = .data[[groupVar]]), size = 2)
 
 #------ Add variance ------#    
     if(!exists('ssn')) { 
