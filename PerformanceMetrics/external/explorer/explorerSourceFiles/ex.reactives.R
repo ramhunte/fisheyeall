@@ -84,7 +84,7 @@ metricstatselections <- reactive({
         stat   = input$demStats
         metric = input$demSelect
     } else if(input$Ind_sel == 'Impacts') {
-        stat = input$impactStats
+        stat   = input$impactStats
         metric = input$impactSelect
     } else if(input$Ind_sel == 'Economic') {
         stat   = input$econStats
@@ -152,24 +152,23 @@ defladj <- reactive({
 # build dcast formula using if controls and using the quoted method in dcast
 DatSubRaw <- reactive({
     dat <- DatMain()
-    
+
     # data filter differs whether it is CV/FR module or CP/MS module
     if (input$Sect_sel == "CV" | input$Sect_sel == "FR") {
         datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1) &
-                CATEGORY == input$CategorySelect &
-                VARIABLE %in% input$VariableSelect &
-                whitingv %in% input$FishWhitingSelect]
-        if(metricstatselections()$metric == 'Number of processors') {
-            datSubforSector <- datSubforSector %>%
-                select(-`Total number of processors`)
-        } else {
-            datSubforSector <- datSubforSector
-        }} else {
-            datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1)]
-        }
-    
+            CATEGORY == input$CategorySelect &
+            VARIABLE %in% input$VariableSelect &
+            whitingv %in% input$FishWhitingSelect]
+
+        if ("Number of processors" %in% metricstatselections()$metric) {
+            datSubforSector <- select(datSubforSector, -`Total number of processors`)
+        } 
+    } else {
+        datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1)]
+    }
+     #   if(length(metricstatselections()$metric) > 1) browser()
     datSubMetric <- datSubforSector[METRIC %in% metricstatselections()$metric]
-    
+
     # subset the sector specific data according to all of the fisheye toggles
     datSub.int <- datSubMetric[STAT %in% metricstatselections()$stat &
             inclAK %in% akselections() &
@@ -183,13 +182,14 @@ DatSubRaw <- reactive({
                 VARIANCE = ifelse(grepl('DEFLYR', ylab), VARIANCE/DEFL, VARIANCE),
                 q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
                 q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75))
+                
         datSub[,ylab := gsub("DEFLYR", input$deflYearselect, ylab)]
         datSub[,DEFL := NULL]
-        
+
         return(datSub)
     
     } else {
-        
+
         return(datSub.int)
 
     }
