@@ -263,7 +263,7 @@ function(request) {
                     mainPanel(
                         tabsetPanel(id = "tabs",
                             tabPanel("Visualize the Data", value="Panel1", plotOutput("PlotMain") %>% shinycssloaders::withSpinner(color="#0dc5c1"), style ="min-height: 1600px;"),
-                            tabPanel("Dataset", value="Panel2", dataTableOutput("TableMain")),
+                            tabPanel("Dataset", value="Panel2", DT::DTOutput("TableMain")),
                             tabPanel("Description", 
                                 conditionalPanel(condition="input.Ind_sel == 'Processor characteristics' || input.Ind_sel == 'Vessel characteristics'",
                                     htmlOutput("characteristics_html")),
