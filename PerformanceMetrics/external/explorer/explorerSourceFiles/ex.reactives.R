@@ -80,7 +80,11 @@ DatVars <- reactive({
 # Mini filtering functions to use in DatSub({}) ####
 # choose the list of statistics
 metricstatselections <- reactive({
-    if(grepl('characteristics', input$Ind_sel)) {
+    # this step prevents errors from being thrown until ind_sel is populated by the app
+    if(is.null(input$Ind_sel)) {
+        stat   = input$demStats
+        metric = input$demSelect
+    } else if(grepl('characteristics', input$Ind_sel)) {
         stat   = input$demStats
         metric = input$demSelect
     } else if(input$Ind_sel == 'Impacts') {
@@ -129,7 +133,9 @@ akselections <- reactive({
 
 # choose the list of categories
 csselections <- reactive({ 
-    if(input$CategorySelect != "Fisheries") {
+    if(is.null(input$CategorySelect)) {
+        return('')
+    } else if(input$CategorySelect != "Fisheries") {
         return(input$inSelect)
     } else return('')
 })
@@ -152,10 +158,11 @@ defladj <- reactive({
 # build dcast formula using if controls and using the quoted method in dcast
 DatSubRaw <- reactive({
     dat <- DatMain()
-
+    if(is.null(input$YearSelect[1])) start_yr <- 2009 else start_yr <- input$YearSelect[1]
+    if(is.null(input$YearSelect[2])) end_yr <- 2022 else end_yr <- input$YearSelect[2]
     # data filter differs whether it is CV/FR module or CP/MS module
     if (input$Sect_sel == "CV" | input$Sect_sel == "FR") {
-        datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1) &
+        datSubforSector <- dat[YEAR %in% seq(start_yr, end_yr, 1) &
             CATEGORY == input$CategorySelect &
             VARIABLE %in% input$VariableSelect &
             whitingv %in% input$FishWhitingSelect]
@@ -164,7 +171,7 @@ DatSubRaw <- reactive({
             datSubforSector <- select(datSubforSector, -`Total number of processors`)
         } 
     } else {
-        datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1)]
+        datSubforSector <- dat[YEAR %in% seq(start_yr, end_yr, 1)]
     }
      #   if(length(metricstatselections()$metric) > 1) browser()
     datSubMetric <- datSubforSector[METRIC %in% metricstatselections()$metric]
@@ -174,7 +181,10 @@ DatSubRaw <- reactive({
             inclAK %in% akselections() &
             CS     %in% csselections()]
 
-    if(input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
+    if(is.null(input$Ind_sel)) {
+        return(datSub.int)
+        
+    } else if(input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
         
         datSub <- left_join(datSub.int, defladj(), by = 'YEAR') %>%
             mutate(
@@ -222,7 +232,6 @@ DatSubTable <- reactive({
     datSub$q25 <-      tabformatfun(datSub$q25)
     datSub$q75 <-      tabformatfun(datSub$q75)
     datSub$DEFLYR <-   ifelse(!any(names(input) == 'deflYearselect'), NA_character_, input$deflYearselect)
-#browser()
 
     Ntitle <- ifelse(input$Sect_sel == "FR", 'Number of responses', 'Number of vessels')
     valuetitle <- ifelse(any(datSub$STAT == ''), 'Value', as.character(unique(datSub$STAT)))
@@ -267,7 +276,9 @@ DatSub <- reactive({
     
     # SORT ####
     # we need this because "sort" is used for facetting and the facetting depends on what has been selected in sidebar
-    if (!input$LayoutSelect) {
+    if(is.null(input$LayoutSelect)) {
+        # nothing
+    } else if (!input$LayoutSelect) {
         if (input$Ind_sel == 'Other' &&
                 input$otherSelect == 'Share of landings by state') {
             datSub[, sort := as.character(AGID)]
