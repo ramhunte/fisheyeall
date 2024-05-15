@@ -116,6 +116,7 @@ output$PlotMain <- renderPlot({
       'The selected statistic is not calculated for this metric. Please try switching to Total.'
     )
   ))
+ # browser()
   doPlot(dat = DatSub(), x = "YEAR", y = "VALUE")
 },  height=scale_height, width = "auto")
 
@@ -155,7 +156,7 @@ output$PlotMain3 <- renderPlot({
   doPlot(dat = DatSub(), x = "YEAR", y = "VALUE")
 },  height=400, width = 700)
 
-output$TableMain <- renderDataTable({ 
+output$TableMain <- DT::renderDT({ 
   validate(need(
     !(sum(!is.na(as.numeric(DatSub()$VALUE))) ==0 & metricstatselections()$stat == 'Total'),
     paste(
