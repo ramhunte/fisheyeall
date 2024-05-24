@@ -154,58 +154,106 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
               
 
 <ul id="lit">
+
 <li><a href="https://repository.library.noaa.gov/view/noaa/4601">
   Brinson, A.A. and E. M. Thunberg. 2013.  
 </a>The Economic Performance of U.S. Catch Share Programs. U.S. Dept. of Commer., NOAA Technical Memorandum NMFS-NWFSC.</li>
+
+<li><a href="https://repository.library.noaa.gov/view/noaa/34365">
+    Connelly, K., E. Steiner, and A. Vizek. 2022. 
+</a>Quota Share Owner Survey: Initial Results and Analysis. NOAA Tech Memo NMFS-NWFSC 172.</li>
+
+
 <li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522489?casa_token=60fRmHSYTn4AAAAA:iIx3h65zZdZlluMW_pnMvoKK1HMj7S0PVjXi6_ZHJ15dYquEiUCTymIEyTOwm-rCKqg8e5WGSRz8iQ">
   Errend, M., L. Pfeiffer, E. Steiner, M. Guldin, and A. Warlick. 2019. 
 </a>Economic Outcomes for Harvesters under the West Coast Groundfish Trawl Catch Share Program: Have Goals and Objectives Been Met? Coastal Management 46(6): 564–86.</li>
+
 <li><a href="https://www.journals.uchicago.edu/doi/pdfplus/10.1086/698200">
   Guldin, M., and C. Anderson. 2018. 
 </a>Catch Shares and Shoreside Processors: A Costs and Earnings Exploration into the Downstream Sector. Marine Resource Economics 33(3): 289–307.</li>
+
+<li><a href="https://repository.library.noaa.gov/view/noaa/19387">
+    Harsch, M., L. Pfeiffer, E. Steiner, and M. Guldin. 2018. 
+</a>Economic Performance Metrics: An Overview of Metrics and the Use of Web Applications to Disseminate Outcomes in the U.S. West Coast Groundfish Trawl Catch Share Program. NOAA technical memorandum NMFS-NWFS 143.</li>
+
 <li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522490?casa_token=pp8e0_4fPuIAAAAA:GclcPiVrqVMobpH-RmmvA7Pro2VBAEd9uqgYBso9cNNrD4djhXmO-ySNZDiPmqYUTkNGCN7LjMP_pQ">
   Guldin, M., A. Warlick, M. Errend, L. Pfeiffer, and E. Steiner. 2019. 
 </a>Shorebased Processor Outcomes Under Catch Shares. Coastal Management: 1–16.</li>
+
 <li><a href="https://www.sciencedirect.com/science/article/pii/S0308597X16305711">
   Holland, D., E. Steiner, and A. Warlick. 2017. 
 </a>Can Vessel Buybacks Pay off: An Evaluation of an Industry Funded Fishing Vessel Buyback. Marine Policy 82: 8–15.</li>
+
 <li><a href="https://repository.library.noaa.gov/view/noaa/12958">
   Holland, D., and K. Norman. 2015. 
 </a>The Anatomy of a Multispecies Individual Fishing Quota (IFQ) Market. US Dept. of Commer., NOAA Technical Memorandum NMFS-NWFSC.</li>
+
 <li><a href="https://www.journals.uchicago.edu/doi/full/10.1086/687829">
   Holland, D. 2016. Development of the Pacific Groundfish Trawl IFQ Market. Marine Resource Economics 31(4): 453–64.
 </a></li>
+
 <li><a href="https://www.frontiersin.org/articles/10.3389/fmars.2019.00600/full?utm_source=F-AAE&utm_medium=EMLF&utm_campaign=MRK_1117095_45_Marine_20191008_arts_A">
   Holland, D., and C. Martin. 2019. 
 </a>Bycatch Quotas, Risk Pools, and Cooperation in the Pacific Whiting Fishery. Frontiers in Marine Science 6: 600.</li>
+
+<li><a href="https://doi.org/10.4060/ca9543en">
+    ​Kitts, A., Van Anrooy, R., Van Eijs, S., Pino Shibata, J., Pallalever Pérez, R., Augusto Gonçalves, A., Ardini, G., Liese, C., Pan, M., Steiner, E. 2020. 
+</a>Techno-economic performance review of selected fishing fleets in North and South America. FAO Fisheries and Aquaculture Technical Paper No. 653/2. Rome, FAO.</li>
+
+<li><a href="https://spo.nmfs.noaa.gov/sites/default/files/TMSPO231.pdf">
+    Kitts, A., J. Walden, D. Squires, M. Travis, E. Steiner, L. Pfeiffer, C. Liese, and M. Pan. 2022. 
+</a>NOAA Fisheries Best Practices for Measuring Returns to Fishing Businesses NOAA Tech. Memo. NMFS-F/SPO-231, 54 p</li>
+
+<li><a href="https://doi.org/10.1139/cjfas-2020-0399">
+    Krigbaum, M. and C. Anderson. 2021. 
+</a>Increasing value through gear flexibility: a case study of US west coast sablefish. Canadian Journal of Fisheries and Aquatic Sciences. 78(8): 1130-1145.</li>
+
 <li><a href="https://afspubs.onlinelibrary.wiley.com/doi/pdf/10.1080/02755947.2017.1330784">
   Leonard, J., and E. Steiner. 2017.
 </a>Initial Economic Impacts of the U.S. Pacific Coast Groundfish Fishery Individual Fishing Quota Program. North American Journal of Fisheries Management 37(4): 862–81.</li>
 <li>
   Lian, C. 2010. West Coast Limited Entry Groundfish Trawl Cost Earnings Survey Protocols and Results for 2004. NOAA Technical Memorandum NMFS-NWFSC.
 </li>
+
 <li><a href="https://www.journals.uchicago.edu/doi/pdfplus/10.1086/mre.24.4.42629661">
   Lian, C., R. Singh, and Q. Weninger. 2010.
 </a>Fleet Restructuring, Rent Generation, and the Design of Individual Fishing Quota Programs: Empirical Evidence from the Pacific Coast Groundfish Fishery. Marine Resource Economics 24(4): 329–359.</li>
+
 <li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522491?casa_token=JWIdB6WXIoUAAAAA:jzBpQFT01ynuFukJpxTGd5DXciPtAByGTs8SRb8YsSWp6Htjl-VRJ6U9Lvrvr_g0b8dbMKw8V2JNoQ">
   Russell, S., M. Van Oostenburg and A. Vizek. 2019.
 </a>Adapting to Catch Shares: Perspectives of West Coast Groundfish Trawl Participants. Coastal Management 46(6): 603-620.</li>
+
 <li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2016.1208864?casa_token=NPdQORkALQ4AAAAA:-SVRlmSXrDQyDoYE4fVfGxVAwiJGavk-AQgwH6whiSHQu2cbxqTQkdmgeD-qEI2sOwmZz4O_p7mbKg">
   Russell, S., A. Arias-Arthur, K. Sparks, and A. Varney. 2016. 
 </a>West Coast Communities and Catch Shares: The Early Years of Social Change. Coastal Management 44(5): 441-451.</li>
+
 <li><a href="https://www.tandfonline.com/doi/pdf/10.1080/08920753.2018.1522495?casa_token=kleV_InHz4cAAAAA:7FlXK7KVj-mGtdqrLrcstSlGRelKo-KshnnUcRrFUj5Qq_trxwRsaZlYU1TU4D-xa-2pekmQm0kLpg">
   Steiner, E., S. Russell, A. Vizek, and A. Warlick. 2019.
 </a>Crew in the West Coast Groundfish Catch Share Program: Changes in Compensation and Job Satisfaction. Coastal Management 46(6): 656–676. https://doi.org/10.1080/08920753.2018.1522495.</li>
+
+<li><a href="https://repository.library.noaa.gov/view/noaa/31435">
+    Steiner, E., A. Vizek, M. Guldin, M. Krigbaum, and L. Pfeiffer. 2021. 
+</a>Evaluating the Economic Performance of the U.S. West Coast Groundfish Trawl Catch Share Program. NOAA Tech Memo NMFS-NWFSC 169.</li>
+
+
 <li><a href="https://spo.nmfs.noaa.gov/sites/default/files/TM154.pdf">
   Thunberg, E., J. Agar, S. Crosson, B. Garber-Yonts, A. Harley, A. Kitts, T. Lee, C. Lian, C. Liese, M. Pan, L. Perruso, G. Silva, D. Squires, E. Steiner, and S. Stohs. 2015.
 </a>A Snapshot of NOAA Fisheries Data Collection of Commercial Fishery Costs. U.S. Dept of Commer., NOAA Technical Memorandum NMFS-NWFSC.</li>
+
+<li><a href="https://spo.nmfs.noaa.gov/sites/default/files/TMSPO245.pdf">
+Thunberg, E., A. Kitts, G. Ardini, A. Chen, B. Garber-Yonts, J. Hilger, C. Hutt, C. Liese, S. Lovell, M. McGregor, M. Pan, D. Records, G. Silva, E. Steiner, S. Stohs, M. Travis, S. Werner, and S. Warpinski. 2023.
+</a>A Snapshot Update of NOAA Fisheries Data Collection of Commercial and For-Hire Fishery Costs and
+Earnings. U.S. Dept. of Commerce, NOAA Technical Memorandum NMFS-F/SPO-245, 71 p.</li>
+
 <li><a href="https://www.tandfonline.com/doi/abs/10.1080/08941920.2020.1777491">
   Vizek, A., M. Van Oostenburg, and S. Russell. 2020.
 </a>The transition to catch shares management in the West Coast groundfish trawl fishery: changing job attitudes and adjusting fishing participation plans. Society and Natural Resources 33(10): 1175-1193.</li>
+
 <li><a href="https://www.sciencedirect.com/science/article/pii/S0308597X17307911">
   Warlick, A., E. Steiner, and M. Guldin. 2018.
 </a>History of the West Coast Groundfish Trawl Fishery: Tracking Socioeconomic Characteristics across Different Management Policies in a Multispecies Fishery. Marine Policy 93: 9–21.</li>
 </ul>
+
 
 <div class = "italic-title">
 Additional reports
