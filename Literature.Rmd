@@ -211,7 +211,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 <li><a href="https://afspubs.onlinelibrary.wiley.com/doi/pdf/10.1080/02755947.2017.1330784">
   Leonard, J., and E. Steiner. 2017.
 </a>Initial Economic Impacts of the U.S. Pacific Coast Groundfish Fishery Individual Fishing Quota Program. North American Journal of Fisheries Management 37(4): 862–81.</li>
-<li>
+<li><a href="https://repository.library.noaa.gov/view/noaa/3765">
   Lian, C. 2010. West Coast Limited Entry Groundfish Trawl Cost Earnings Survey Protocols and Results for 2004. NOAA Technical Memorandum NMFS-NWFSC.
 </li>
 
