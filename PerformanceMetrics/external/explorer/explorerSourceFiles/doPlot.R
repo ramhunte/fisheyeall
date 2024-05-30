@@ -336,14 +336,14 @@ doPlot <- function(dat, x, y) {
         g <-
           # I think this is where the NAs are getting removed which causes lines to be connected through suppressed/missing values #removeNAs
           ggplot(dat4plot, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
-              environment()) #+coord_cartesian(xlim = c(0, length(table(dat4plot$YEAR))+1))
+              environment())
       }
     } else {
       #dat4plot <- dat4plot[order(dat4plot$sort), ]
       g <-
         # I think this is where the NAs are getting removed which causes lines to be connected through suppressed/missing values #removeNAs
         ggplot(dat4plot, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
-            environment()) #+coord_cartesian(xlim = c(0, length(table(dat4plot$YEAR))+1))
+            environment()) 
     }
     
 
@@ -475,7 +475,7 @@ doPlot <- function(dat, x, y) {
 
     # set colors for the three lines (whiting vessels, non-whiting vessels, all vessels) ####
     g <-
-      g + scale_fill_manual(values = colourThirds) + scale_colour_manual(values = colourThirds) #+ scale_x_discrete('YEAR2', drop=FALSE)
+      g + scale_fill_manual(values = colourThirds) + scale_colour_manual(values = colourThirds)
     
     # add x axis line ####
     g <- g + geom_hline(yintercept = 0)
@@ -567,8 +567,9 @@ doPlot <- function(dat, x, y) {
         size = 12
       ),
       legend.title = element_blank()
-      #  text = element_text(family="sans", color = "red", size=rel(1.3))
+
     )
+
     print(g)
     
   } else
@@ -580,5 +581,5 @@ doPlot <- function(dat, x, y) {
       xlab = "",
       ylab = ""
     )
-  #  print(head(dat))
+
 }
