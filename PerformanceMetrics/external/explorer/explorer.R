@@ -104,6 +104,7 @@ scale_height <- function(){
 }
 
 output$PlotMain <- renderPlot({
+    
   validate(need(
     !(sum(!is.na(as.numeric(DatSub()$VALUE))) ==0 & metricstatselections()$stat == 'Total'),
     paste(

@@ -445,7 +445,8 @@ shinyServer(function(input, output, session) {
                         fill = Sector), alpha = .25) +
         facet_wrap(~ylab, scales = 'free_y', ncol = 2) +
         labs(y = input$statInput) +
-        scale_x_continuous(breaks= pretty_breaks())
+        scale_x_continuous(breaks= pretty_breaks()) +
+        expand_limits(y = 0)
   }, height = 800, width = 1100)
   
   

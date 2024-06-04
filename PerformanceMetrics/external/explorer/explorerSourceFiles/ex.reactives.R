@@ -5,29 +5,15 @@
 
 # DatMain: data load ####
 DatMain <- reactive({
-    load("data/CVperfmetrics.RData")
-    CVperfmetrics <- dat
-    load("./data/Mperfmetrics.RData")
-    Mperfmetrics <- dat
-    load("./data/CPperfmetrics.RData")
-    CPperfmetrics <- dat
-    load("./data/FRperfmetrics.RData")
-    FRperfmetrics <- dat
 
-    # data load moved to serverhead
-    # data is loaded from serverHead.R load call
     if (input$Sect_sel == "CV") {
-        dat <- CVperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/CVperfmetrics.rds")
     } else if (input$Sect_sel == "M") {
-        dat <- Mperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/Mperfmetrics.rds")
     } else if (input$Sect_sel == "CP") {
-        dat <- CPperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/CPperfmetrics.rds")
     } else if (input$Sect_sel == "FR") {
-        dat <- FRperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/FRperfmetrics.rds")
     }
 
 })
@@ -272,7 +258,7 @@ DatSubTable <- reactive({
 # DatSub: subsets the data ####
 DatSub <- reactive({
 
-    datSub <- DatSubRaw()
+    datSub <- copy(DatSubRaw())
 
     # SORT ####
     # we need this because "sort" is used for facetting and the facetting depends on what has been selected in sidebar
