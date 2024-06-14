@@ -1,0 +1,12 @@
+name: performancemetrics
+title: PerformanceMetrics
+username: erin.steiner
+account: erin.steiner
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 281
+bundleId: 1292
+url: https://connect.fisheries.noaa.gov/content/f2ed985a-09ae-42e0-8676-738529c42594/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
