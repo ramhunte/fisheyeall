@@ -165,8 +165,8 @@ Northwest Fisheries Science Center
 
 <div class = "body-text">
 <b>Amanda Phillips</b><br>
-Natural Resource Management Specialist
-‪(206) 861-1249‬<br>
+Natural Resource Management Specialist<br>
+(206) 861-1249<br>
 Northwest Fisheries Science Center
 </div>
 
