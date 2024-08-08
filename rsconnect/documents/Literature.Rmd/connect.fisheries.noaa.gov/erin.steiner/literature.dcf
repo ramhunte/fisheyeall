@@ -1,0 +1,12 @@
+name: literature
+title: Literature
+username: erin.steiner
+account: erin.steiner
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 366
+bundleId: 1486
+url: https://connect.fisheries.noaa.gov/content/fac41040-2c0b-4a1d-a674-a31e7c539f2d/
+version: 1
+asMultiple: FALSE
+asStatic: TRUE
