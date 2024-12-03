@@ -324,25 +324,26 @@ doPlot <- function(dat, x, y) {
         ssn <- mutate(dat4plot, 
           VALUE = as.Date(VALUE, origin = "2014-01-01", format = "%Y-%m-%d"),
           sort2 = reorder(VARIABLE, sort))
-        g <- ggplot(ssn, aes_string(x = x, y = y , group = groupVar), environment =
+        g <- ggplot(ssn, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
             environment()) 
-        g <- g + geom_line(aes_string(colour = groupVar), size = .75) +
-          geom_point(aes_string(colour = groupVar), size = 4)
+        g <- g + geom_line(aes(colour = .data[[groupVar]]), size = .75) +
+          geom_point(aes(colour = .data[[groupVar]]), size = 4)
         # otherwise normal plot:
       } else {
         dat4plot <- dat4plot[order(dat4plot$sort), ]
         dat4plot$bystategrp <- paste0(dat4plot$AGID, dat4plot$whitingv)
+
         g <-
           # I think this is where the NAs are getting removed which causes lines to be connected through suppressed/missing values #removeNAs
-          ggplot(dat4plot, aes_string(x = x, y = y , group = groupVar), environment =
-              environment()) #+coord_cartesian(xlim = c(0, length(table(dat4plot$YEAR))+1))
+          ggplot(dat4plot, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
+              environment())
       }
     } else {
       #dat4plot <- dat4plot[order(dat4plot$sort), ]
       g <-
         # I think this is where the NAs are getting removed which causes lines to be connected through suppressed/missing values #removeNAs
-        ggplot(dat4plot, aes_string(x = x, y = y , group = groupVar), environment =
-            environment()) #+coord_cartesian(xlim = c(0, length(table(dat4plot$YEAR))+1))
+        ggplot(dat4plot, aes(x = .data[[x]], y = .data[[y]], group = .data[[groupVar]]), environment =
+            environment()) 
     }
     
 
@@ -374,7 +375,7 @@ doPlot <- function(dat, x, y) {
     geom_rect_fun <- function(ymin_val = -Inf, ymax_val = Inf) {
       geom_vline(
           xintercept = table(yr() <= 2010)[[2]] + .5,
-          size = 1.1,
+          linewidth = 1.1,
           color = "darkgray"
         )
     }
@@ -474,7 +475,7 @@ doPlot <- function(dat, x, y) {
 
     # set colors for the three lines (whiting vessels, non-whiting vessels, all vessels) ####
     g <-
-      g + scale_fill_manual(values = colourThirds) + scale_colour_manual(values = colourThirds) #+ scale_x_discrete('YEAR2', drop=FALSE)
+      g + scale_fill_manual(values = colourThirds) + scale_colour_manual(values = colourThirds)
     
     # add x axis line ####
     g <- g + geom_hline(yintercept = 0)
@@ -494,15 +495,15 @@ doPlot <- function(dat, x, y) {
     if (input$Ind_sel == 'Other') {
       if (input$otherSelect == 'Share of landings by state') {
         g <-
-          g + geom_line(aes_string(colour = groupVar, group = 'bystategrp'), size = 1.5) +
-          geom_point(aes_string(colour = groupVar, shape = 'AGID', group = 'bystategrp'),
+          g + geom_line(aes(colour = .data[[groupVar]], group = 'bystategrp'), linewidth = 1.5) +
+          geom_point(aes(colour = .data[[groupVar]], shape = 'AGID', group = 'bystategrp'),
             size = 4)
       } else {
-        g <- g + geom_line(aes_string(colour = groupVar), size = .75) +
-          geom_point(aes_string(colour = groupVar), size = 4)
+        g <- g + geom_line(aes(colour = .data[[groupVar]]), linewidth = .75) +
+          geom_point(aes(colour = .data[[groupVar]]), size = 4)
       }} else {
-        g <- g + geom_line(aes_string(colour = groupVar), size = .75) +
-          geom_point(aes_string(colour = groupVar), size = 4)
+        g <- g + geom_line(aes(colour = .data[[groupVar]]), linewidth = .75) +
+          geom_point(aes(colour = .data[[groupVar]]), size = 4)
       }
     
     if (input$LayoutSelect) {
@@ -552,7 +553,7 @@ doPlot <- function(dat, x, y) {
         colour = "grey25"
       ),
       axis.line.x = element_line(
-        size = 2,
+        linewidth = 2,
         colour = "black",
         linetype = "solid"
       ),
@@ -566,8 +567,9 @@ doPlot <- function(dat, x, y) {
         size = 12
       ),
       legend.title = element_blank()
-      #  text = element_text(family="sans", color = "red", size=rel(1.3))
+
     )
+
     print(g)
     
   } else
@@ -579,5 +581,5 @@ doPlot <- function(dat, x, y) {
       xlab = "",
       ylab = ""
     )
-  #  print(head(dat))
+
 }

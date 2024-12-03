@@ -195,25 +195,25 @@ doPlotPrep <- reactive({
       }
       
       # CREATE FIRST PLOT INSTANCE ####
-      
-      g <- ggplot(dat4plot, aes_string(x = x, y = y , group = groupVar),
+
+      g <- ggplot(dat4plot, aes(x = .data[[x]], y = .data[[y]], group = groupVar),
         environment = environment())
       
       # PLOT: add lines and points to the plot ####
       if (input$Ind_sel == 'Other') {
         if (input$otherSelect == 'Share of landings by state') {
           g <-
-            g + geom_line(aes_string(colour = groupVar, group = 'bystategrp'),
+            g + geom_line(aes(colour = .data[[groupVar]], group = 'bystategrp'),
               size = 1.5) +
-            geom_point(aes_string(
-              colour = groupVar,
+            geom_point(aes(
+              colour = .data[[groupVar]],
               shape = 'AGID',
               group = 'bystategrp'
             ),
               size = 4)
         }} else {
-          g <- g + geom_line(aes_string(colour = groupVar), size = 1.5) +
-            geom_point(aes_string(colour = groupVar), size = 4)
+          g <- g + geom_line(aes(colour = .data[[groupVar]]), size = 1.5) +
+            geom_point(aes(colour = .data[[groupVar]]), size = 4)
         }
 
       # PLOT: add 'data variability' band ####

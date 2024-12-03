@@ -158,7 +158,7 @@ target="_blank" >nwfsc.edc@noaa.gov</a>
 
 <div class = "body-text">
 <b>Erin Steiner</b><br>
-Economist <br>
+Research Economist <br>
 (206) 860-3215<br>
 Northwest Fisheries Science Center
 </div>
@@ -166,7 +166,7 @@ Northwest Fisheries Science Center
 <div class = "body-text">
 <b>Amanda Phillips</b><br>
 Natural Resource Management Specialist<br>
-‪(206) 861-1249‬<br>
+(206) 861-1249<br>
 Northwest Fisheries Science Center
 </div>
 

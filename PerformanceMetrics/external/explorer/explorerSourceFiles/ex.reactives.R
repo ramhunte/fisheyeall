@@ -5,44 +5,30 @@
 
 # DatMain: data load ####
 DatMain <- reactive({
-    load("data/CVperfmetrics.RData") 
-    CVperfmetrics <- dat
-    load("./data/Mperfmetrics.RData")
-    Mperfmetrics <- dat
-    load("./data/CPperfmetrics.RData")
-    CPperfmetrics <- dat
-    load("./data/FRperfmetrics.RData")
-    FRperfmetrics <- dat
 
-    # data load moved to serverhead
-    # data is loaded from serverHead.R load call
     if (input$Sect_sel == "CV") {
-        dat <- CVperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/CVperfmetrics.rds")
     } else if (input$Sect_sel == "M") {
-        dat <- Mperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/Mperfmetrics.rds")
     } else if (input$Sect_sel == "CP") {
-        dat <- CPperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/CPperfmetrics.rds")
     } else if (input$Sect_sel == "FR") {
-        dat <- FRperfmetrics %>%
-            data.table()
+        dat <- readRDS("./data/FRperfmetrics.rds")
     }
-    
+
 })
 
 gdpMain <- reactive({
-    
-    load("data/gdp_defl.RData")
-    
-    return(gdp_defl)
-    
-})
-    
 
-nrcomponents <- c('Revenue', 'Variable costs', 
-    'Fixed costs', 'Variable cost net revenue', 
+    load("data/gdp_defl.RData")
+
+    return(gdp_defl)
+
+})
+
+
+nrcomponents <- c('Revenue', 'Variable costs',
+    'Fixed costs', 'Variable cost net revenue',
     'Total cost net revenue')
 
 
@@ -56,16 +42,16 @@ DatVars <- reactive({
     outputOptions(output, "Yearselect", suspendWhenHidden = FALSE)
     outputOptions(output, "deflYearselect", suspendWhenHidden = FALSE)
     outputOptions(output, "FishAkselect", suspendWhenHidden = FALSE)
-    
+
     # create a list of variable names used in the sidebar inputs
     # The lists are creating elsewhere (datvars.R) and loaded/called here
     load("data/datvars_cv.RData")
     load("data/datvars_fr.RData")
     load("data/datvars_ms.RData")
     load("data/datvars_cp.RData")
-    
+
     dat <- DatMain()
-    
+
     if (input$Sect_sel == "CV") {
         datVars <- datVars_cv
     } else if (input$Sect_sel == "FR") {
@@ -80,11 +66,15 @@ DatVars <- reactive({
 # Mini filtering functions to use in DatSub({}) ####
 # choose the list of statistics
 metricstatselections <- reactive({
-    if(grepl('characteristics', input$Ind_sel)) {
+    # this step prevents errors from being thrown until ind_sel is populated by the app
+    if(is.null(input$Ind_sel)) {
+        stat   = input$demStats
+        metric = input$demSelect
+    } else if(grepl('characteristics', input$Ind_sel)) {
         stat   = input$demStats
         metric = input$demSelect
     } else if(input$Ind_sel == 'Impacts') {
-        stat = input$impactStats
+        stat   = input$impactStats
         metric = input$impactSelect
     } else if(input$Ind_sel == 'Economic') {
         stat   = input$econStats
@@ -97,8 +87,8 @@ metricstatselections <- reactive({
         metric = input$costSelect
     } else if(input$Ind_sel == 'Other') {
         if(any(input$otherSelect %in% c(
-            'Gini coefficient', 
-            'Share of landings by state', 
+            'Gini coefficient',
+            'Share of landings by state',
             'Seasonality'))) {
             stat   = ''
             metric = input$otherSelect
@@ -110,15 +100,15 @@ metricstatselections <- reactive({
         stat   = ''
         metric = ''
     }
-    
+
     return(list(stat = stat, metric = metric))
 })
 
 
 akselections <- reactive({
     if(input$Sect_sel == 'CV') {
-        if(any(metricstatselections()$metric %in% c('Revenue diversification', 
-            'Proportion of ex-vessel revenue from CS fishery', 
+        if(any(metricstatselections()$metric %in% c('Revenue diversification',
+            'Proportion of ex-vessel revenue from CS fishery',
             'Number of fisheries'))) {
             if(!input$LayoutSelect) {
                 return(ifelse(input$FishAkSelect == TRUE, 'YES', 'NO'))
@@ -129,7 +119,9 @@ akselections <- reactive({
 
 # choose the list of categories
 csselections <- reactive({ 
-    if(input$CategorySelect != "Fisheries") {
+    if(is.null(input$CategorySelect)) {
+        return('')
+    } else if(input$CategorySelect != "Fisheries") {
         return(input$inSelect)
     } else return('')
 })
@@ -137,13 +129,13 @@ csselections <- reactive({
 # Create deflators
 
 defladj <- reactive({
-    
+
     gdp <- gdpMain()
     gdp$YEAR <- as.character(gdp$YEAR)
     gdp$DEFL <- gdp$DEFL/gdp$DEFL[gdp$YEAR == input$deflYearselect]
-    
+
     return(gdp)
-    
+
 })
 
 # DatSubTable: HUGE reactive for subsetting for data table####
@@ -152,30 +144,33 @@ defladj <- reactive({
 # build dcast formula using if controls and using the quoted method in dcast
 DatSubRaw <- reactive({
     dat <- DatMain()
-    
+    if(is.null(input$YearSelect[1])) start_yr <- 2009 else start_yr <- input$YearSelect[1]
+    if(is.null(input$YearSelect[2])) end_yr <- 2022 else end_yr <- input$YearSelect[2]
     # data filter differs whether it is CV/FR module or CP/MS module
     if (input$Sect_sel == "CV" | input$Sect_sel == "FR") {
-        datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1) &
-                CATEGORY == input$CategorySelect &
-                VARIABLE %in% input$VariableSelect &
-                whitingv %in% input$FishWhitingSelect]
-        if(metricstatselections()$metric == 'Number of processors') {
-            datSubforSector <- datSubforSector %>%
-                select(-`Total number of processors`)
-        } else {
-            datSubforSector <- datSubforSector
-        }} else {
-            datSubforSector <- dat[YEAR %in% seq(input$YearSelect[1], input$YearSelect[2], 1)]
-        }
-    
+        datSubforSector <- dat[YEAR %in% seq(start_yr, end_yr, 1) &
+            CATEGORY == input$CategorySelect &
+            VARIABLE %in% input$VariableSelect &
+            whitingv %in% input$FishWhitingSelect]
+
+        if ("Number of processors" %in% metricstatselections()$metric) {
+            datSubforSector <- select(datSubforSector, -`Total number of processors`)
+        } 
+    } else {
+        datSubforSector <- dat[YEAR %in% seq(start_yr, end_yr, 1)]
+    }
+     #   if(length(metricstatselections()$metric) > 1) browser()
     datSubMetric <- datSubforSector[METRIC %in% metricstatselections()$metric]
-    
+
     # subset the sector specific data according to all of the fisheye toggles
     datSub.int <- datSubMetric[STAT %in% metricstatselections()$stat &
             inclAK %in% akselections() &
             CS     %in% csselections()]
 
-    if(input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
+    if(is.null(input$Ind_sel)) {
+        return(datSub.int)
+        
+    } else if(input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
         
         datSub <- left_join(datSub.int, defladj(), by = 'YEAR') %>%
             mutate(
@@ -183,46 +178,46 @@ DatSubRaw <- reactive({
                 VARIANCE = ifelse(grepl('DEFLYR', ylab), VARIANCE/DEFL, VARIANCE),
                 q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
                 q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75))
+                
         datSub[,ylab := gsub("DEFLYR", input$deflYearselect, ylab)]
         datSub[,DEFL := NULL]
-        
+
         return(datSub)
-    
+
     } else {
-        
+
         return(datSub.int)
 
     }
-    
+
 })
 
 # Format the data for the view data tab
 DatSubTable <- reactive({
-    
+
     datSub <- DatSubRaw()
-    
+
     # table formatting for the data view tab
-    
+
     datSub$sort <- 1:nrow(datSub)
-    
+
     tabformatfun <- function(x) {
         rounding <- case_when(
             any(datSub$METRIC %in% c('Number of vessels', 'Number of processors')) ~ 0,
-            any(datSub$VALUE < 1) ~ 2, 
+            any(datSub$VALUE < 1) ~ 2,
             all(datSub$unit == '') ~ 1, T ~ 0)
         dollar   <- ifelse(grepl('$', datSub$ylab, fixed = T), '$', '')
-        
+
         val = formatC(x, format = 'f', dig = rounding, big.mark = ',')
-        
+
         return(val)
     }
- 
+
     datSub$VALUE <-    tabformatfun(datSub$VALUE)
     datSub$VARIANCE <- tabformatfun(datSub$VARIANCE)
     datSub$q25 <-      tabformatfun(datSub$q25)
     datSub$q75 <-      tabformatfun(datSub$q75)
     datSub$DEFLYR <-   ifelse(!any(names(input) == 'deflYearselect'), NA_character_, input$deflYearselect)
-#browser()
 
     Ntitle <- ifelse(input$Sect_sel == "FR", 'Number of responses', 'Number of vessels')
     valuetitle <- ifelse(any(datSub$STAT == ''), 'Value', as.character(unique(datSub$STAT)))
@@ -231,7 +226,7 @@ DatSubTable <- reactive({
             'Standard deviation'))
     typetitle <- ifelse(input$Sect_sel == "FR", 'Processor type', 'Vessel type')
 
-    # rename the columns 
+    # rename the columns
     datSub <-
         rename(datSub,
             Year                          = YEAR,
@@ -241,33 +236,35 @@ DatSubTable <- reactive({
             !!quo_name(vartitle)         := VARIANCE,
             `Quartile: 25th`              = q25,
             `Quartile: 75th`              = q75,
-            `Summary variable`            = VARIABLE,  
-            !!quo_name(typetitle)        := whitingv,  
-            `Alaskan activities included` = inclAK, 
+            `Summary variable`            = VARIABLE,
+            !!quo_name(typetitle)        := whitingv,
+            `Alaskan activities included` = inclAK,
             `Delivery location` = AGID,
             !!quo_name(Ntitle) := N)
-    
-    
+
+
     # need to redesign the fishak column and then this will work
     if(all(metricstatselections()$metric %in% c('Number of vessels', 'Number of processors'))) sometimesexclude = 'Total' else sometimesexclude = NULL
-    
-    alwaysexclude <- c('metric_flag', 'conf', 'flag', 'unit', 'ylab', 'sort', 'CATEGORY', 'STAT', 'upper', 
+
+    alwaysexclude <- c('metric_flag', 'conf', 'flag', 'unit', 'ylab', 'sort', 'CATEGORY', 'STAT', 'upper',
         'lower', sometimesexclude)
-    datSub <- select(datSub, colnames(datSub)[apply(datSub, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )], 
+    datSub <- select(datSub, colnames(datSub)[apply(datSub, 2, function(x) sum(x != '' & x != ' NA' & !is.na(x) & x != 'NA') > 0 )],
         -all_of(alwaysexclude))
 
     return(datSub)
-    
+
 })
 
 # DatSub: subsets the data ####
 DatSub <- reactive({
-    
-    datSub <- DatSubRaw()
-    
+
+    datSub <- copy(DatSubRaw())
+
     # SORT ####
     # we need this because "sort" is used for facetting and the facetting depends on what has been selected in sidebar
-    if (!input$LayoutSelect) {
+    if(is.null(input$LayoutSelect)) {
+        # nothing
+    } else if (!input$LayoutSelect) {
         if (input$Ind_sel == 'Other' &&
                 input$otherSelect == 'Share of landings by state') {
             datSub[, sort := as.character(AGID)]
@@ -288,11 +285,11 @@ DatSub <- reactive({
                         VARIABLE == "All non-catch share fisheries" ~ 11,
                         VARIABLE == "Other fisheries" ~ 12,
                         VARIABLE == "Crab" ~ 13,
-                        VARIABLE == "Shrimp" ~ 14,  
+                        VARIABLE == "Shrimp" ~ 14,
                         T ~ 15)]
-                    
+
                 } else if (input$CategorySelect == "Homeport") {
-                    
+
                     datSub[, sort := case_when(
                         VARIABLE == "Puget Sound" ~ 1,
                         VARIABLE == "South and central WA coast" ~ 2,
@@ -304,7 +301,7 @@ DatSub <- reactive({
                         VARIABLE == "Crescent City" ~ 8,
                         VARIABLE == "Eureka" ~ 9,
                         VARIABLE == "Fort Bragg" ~ 10,
-                        VARIABLE == "San Francisco" ~ 11, 
+                        VARIABLE == "San Francisco" ~ 11,
                         T ~ 12)]
                 } else {
                     datSub[, sort := VARIABLE]
@@ -344,9 +341,9 @@ DatSub <- reactive({
         }
     }
     # end SORT ####
-    
+
     return(datSub)
-    
+
 })
 
 PermitPlot <- reactive({
@@ -364,7 +361,7 @@ PermitPlot <- reactive({
     } else
         x <- FALSE
     x
-    
+
 })
 
 #Download buttons only shows up if PermitPlot()==T

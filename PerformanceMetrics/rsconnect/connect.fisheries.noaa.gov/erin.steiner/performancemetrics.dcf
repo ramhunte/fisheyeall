@@ -4,10 +4,9 @@ username: erin.steiner
 account: erin.steiner
 server: connect.fisheries.noaa.gov
 hostUrl: https://connect.fisheries.noaa.gov/__api__
-appId: 83
-bundleId: 734
-url: https://connect.fisheries.noaa.gov/content/39fb9a59-d40d-4027-abe3-a6172c3890d9/
-when: 1683240311.45588
-lastSyncTime: 1683240311.45589
+appId: 281
+bundleId: 1414
+url: https://connect.fisheries.noaa.gov/WestCoastCatchShares/
+version: 1
 asMultiple: FALSE
 asStatic: FALSE

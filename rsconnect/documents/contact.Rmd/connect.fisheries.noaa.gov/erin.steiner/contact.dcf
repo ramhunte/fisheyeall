@@ -1,0 +1,12 @@
+name: contact
+title: contact
+username: erin.steiner
+account: erin.steiner
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 291
+bundleId: 1333
+url: https://connect.fisheries.noaa.gov/content/46d474e1-9ed3-4366-a38f-b8e8149dfa32/
+version: 1
+asMultiple: FALSE
+asStatic: TRUE

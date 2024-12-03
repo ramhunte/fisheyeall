@@ -91,9 +91,11 @@ shinyServer(function(input, output, session) {
   output$deflYearselect <- renderUI({
     selectInput("deflYearselect", 
                 label = "GDP Deflator Year:",
-                choices = c("2021" = 2021,
-                                 "2020" = 2020,
-                                 "2019" = 2019))
+                choices = c(
+                  "2022" = 2022,
+                  "2021" = 2021,
+                  "2020" = 2020,
+                  "2019" = 2019))
   })
   
   
@@ -123,9 +125,11 @@ shinyServer(function(input, output, session) {
   output$deflYear2select <- renderUI({
     selectInput("deflYear2select", 
                 label = "GDP Deflator Year:",
-                choices = c("2021" = 2021,
-                            "2020" = 2020,
-                            "2019" = 2019))
+                choices = c(
+                  "2022" = 2022,
+                  "2021" = 2021,
+                  "2020" = 2020,
+                  "2019" = 2019))
   })
   
   
@@ -198,19 +202,8 @@ shinyServer(function(input, output, session) {
   })
   
 
-  # defladj <- reactive({
-  # 
-  #   gdp <- gdp_defl
-  #   gdp$Year <- gdp$YEAR
-  #   gdp$DEFL <- gdp$DEFL/gdp$DEFL[gdp$YEAR == input$deflYearselect]
-  # 
-  #   return(gdp)
-  # 
-  # })
-
-  
   filtered <- reactive({
-    
+
     if(input$tab_type == "Summary") {
       
       gdp_defl$Year <- gdp_defl$YEAR
@@ -452,7 +445,8 @@ shinyServer(function(input, output, session) {
                         fill = Sector), alpha = .25) +
         facet_wrap(~ylab, scales = 'free_y', ncol = 2) +
         labs(y = input$statInput) +
-        scale_x_continuous(breaks= pretty_breaks())
+        scale_x_continuous(breaks= pretty_breaks()) +
+        expand_limits(y = 0)
   }, height = 800, width = 1100)
   
   

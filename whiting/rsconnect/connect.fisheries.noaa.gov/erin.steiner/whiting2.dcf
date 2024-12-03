@@ -1,0 +1,12 @@
+name: whiting2
+title: whiting
+username: erin.steiner
+account: erin.steiner
+server: connect.fisheries.noaa.gov
+hostUrl: https://connect.fisheries.noaa.gov/__api__
+appId: 276
+bundleId: 1332
+url: https://connect.fisheries.noaa.gov/Whiting/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
