@@ -1,7 +1,7 @@
 # Variables needed for selectors (Excludes metrics which are listed in metric_names file to allow creation of the html links)
 
-currentyear <- 2021
-currentyearFR <- 2021
+currentyear <- 2023
+currentyearFR <- 2022
 nrcomponents <- c('Revenue', 'Variable costs', 'Fixed costs', 'Variable cost net revenue', 'Total cost net revenue')
 
 # CV 

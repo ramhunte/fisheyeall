@@ -227,7 +227,7 @@ other_cv <- data.frame(
     "Annual fuel use",
     "Speed while fishing",
     "Gini coefficient", 
-    "Share of landings by state",
+    # "Share of landings by state",
     "Seasonality"
   ),
   metric_link = c(
@@ -238,7 +238,7 @@ other_cv <- data.frame(
     "<a href = 'pmtechmemo.html#otherfuel' target = '_blank'>Annual fuel use</a>",
     "<a href = 'pmtechmemo.html#otherspeed' target = '_blank'>Speed while fishing</a>",
     "<a href = 'pmtechmemo.html#othergini' target = '_blank'>Gini coefficient</a>",
-    "<a href = 'pmtechmemo.html#othersharelandings' target = '_blank'>Share of landings by state</a>",
+    # "<a href = 'pmtechmemo.html#othersharelandings' target = '_blank'>Share of landings by state</a>",
     "<a href = 'pmtechmemo.html#otherseasonality' target = '_blank'>Seasonality</a>")
 )
 other_cv_layout <- data.frame(
