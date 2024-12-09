@@ -693,7 +693,7 @@ output$deflYearselect <- renderUI({
     defl_select <- selectInput("deflYearselect", "GDP Deflator Year:",
         c("2023" = 2023, 
           "2022" = 2022,
-            "2021" = 2021))
+          "2021" = 2021))
     
      if (input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
         defl_select

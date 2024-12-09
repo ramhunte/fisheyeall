@@ -143,9 +143,10 @@ defladj <- reactive({
 # selecting plot variables, subsetting the data AND casting for individual level ID (fun.agg=sum)
 # build dcast formula using if controls and using the quoted method in dcast
 DatSubRaw <- reactive({
+
     dat <- DatMain()
     if(is.null(input$YearSelect[1])) start_yr <- 2009 else start_yr <- input$YearSelect[1]
-    if(is.null(input$YearSelect[2])) end_yr <- 2022 else end_yr <- input$YearSelect[2]
+    if(is.null(input$YearSelect[2])) end_yr <- currentyear else end_yr <- input$YearSelect[2]
     # data filter differs whether it is CV/FR module or CP/MS module
     if (input$Sect_sel == "CV" | input$Sect_sel == "FR") {
         datSubforSector <- dat[YEAR %in% seq(start_yr, end_yr, 1) &
