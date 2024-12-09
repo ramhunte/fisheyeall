@@ -92,6 +92,7 @@ shinyServer(function(input, output, session) {
     selectInput("deflYearselect", 
                 label = "GDP Deflator Year:",
                 choices = c(
+                  "2023" = 2023,
                   "2022" = 2022,
                   "2021" = 2021,
                   "2020" = 2020,
@@ -126,6 +127,7 @@ shinyServer(function(input, output, session) {
     selectInput("deflYear2select", 
                 label = "GDP Deflator Year:",
                 choices = c(
+                  "2023" = 2023,
                   "2022" = 2022,
                   "2021" = 2021,
                   "2020" = 2020,
