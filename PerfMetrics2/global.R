@@ -1,2 +1,0 @@
-enableBookmarking(store="url")
-
