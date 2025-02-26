@@ -118,7 +118,7 @@ akselections <- reactive({
 })
 
 # choose the list of categories
-csselections <- reactive({ 
+csselections <- reactive({
     if(is.null(input$CategorySelect)) {
         return('')
     } else if(input$CategorySelect != "Fisheries") {
@@ -156,30 +156,30 @@ DatSubRaw <- reactive({
 
         if ("Number of processors" %in% metricstatselections()$metric) {
             datSubforSector <- select(datSubforSector, -`Total number of processors`)
-        } 
+        }
     } else {
         datSubforSector <- dat[YEAR %in% seq(start_yr, end_yr, 1)]
     }
-     #   if(length(metricstatselections()$metric) > 1) browser()
+
     datSubMetric <- datSubforSector[METRIC %in% metricstatselections()$metric]
 
     # subset the sector specific data according to all of the fisheye toggles
     datSub.int <- datSubMetric[STAT %in% metricstatselections()$stat &
-            inclAK %in% akselections() &
+
             CS     %in% csselections()]
 
     if(is.null(input$Ind_sel)) {
         return(datSub.int)
-        
+
     } else if(input$Ind_sel %in% c('Labor', 'Cost', 'Impacts', 'Economic')) {
-        
+
         datSub <- left_join(datSub.int, defladj(), by = 'YEAR') %>%
             mutate(
                 VALUE = ifelse(grepl('DEFLYR', ylab), VALUE/DEFL, VALUE),
                 VARIANCE = ifelse(grepl('DEFLYR', ylab), VARIANCE/DEFL, VARIANCE),
                 q25 = ifelse(grepl('DEFLYR', ylab), q25/DEFL, q25),
                 q75 = ifelse(grepl('DEFLYR', ylab), q75/DEFL, q75))
-                
+
         datSub[,ylab := gsub("DEFLYR", input$deflYearselect, ylab)]
         datSub[,DEFL := NULL]
 
