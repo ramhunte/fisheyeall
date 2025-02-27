@@ -3,7 +3,7 @@ dir("R:/Confidential/FISHEyE/data/PerformanceMetrics")
 
 # Copy files over for Performance Metrics
 # Note from 6/25/2024 - I only copied over the CP data file
-perfmetricsdir <- "R:/Confidential/FISHEyE/data/PerformanceMetrics/2025-02-26"
+perfmetricsdir <- "R:/Confidential/FISHEyE/data/PerformanceMetrics/2025-02-27"
 #perfmetricsfiles <- list.files(perfmetricsdir)[grepl('RData', list.files(perfmetricsdir))]
 
 perfmetricsfiles <- list.files(perfmetricsdir)[grepl('perfmetrics.rds', list.files(perfmetricsdir))]

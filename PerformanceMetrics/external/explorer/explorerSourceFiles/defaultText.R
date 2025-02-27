@@ -34,9 +34,9 @@ output$Email <- renderUI({
              "Northwest Fisheries Science Center", br(),br(),
              #                    "nwfsc.fisheye@noaa.gov",
 
-             "Ashley Vizek", br(),
-             "Contractor-ECS Federal, Inc.", br(),
-             "In support of NMFS", br(),
+             "Amanda Phillips", br(),
+             "Natural Resource Management Specialist.", br(),
+             "206-861-1249", br(),
              "Northwest Fisheries Science Center", br(),
              #                    "nwfsc.fisheye@noaa.gov", tags$br(),
              br(),
