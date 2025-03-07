@@ -21,7 +21,8 @@ dem_cv <- data.frame(
     "Vessel horsepower",
     "Vessel fuel capacity",
     "Number of fisheries", 
-    "Proportion of ex-vessel revenue from CS fishery", 
+    "Proportion of total ex-vessel revenue from CS fishery", 
+    "Proportion of WC ex-vessel revenue from CS fishery",
     "Revenue diversification"
   ),
   metric_link = c(
@@ -32,7 +33,8 @@ dem_cv <- data.frame(
     "<a href = 'pmtechmemo.html#descattributes' target = '_blank'>Vessel horsepower</a>",
     "<a href = 'pmtechmemo.html#descattributes' target = '_blank'>Vessel fuel capacity</a>",
     "<a href = 'pmtechmemo.html#descfisheries' target = '_blank'>Number of fisheries</a>",
-    "<a href = 'pmtechmemo.html#desccsrevenue' target = '_blank'>Proportion of ex-vessel revenue from catch share fishery</a>",
+    "<a href = 'pmtechmemo.html#desccsrevenue' target = '_blank'>Proportion of total ex-vessel revenue from CS fishery</a>",
+    "<a href = 'pmtechmemo.html#desccsrevenue' target = '_blank'>Proportion of WC ex-vessel revenue from CS fishery</a>",
     "<a href = 'pmtechmemo.html#descdiversity' target = '_blank'>Revenue diversification</a>"
     )
 )
