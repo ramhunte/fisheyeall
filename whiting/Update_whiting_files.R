@@ -1,4 +1,4 @@
-
+library(here)
 
 # Display list of available date stamp folders for whiting
 dir("R:/Confidential/FISHEyE/data/Whiting")
@@ -17,7 +17,7 @@ for(wfiles in whitingfiles) {
 
     file.copy(
         from = file.path(whitingdir, whitingfiles),
-        to = "./whiting",
+        to = here("whiting"),
         overwrite = T)
 
 }
