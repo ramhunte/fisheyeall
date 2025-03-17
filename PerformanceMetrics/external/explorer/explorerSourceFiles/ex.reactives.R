@@ -239,7 +239,7 @@ DatSubTable <- reactive({
             `Quartile: 75th`              = q75,
             `Summary variable`            = VARIABLE,
             !!quo_name(typetitle)        := whitingv,
-            `Alaskan activities included` = inclAK,
+            #`Alaskan activities included` = inclAK,
             `Delivery location` = AGID,
             !!quo_name(Ntitle) := N)
 

@@ -139,7 +139,8 @@
         <p><b>Purpose:</b>
             The Number of fisheries metric, as well as Revenue diversification (described below), may be used to track trends in fishery participation. See Number of species 
             processed and Number of species sold for the processor equivalent of this metric. This metric is not calculated for the mothership and catcher–processor sectors, 
-            as whiting is the only fishery these sectors participate in on the U.S. West Coast.
+            as whiting is the only fishery these sectors participate in on the U.S. West Coast. Note as of 2025-03-07: Alaska fisheries participation is counted as one 
+            additional fishery for the purposes of this metric.
         </p>
     <p><b>Data:</b>
         Ex-vessel revenue is obtained from EDC data; fish tickets are maintained by PacFIN. The EDC Program categorizes trips by fishery (see Fishery and Production Activity Designations).
@@ -153,7 +154,7 @@
         endorsement, the number of fisheries would still be two.
     </p>
     <p><b>Fisheye:</b>
-        If the Include Alaska button is toggled on, then participation in fisheries in Alaska is counted as one additional fishery for each vessel that fishes in Alaska.
+        Note as of 2025-03-07: The Alaska toggle button was removed, Alaska participation is now included by default in this statistic.
     </p>
     </div>
 
@@ -163,7 +164,8 @@
         <p><b>Purpose:</b>
             This metric provides similar information to the Number of fisheries metric described above, but it also takes into account how much the vessel participates in each 
             fishery or how much each species contributes to the total production value for the processor. This metric is not calculated for the mothership and catcher–processor sectors, 
-            as whiting is the only fishery these sectors participate in on the U.S. West Coast.
+            as whiting is the only fishery these sectors participate in on the U.S. West Coast. Note as of 2025-03-07: Alaska fisheries participation is counted as one 
+            additional fishery for the purposes of this metric.
         </p>
         <p><b>Data:</b>
             For catcher vessels, ex-vessel revenue is aggregated to the vessel–fishery–year level from fish tickets and EDC forms. For processors, species- (or species group-)level 
@@ -188,15 +190,13 @@
             the number of fisheries, then the operations rely evenly on all of the fisheries.
         </p>
         <p><b>Fisheye:</b>
-            An annual ESI is calculated for each vessel or processor. The filters only determine which vessels/processors are included in the statistic—not which parts of their operations 
-            (except for the Include Alaska button, which recalculates the ESI to include Alaska fisheries in the calculation). For the purposes of Fisheye, all Alaska participation is 
-            treated as one fishery.
-        </p>
+            An annual ESI is calculated for each vessel or processor. The filters only determine which vessels/processors are included in the statistic—not which parts of their operations. 
+            Note as of 2025-03-07: The Alaska toggle button was removed, Alaska participation is now included by default in this statistic.
     </div>
 
     <a href = "#desccsrevenue"></a>
     <div id = "desccsrevenue">
-        <h2>Proportion of ex-vessel revenue (or landings) from catch share fishery</h2>
+        <h2>Proportion of total ex-vessel revenue (or landings) from catch share fishery</h2>
         <p><b>Purpose:</b>
             Catch share management was expected to lead to increased fishery specialization. The Proportion of ex-vessel revenue (or landings) from the catch share fishery metric monitors vessel 
             revenue (or landings weight) from catch shares relative to other fisheries, and may indicate specialization (or lack thereof). Proportion of ex-vessel revenue is reported for catcher 
@@ -208,19 +208,45 @@
         </p>
         <p><b>Methods:</b>
             This metric is calculated using landings weight (catcher–processors, motherships) and ex-vessel revenue (catcher vessels). Revenue or landings weight from the catch share fishery are 
-            compared to the vessel’s total revenue or catch/purchase weight, and summarized as vessel averages (mean and median; Equation 2); total is not calculated for this metric.
+            compared to the vessel’s total revenue or catch/purchase weight, and summarized as vessel averages (mean and median; Equation 2).
         </p>
         <p>
-            $$Proportion_{cs} = {R_{cs} \over R_{cs} + R_{other}}$$
+            $$Proportion_{cs} = {R_{cs} \over R_{cs} + R_{other} + R_{ak}}$$
         </p>
         <p><b>Caveats:</b>
         None.
     </p>
     <p><b>Fisheye:</b>
-        If the Include Alaska button is toggled on, then revenue from fishing in Alaska is included in the denominator for the calculation. The proportion is always 1 for catcher–processors and 
-        motherships if the Include Alaska button is toggled off, because those vessels only fish in one fishery on the U.S. West Coast.
+        Note as of 2025-03-07: The Alaska toggle button was removed, Alaska is included in the denominator for the calculation. See "Proportion of WC ex-vessel revenue from catch share fishery" 
+        for this statistic without Alaska revenue. 
     </p>
     </div>
+
+    <h2>Proportion of WC ex-vessel revenue (or landings) from catch share fishery</h2>
+    <p><b>Purpose:</b>
+        Catch share management was expected to lead to increased fishery specialization. The Proportion of ex-vessel revenue (or landings) from the catch share fishery metric monitors vessel 
+        revenue (or landings weight) from catch shares relative to other fisheries, and may indicate specialization (or lack thereof). Proportion of ex-vessel revenue is reported for catcher 
+        vessels; proportion of landings is reported for the mothership and catcher–processor sectors.
+    </p>
+    <p><b>Data:</b>
+        Ex-vessel revenue and landings weight are obtained from fish tickets maintained by PacFIN. The EDC forms require motherships and catcher–processors to report landings weight on the U.S. 
+        West Coast and Alaska.
+    </p>
+    <p><b>Methods:</b>
+        This metric is calculated using landings weight (catcher–processors, motherships) and ex-vessel revenue (catcher vessels). Revenue or landings weight from the catch share fishery are 
+        compared to the vessel’s total revenue or catch/purchase weight, and summarized as vessel averages (mean and median; Equation 2).
+    </p>
+    <p>
+        $$Proportion_{cs} = {R_{cs} \over R_{cs} + R_{other}}$$
+    </p>
+    <p><b>Caveats:</b>
+    None.
+</p>
+<p><b>Fisheye:</b>
+    Note as of 2025-03-07: The Alaska toggle button was removed, Alaska is not included in the denominator for the calculation. See "Proportion of total ex-vessel revenue from catch share fishery"
+        for this statistic with Alaska revenue.
+</p>
+</div>
 
     <a href = "#descprocessed"></a>
     <div id = "descprocessed">

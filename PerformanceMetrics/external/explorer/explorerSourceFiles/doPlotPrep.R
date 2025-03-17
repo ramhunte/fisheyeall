@@ -162,7 +162,7 @@ doPlotPrep <- reactive({
       # confidentiality messages ####
       supp_obs <- function() {
         "\n
-      \nData have been suppressed for som tears years because there are not enough observations to protect confidentiality. \nPlease see the About tab for more information."
+      \nData have been suppressed for some years because there are not enough observations to protect confidentiality. \nPlease see the About tab for more information."
       }
       
       
