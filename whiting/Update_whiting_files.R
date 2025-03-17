@@ -12,7 +12,7 @@ for(wfiles in whitingfiles) {
 
     file.copy(
         from = file.path(whitingdir, whitingfiles),
-        to = "../Whiting",
+        to  = here::here("whiting"),
         overwrite = T)
 
 }
