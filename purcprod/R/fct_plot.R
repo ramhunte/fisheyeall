@@ -213,8 +213,10 @@ process_df <- function(df, cs) {
            . == "variable" ~ "Variable",
            . == "metric" ~ "Metric",
            T ~ .)) |>
-   mutate(Year = as.character(Year)) |>
+   dplyr::mutate(Year = as.character(Year)) |>
    dplyr::mutate(across(!contains('processor'), function(x) ifelse(x > 100, formatC(x, big.mark = ',', format = 'f', digits = 0), formatC(x, format = 'f', digits = 2)))) |>
-   arrange(desc(Year))
+   dplyr::arrange(desc(Year)) |>
+   dplyr::mutate(across(contains('value'), function(x) paste0('$', x))) |>
+   dplyr::mutate(across(contains('price'), function(x) paste0('$', x)))
   
 }
