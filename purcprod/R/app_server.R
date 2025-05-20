@@ -78,7 +78,7 @@ app_server <- function(input, output, session) {
             c(other_tabs_inputs()$prodac, other_tabs_inputs()$osps)
         ) |>
         dplyr::mutate(
-          # adjusting price realted cols for deflation value
+          # adjusting price related cols for deflation value
           value = dplyr::case_when(
             .data$metric %in%
               c(
@@ -177,7 +177,7 @@ app_server <- function(input, output, session) {
               c(other_tabs_inputs()$prodac, other_tabs_inputs()$osps)
           ) |>
           dplyr::mutate(
-            # adjusting price realted cols for deflation value
+            # adjusting price related cols for deflation value
             value = dplyr::case_when(
               .data$metric %in%
                 c(
@@ -239,7 +239,7 @@ app_server <- function(input, output, session) {
             .data$cs %in% other_tabs_inputs()$pracs2
           ) |>
           dplyr::mutate(
-            # adjusting price realted cols for deflation value
+            # adjusting price related cols for deflation value
             value = dplyr::case_when(
               .data$metric %in%
                 c(
@@ -275,7 +275,7 @@ app_server <- function(input, output, session) {
           .data$type %in% specs_tabs_inputs()$prodtype
         ) |>
         dplyr::mutate(
-          # adjusting price realted cols for deflation value
+          # adjusting price related cols for deflation value
           value = dplyr::case_when(
             .data$metric %in%
               c(
@@ -367,7 +367,7 @@ app_server <- function(input, output, session) {
       paste("purchprod", input$tab_top, "data.csv", sep = "_") # title for csv
     },
     content = function(file) {
-      # conditional table render tdepnding on tab_top selection
+      # conditional table render depending on tab_top selection
       if (input$tab_top == "Summary") {
         utils::write.csv(sum_plot_df(), file)
       } else if (input$tab_top == "By Product Type") {

@@ -122,8 +122,8 @@ development.
 ├── README.Rmd
 ├── README.md
 ├── data-raw # contains data processing script and raw data (for development only)
-│   ├── data_processing.R
-│   └── mini_purcprod.RDS
+│   ├── data_processing.R 
+│   └── mini_purcprod.RDS # should this be mini_purcprod_targ.RDS?
 ├── dev # development scripts to set up, build, and deploy the app (made by {golem})
 │   ├── 01_start.R
 │   ├── 02_dev.R
