@@ -188,20 +188,33 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
 ############################## Data Table render processing ##################################
 
 # function for cleaning up data frame to be rendered under the "Table" panel of "Explore the Data" page
-process_df <- function(df) {
+process_df <- function(df, cs) {
   # list of columns to remove that are not needed
-  cols_to_remove <- c("ylab", "tab", "unit_lab")
+  cols_to_remove <- c("statistic", "ylab", "tab", "unit_lab", "defl", "variance", "q25", "q75", "upper", "lower", "cs", "category")
 
-  df |>
+ df |>
     # remove cols if they exist
     dplyr::select(-dplyr::any_of(cols_to_remove)) |> # remove cols if they exist
+    dplyr::mutate(metric = ifelse(
+      grepl('weight', metric) | grepl('value', metric), paste0('Total ', metric), metric)) |>
     # round numbers
     dplyr::mutate(
-      variance = round(.data[["variance"]], 2),
-      q25 = round(.data[["q25"]], 2),
-      q75 = round(.data[["q75"]], 2),
-      value = round(.data[["value"]], 2),
-      lower = round(.data[["lower"]], 2),
-      upper = round(.data[["upper"]], 2)
-    )
+      value = dplyr::case_when(
+        unit == 'millions'  ~ round(value*1e6),
+        unit == 'thousands' ~ round(value*1e3),
+        T ~ round(value, 2)),
+      .keep = 'unused') |>
+    tidyr::pivot_wider(names_from = 'metric', values_from = 'value') |>
+    dplyr::rename_with(~ dplyr::case_when(
+           . == "year" ~ "Year",
+           . == "n" ~ "Number of processors",
+           . == "value" ~ "Value",
+           . == "type" ~ "Product type",
+           . == "variable" ~ "Variable",
+           . == "metric" ~ "Metric",
+           T ~ .)) |>
+   mutate(Year = as.character(Year)) |>
+   dplyr::mutate(across(!contains('processor'), function(x) ifelse(x > 100, formatC(x, big.mark = ',', format = 'f', digits = 0), formatC(x, format = 'f', digits = 2)))) |>
+   arrange(desc(Year))
+  
 }
