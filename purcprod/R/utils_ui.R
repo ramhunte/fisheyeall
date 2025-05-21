@@ -41,7 +41,7 @@ year_range_func <- function(inputID, label, min, max, value) {
 metric_func1 <- function(inputID) {
   checkboxGroupInput(
     inputId = inputID,
-    label = "Metric",
+    label = strong(em("Metric")),
     choices = c(
       "Markup",
       "Production price (per lb)",
@@ -64,15 +64,15 @@ metric_func1 <- function(inputID) {
 
 # creates a select dropdown option for metric to choose from (less options than metric_func1)
 metric_func2 <- function(inputID) {
-  selectInput(
+  radioButtons(
     inputId = inputID,
-    label = "Select a metric",
+    label = strong(em("Select a metric")),
     choices = c(
       'Production value',
       'Production weight',
       'Production price (per lb)'
     ),
-    selectize = F
+    selected = "Production value"
   )
 }
 
@@ -90,7 +90,7 @@ stat_func <- function(inputID) {
 prodtype_func <- function(inputID, label) {
   checkboxGroupInput(
     inputId = inputID,
-    label = label,
+    label = strong(em(label)),
     choices = c(
       "Canned",
       "Fillet",
@@ -105,11 +105,7 @@ prodtype_func <- function(inputID, label) {
       "Canned",
       "Fillet",
       "Fresh",
-      "Frozen",
-      "Headed-and-gutted",
-      "Other",
-      "Unprocessed",
-      "Smoked"
+      "Frozen"
     )
   )
 }
@@ -118,7 +114,7 @@ prodtype_func <- function(inputID, label) {
 specs_func <- function(inputID, label) {
   checkboxGroupInput(
     inputId = inputID,
-    label = label,
+    label = strong(em(label)),
     choices = c(
       "All production",
       "Groundfish production",
@@ -186,7 +182,7 @@ reg_func <- function(inputID) {
 pracs_func <- function(inputID) {
   radioButtons(
     inputId = inputID,
-    label = "Production activities",
+    label = strong(em("Production activities")),
     choices = c(
       'All production',
       'Groundfish production',
@@ -244,7 +240,7 @@ defl_func <- function(
 ) {
   shinyWidgets::pickerInput(
     inputId = inputID,
-    label = label,
+    label = strong(em(label)),
     choices = choices,
     selected = selected,
     options = options,

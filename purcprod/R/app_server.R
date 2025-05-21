@@ -93,24 +93,28 @@ app_server <- function(input, output, session) {
             # for metrics that dont have price involved
             TRUE ~ .data$value
           ),
-          unit_lab = dplyr::if_else(
+          unit_lab = dplyr::case_when(
             .data$metric %in%
-              c("Production weight", "Purchase weight", "Recovery rate"),
-            paste0(
-              .data$metric,
-              ": ",
-              .data$unit,
-              " ",
-              input$deflInput
-            ),
-            paste0(
-              .data$metric,
-              ": ",
-              .data$unit,
-              " ",
-              input$deflInput,
-              " $"
-            )
+              c("Production weight", "Purchase weight") ~
+              paste0(
+                .data$metric,
+                ": ",
+                .data$unit,
+                " lbs"
+              ),
+            .data$metric == "Recovery rate" ~
+              paste0(
+                .data$metric
+              ),
+            TRUE ~
+              paste0(
+                .data$metric,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
           )
         )
     } else if (
@@ -142,24 +146,28 @@ app_server <- function(input, output, session) {
             # for metrics that dont have price involved
             TRUE ~ .data$value
           ),
-          unit_lab = dplyr::if_else(
+          unit_lab = dplyr::case_when(
             .data$metric %in%
-              c("Production weight", "Purchase weight", "Recovery rate"),
-            paste0(
-              .data$metric,
-              ": ",
-              .data$unit,
-              " ",
-              input$deflInput
-            ),
-            paste0(
-              .data$metric,
-              ": ",
-              .data$unit,
-              " ",
-              input$deflInput,
-              " $"
-            )
+              c("Production weight", "Purchase weight") ~
+              paste0(
+                .data$metric,
+                ": ",
+                .data$unit,
+                " lbs"
+              ),
+            .data$metric == "Recovery rate" ~
+              paste0(
+                .data$metric
+              ),
+            TRUE ~
+              paste0(
+                .data$metric,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
           )
         )
     } else if (
@@ -191,24 +199,29 @@ app_server <- function(input, output, session) {
             # for metrics that dont have price involved
             TRUE ~ .data$value
           ),
-          unit_lab = dplyr::if_else(
+
+          unit_lab = dplyr::case_when(
             .data$metric %in%
-              c("Production weight", "Purchase weight", "Recovery rate"),
-            paste0(
-              .data$metric,
-              ": ",
-              .data$unit,
-              " ",
-              input$deflInput
-            ),
-            paste0(
-              .data$metric,
-              ": ",
-              .data$unit,
-              " ",
-              input$deflInput,
-              " $"
-            )
+              c("Production weight", "Purchase weight") ~
+              paste0(
+                .data$metric,
+                ": ",
+                .data$unit,
+                " lbs"
+              ),
+            .data$metric == "Recovery rate" ~
+              paste0(
+                .data$metric
+              ),
+            TRUE ~
+              paste0(
+                .data$metric,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
           )
         )
     }
@@ -249,23 +262,23 @@ app_server <- function(input, output, session) {
               # for metrics that dont have price involved
               TRUE ~ .data$value
             ),
-            unit_lab = dplyr::if_else(
-              .data$metric == "Production weight",
-              paste0(
-                .data$type,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput
-              ),
-              paste0(
-                .data$type,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput,
-                " $"
-              )
+            unit_lab = dplyr::case_when(
+              .data$metric == "Production weight" ~
+                paste0(
+                  .data$type,
+                  ": ",
+                  .data$unit,
+                  " lbs"
+                ),
+              TRUE ~
+                paste0(
+                  .data$type,
+                  ": ",
+                  .data$unit,
+                  " ",
+                  input$deflInput,
+                  " $"
+                )
             )
           )
       } else if (
@@ -298,23 +311,23 @@ app_server <- function(input, output, session) {
               # for metrics that dont have price involved
               TRUE ~ .data$value
             ),
-            unit_lab = dplyr::if_else(
-              .data$metric == "Production weight",
-              paste0(
-                .data$type,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput
-              ),
-              paste0(
-                .data$type,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput,
-                " $"
-              )
+            unit_lab = dplyr::case_when(
+              .data$metric == "Production weight" ~
+                paste0(
+                  .data$type,
+                  ": ",
+                  .data$unit,
+                  " lbs"
+                ),
+              TRUE ~
+                paste0(
+                  .data$type,
+                  ": ",
+                  .data$unit,
+                  " ",
+                  input$deflInput,
+                  " $"
+                )
             )
           )
       } else if (
@@ -347,23 +360,23 @@ app_server <- function(input, output, session) {
               # for metrics that dont have price involved
               TRUE ~ .data$value
             ),
-            unit_lab = dplyr::if_else(
-              .data$metric == "Production weight",
-              paste0(
-                .data$type,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput
-              ),
-              paste0(
-                .data$type,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput,
-                " $"
-              )
+            unit_lab = dplyr::case_when(
+              .data$metric == "Production weight" ~
+                paste0(
+                  .data$type,
+                  ": ",
+                  .data$unit,
+                  " lbs"
+                ),
+              TRUE ~
+                paste0(
+                  .data$type,
+                  ": ",
+                  .data$unit,
+                  " ",
+                  input$deflInput,
+                  " $"
+                )
             )
           )
       }
@@ -399,23 +412,23 @@ app_server <- function(input, output, session) {
                 .data$value * defl_val() / .data$defl,
               TRUE ~ .data$value
             ),
-            unit_lab = dplyr::if_else(
-              .data$metric == "Production weight",
-              paste0(
-                .data$variable,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput
-              ),
-              paste0(
-                .data$variable,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput,
-                " $"
-              )
+            unit_lab = dplyr::case_when(
+              .data$metric == "Production weight" ~
+                paste0(
+                  .data$variable,
+                  ": ",
+                  .data$unit,
+                  " lbs"
+                ),
+              TRUE ~
+                paste0(
+                  .data$variable,
+                  ": ",
+                  .data$unit,
+                  " ",
+                  input$deflInput,
+                  " $"
+                )
             )
           )
       } else if (
@@ -444,23 +457,23 @@ app_server <- function(input, output, session) {
                 .data$value * defl_val() / .data$defl,
               TRUE ~ .data$value
             ),
-            unit_lab = dplyr::if_else(
-              .data$metric == "Production weight",
-              paste0(
-                .data$variable,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput
-              ),
-              paste0(
-                .data$variable,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput,
-                " $"
-              )
+            unit_lab = dplyr::case_when(
+              .data$metric == "Production weight" ~
+                paste0(
+                  .data$variable,
+                  ": ",
+                  .data$unit,
+                  " lbs"
+                ),
+              TRUE ~
+                paste0(
+                  .data$variable,
+                  ": ",
+                  .data$unit,
+                  " ",
+                  input$deflInput,
+                  " $"
+                )
             )
           )
       } else if (
@@ -489,23 +502,23 @@ app_server <- function(input, output, session) {
                 .data$value * defl_val() / .data$defl,
               TRUE ~ .data$value
             ),
-            unit_lab = dplyr::if_else(
-              .data$metric == "Production weight",
-              paste0(
-                .data$variable,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput
-              ),
-              paste0(
-                .data$variable,
-                ": ",
-                .data$unit,
-                " ",
-                input$deflInput,
-                " $"
-              )
+            unit_lab = dplyr::case_when(
+              .data$metric == "Production weight" ~
+                paste0(
+                  .data$variable,
+                  ": ",
+                  .data$unit,
+                  " lbs"
+                ),
+              TRUE ~
+                paste0(
+                  .data$variable,
+                  ": ",
+                  .data$unit,
+                  " ",
+                  input$deflInput,
+                  " $"
+                )
             )
           )
       }
