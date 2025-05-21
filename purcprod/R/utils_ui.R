@@ -69,8 +69,8 @@ metric_func2 <- function(inputID) {
     label = "Select a metric",
     choices = c(
       'Production value',
-      'Production price (per lb)',
-      'Production weight'
+      'Production weight',
+      'Production price (per lb)'
     ),
     selectize = F
   )

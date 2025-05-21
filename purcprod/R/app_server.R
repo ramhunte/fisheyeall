@@ -92,6 +92,25 @@ app_server <- function(input, output, session) {
 
             # for metrics that dont have price involved
             TRUE ~ .data$value
+          ),
+          unit_lab = dplyr::if_else(
+            .data$metric %in%
+              c("Production weight", "Purchase weight", "Recovery rate"),
+            paste0(
+              .data$metric,
+              ": ",
+              .data$unit,
+              " ",
+              input$deflInput
+            ),
+            paste0(
+              .data$metric,
+              ": ",
+              .data$unit,
+              " ",
+              input$deflInput,
+              " $"
+            )
           )
         )
     } else if (
@@ -122,6 +141,25 @@ app_server <- function(input, output, session) {
 
             # for metrics that dont have price involved
             TRUE ~ .data$value
+          ),
+          unit_lab = dplyr::if_else(
+            .data$metric %in%
+              c("Production weight", "Purchase weight", "Recovery rate"),
+            paste0(
+              .data$metric,
+              ": ",
+              .data$unit,
+              " ",
+              input$deflInput
+            ),
+            paste0(
+              .data$metric,
+              ": ",
+              .data$unit,
+              " ",
+              input$deflInput,
+              " $"
+            )
           )
         )
     } else if (
@@ -152,6 +190,25 @@ app_server <- function(input, output, session) {
 
             # for metrics that dont have price involved
             TRUE ~ .data$value
+          ),
+          unit_lab = dplyr::if_else(
+            .data$metric %in%
+              c("Production weight", "Purchase weight", "Recovery rate"),
+            paste0(
+              .data$metric,
+              ": ",
+              .data$unit,
+              " ",
+              input$deflInput
+            ),
+            paste0(
+              .data$metric,
+              ": ",
+              .data$unit,
+              " ",
+              input$deflInput,
+              " $"
+            )
           )
         )
     }
@@ -191,6 +248,24 @@ app_server <- function(input, output, session) {
 
               # for metrics that dont have price involved
               TRUE ~ .data$value
+            ),
+            unit_lab = dplyr::if_else(
+              .data$metric == "Production weight",
+              paste0(
+                .data$type,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput
+              ),
+              paste0(
+                .data$type,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
             )
           )
       } else if (
@@ -222,6 +297,24 @@ app_server <- function(input, output, session) {
 
               # for metrics that dont have price involved
               TRUE ~ .data$value
+            ),
+            unit_lab = dplyr::if_else(
+              .data$metric == "Production weight",
+              paste0(
+                .data$type,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput
+              ),
+              paste0(
+                .data$type,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
             )
           )
       } else if (
@@ -253,6 +346,24 @@ app_server <- function(input, output, session) {
 
               # for metrics that dont have price involved
               TRUE ~ .data$value
+            ),
+            unit_lab = dplyr::if_else(
+              .data$metric == "Production weight",
+              paste0(
+                .data$type,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput
+              ),
+              paste0(
+                .data$type,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
             )
           )
       }
@@ -264,8 +375,6 @@ app_server <- function(input, output, session) {
   ########################### "By Species" tab: reactive data frame #################################
 
   specs_plot_df <- reactive({
-    # req(input$tab_top == "By Species") # Only process if this is the selected tab
-
     if (input$tab_top == "By Species") {
       if (input$tab_specs_bottom == "Product Type") {
         df <- specsdf_protype |>
@@ -290,15 +399,23 @@ app_server <- function(input, output, session) {
                 .data$value * defl_val() / .data$defl,
               TRUE ~ .data$value
             ),
-            unit_lab = paste0(
-              .data$variable,
-              " (",
-              .data$metric,
-              "): ",
-              .data$unit,
-              " ",
-              input$deflInput,
-              " $"
+            unit_lab = dplyr::if_else(
+              .data$metric == "Production weight",
+              paste0(
+                .data$variable,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput
+              ),
+              paste0(
+                .data$variable,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
             )
           )
       } else if (
@@ -327,15 +444,23 @@ app_server <- function(input, output, session) {
                 .data$value * defl_val() / .data$defl,
               TRUE ~ .data$value
             ),
-            unit_lab = paste0(
-              .data$variable,
-              " (",
-              .data$metric,
-              "): ",
-              .data$unit,
-              " ",
-              input$deflInput,
-              " $"
+            unit_lab = dplyr::if_else(
+              .data$metric == "Production weight",
+              paste0(
+                .data$variable,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput
+              ),
+              paste0(
+                .data$variable,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
             )
           )
       } else if (
@@ -364,15 +489,23 @@ app_server <- function(input, output, session) {
                 .data$value * defl_val() / .data$defl,
               TRUE ~ .data$value
             ),
-            unit_lab = paste0(
-              .data$variable,
-              " (",
-              .data$metric,
-              "): ",
-              .data$unit,
-              " ",
-              input$deflInput,
-              " $"
+            unit_lab = dplyr::if_else(
+              .data$metric == "Production weight",
+              paste0(
+                .data$variable,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput
+              ),
+              paste0(
+                .data$variable,
+                ": ",
+                .data$unit,
+                " ",
+                input$deflInput,
+                " $"
+              )
             )
           )
       }
@@ -403,7 +536,7 @@ app_server <- function(input, output, session) {
       plot_func(
         data = prod_plot_df(), # same steps as above for "Summary" ^^
         # lab = prod_type_inputs()$stat,
-        lab = NULL,
+        lab = prod_type_inputs()$metric,
         group = "variable",
         facet = "unit_lab"
         # )
@@ -412,8 +545,7 @@ app_server <- function(input, output, session) {
     } else if (input$tab_top == "By Species") {
       plot_func(
         data = specs_plot_df(),
-        lab = NULL,
-        # lab = specs_inputs()$stat,
+        lab = specs_inputs()$metric,
         group = "type", # faceting by product type (different column than variable for previous examples ^)
         facet = "unit_lab",
       )
