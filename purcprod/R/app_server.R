@@ -264,37 +264,121 @@ app_server <- function(input, output, session) {
   ########################### "By Species" tab: reactive data frame #################################
 
   specs_plot_df <- reactive({
-    # only one option here b/c not multiple tabs on tab_bottom panel. Just 1
-    if (input$tab_top == "By Species") {
-      df <- specsdf |>
-        dplyr::filter(
-          # "By Species" tab filters
-          .data$metric %in% specs_inputs()$metric,
-          .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
-          # bottom tab filters
-          .data$type %in% specs_tabs_inputs()$prodtype
-        ) |>
-        dplyr::mutate(
-          # adjusting price related cols for deflation value
-          value = dplyr::case_when(
-            .data$metric %in%
-              c(
-                "Markup",
-                "Production price (per lb)",
-                "Production value",
-                "Purchase price (per lb)",
-                "Purchase value"
-              ) ~
-              .data$value * defl_val() / .data$defl,
+    # req(input$tab_top == "By Species") # Only process if this is the selected tab
 
-            # for metrics that dont have price involved
-            TRUE ~ .data$value
+    if (input$tab_top == "By Species") {
+      if (input$tab_specs_bottom == "Product Type") {
+        df <- specsdf_protype |>
+          dplyr::filter(
+            # "By Species" tab filters
+            .data$metric %in% specs_inputs()$metric,
+            .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
+            # bottom tab filters
+            .data$type %in% specs_tabs_inputs()$prodtype
+          ) |>
+          dplyr::mutate(
+            # adjusting price-related cols for deflation value
+            value = dplyr::case_when(
+              .data$metric %in%
+                c(
+                  "Markup",
+                  "Production price (per lb)",
+                  "Production value",
+                  "Purchase price (per lb)",
+                  "Purchase value"
+                ) ~
+                .data$value * defl_val() / .data$defl,
+              TRUE ~ .data$value
+            ),
+            unit_lab = paste0(
+              .data$variable,
+              " (",
+              .data$metric,
+              "): ",
+              .data$unit,
+              " ",
+              input$deflInput,
+              " $"
+            )
           )
-        )
+      } else if (
+        # "By Species" and "Region"
+        input$tab_specs_bottom == "Region"
+      ) {
+        df <- specsdf_reg |>
+          dplyr::filter(
+            # "By Species" tab filters
+            .data$metric %in% specs_inputs()$metric,
+            .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
+            # bottom tab filters
+            .data$type %in% specs_tabs_inputs()$regtype
+          ) |>
+          dplyr::mutate(
+            # adjusting price-related cols for deflation value
+            value = dplyr::case_when(
+              .data$metric %in%
+                c(
+                  "Markup",
+                  "Production price (per lb)",
+                  "Production value",
+                  "Purchase price (per lb)",
+                  "Purchase value"
+                ) ~
+                .data$value * defl_val() / .data$defl,
+              TRUE ~ .data$value
+            ),
+            unit_lab = paste0(
+              .data$variable,
+              " (",
+              .data$metric,
+              "): ",
+              .data$unit,
+              " ",
+              input$deflInput,
+              " $"
+            )
+          )
+      } else if (
+        # "By Species" and "Processor Size/Type"
+        input$tab_specs_bottom == "Processor Size/Type"
+      ) {
+        df <- specsdf_size |>
+          dplyr::filter(
+            # "By Species" tab filters
+            .data$metric %in% specs_inputs()$metric,
+            .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
+            # bottom tab filters
+            .data$type %in% specs_tabs_inputs()$sizetype
+          ) |>
+          dplyr::mutate(
+            # adjusting price-related cols for deflation value
+            value = dplyr::case_when(
+              .data$metric %in%
+                c(
+                  "Markup",
+                  "Production price (per lb)",
+                  "Production value",
+                  "Purchase price (per lb)",
+                  "Purchase value"
+                ) ~
+                .data$value * defl_val() / .data$defl,
+              TRUE ~ .data$value
+            ),
+            unit_lab = paste0(
+              .data$variable,
+              " (",
+              .data$metric,
+              "): ",
+              .data$unit,
+              " ",
+              input$deflInput,
+              " $"
+            )
+          )
+      }
+
       return(df)
     }
-
-    return(NULL) # If tab_bottom is not valid
   })
 
   ############################################ Plots  ############################################

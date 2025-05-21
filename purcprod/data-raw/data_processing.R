@@ -145,21 +145,25 @@ proddf_size <- proddf |>
 
 specsdf <- raw_purcprod |>
   dplyr::left_join(gdp_defl, by = c("Year" = "YEAR")) |>
-  dplyr::select(-c(ylab)) |>
+  dplyr::select(-ylab) |>
   janitor::clean_names() |>
   dplyr::filter(
     tab == 'Product', # production tab data
     cs == "",
-    statistic == "Total"
+    statistic == "Total",
+    !is.na(value)
   ) |>
-
   tidyr::separate(
     metric,
     into = c("type", "metric"),
     sep = " (?=\\()",
     extra = "merge"
   ) |>
-  dplyr::mutate(metric = substr(metric, 2, nchar(metric) - 1)) |>
+  dplyr::mutate(
+    metric = substr(metric, 2, nchar(metric) - 1)
+    # unit_lab = paste0(variable, " (", metric, "): ", unit, " nominal $")
+  ) |>
+  dplyr::select(-c(variance, q25, q75)) |>
 
   # original data filter already classified labels as millions, billions,
   dplyr::mutate(
@@ -168,41 +172,41 @@ specsdf <- raw_purcprod |>
       metric == "Production value" ~ "millions",
       metric == "Production price (per lb)" ~ ""
     ),
-
-    q25 = dplyr::case_when(
-      metric == "Production weight" ~ q25 / 1e6,
-      metric == "Production value" ~ q25 / 1e6,
-      metric == "Production price (per lb)" ~ q25
-    ),
-
-    q75 = dplyr::case_when(
-      metric == "Production weight" ~ q75 / 1e6,
-      metric == "Production value" ~ q75 / 1e6,
-      metric == "Production price (per lb)" ~ q75
-    ),
-
     value = dplyr::case_when(
       metric == "Production weight" ~ value / 1e6,
       metric == "Production value" ~ value / 1e6,
       metric == "Production price (per lb)" ~ value
-    ),
-    variance = dplyr::case_when(
-      metric == "Production weight" ~ variance / 1e6,
-      metric == "Production value" ~ variance / 1e6,
-      metric == "Production price (per lb)" ~ variance
-    ),
-    upper = dplyr::case_when(
-      statistic == 'Mean' ~ value + variance,
-      statistic == 'Median' ~ q75,
-      statistic == 'Total' ~ value
-    ),
-    lower = dplyr::case_when(
-      statistic == 'Mean' ~ value - variance,
-      statistic == 'Median' ~ q25,
-      statistic == 'Total' ~ value
-    ),
-    unit_lab = paste0(variable, " (", metric, "): ", unit, " nominal $")
+    )
+  ) |>
+  rbind(
+    clean_purcprod |>
+      dplyr::select(-c(ylab, upper, lower, unit_lab, variance, q25, q75)) |>
+      dplyr::filter(tab == "Overview") |>
+      tidyr::separate(
+        metric,
+        into = c("type", "metric"),
+        sep = " (?=\\()",
+        extra = "merge"
+      ) |>
+      dplyr::mutate(
+        metric = substr(metric, 2, nchar(metric) - 1)
+        # unit_lab = paste0(variable, " (", metric, "): ", unit, " nominal $")
+      )
   )
+
+
+# making sub df's for filters
+specsdf_protype <- specsdf |>
+  dplyr::filter(tab == "Product")
+
+specsdf_reg <- specsdf |>
+  dplyr::filter(
+    tab == "Overview" & type %in% c("California", "Washington and Oregon")
+  )
+
+specsdf_size <- specsdf |>
+  dplyr::filter(tab == "Overview" & type %in% c("Small/Medium", "Large"))
+
 
 ####################### Cleaning "Overview" page data ###########################
 
@@ -217,6 +221,16 @@ overviewdf <- clean_purcprod |>
     extra = "merge"
   ) |>
   dplyr::mutate(metric = substr(metric, 2, nchar(metric) - 1)) |>
+
+  # adding in "All" option from summary data frame
+  rbind(
+    sumdf_prac |>
+      # dplyr::select(-type) |>
+      dplyr::filter(
+        metric %in% c("Production value", "Production weight")
+      ) |>
+      dplyr::mutate(type = "All", tab = "Overview")
+  ) |>
   dplyr::select(-c(cs, upper, lower, variance, q25, q75)) |>
   dplyr::filter(
     metric %in% c("Production value", "Production weight")
@@ -275,6 +289,7 @@ line_col <- c(
   # processor size colors
   "Small" = '#001B70',
   "Medium" = '#C1052F',
+  "Small/Medium" = '#005B70',
   "Large" = '#648C1C',
   "Non-processor" = '#D89B2C',
 
@@ -298,6 +313,7 @@ line_ty <- c(
   # processor size
   "Small" = 'solid',
   "Medium" = 'solid',
+  "Small/Medium" = 'solid',
   "Large" = 'solid',
   "Non-processor" = 'solid',
 
@@ -351,6 +367,9 @@ usethis::use_data(
   proddf_size,
   ###########  for "By Species" tab on the Explore the Data page
   specsdf,
+  specsdf_protype,
+  specsdf_reg,
+  specsdf_size,
 
   ###########  for "Overview" page
   overviewdf,

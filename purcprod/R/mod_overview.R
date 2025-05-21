@@ -80,13 +80,22 @@ mod_overview_ui <- function(id) {
               style = "position: absolute; top: 10px; right: 10px; cursor: pointer;"
             ),
             choices = c(
-              'Small/Medium',
-              'Large',
-              'California',
-              'Washington and Oregon'
+              "All",
+              'Size: Small/Medium' = 'Small/Medium',
+              'Size: Large' = "Large",
+              'Region: Washington and Oregon' = "Washington and Oregon",
+              'Region: California' = "California"
             ),
-            selected = "Large"
-          )
+            selected = "All"
+          ),
+
+          br(),
+          br(),
+          br(),
+          br(),
+          br(),
+          br(),
+          p(em("Note: All values are adjusted to $ in 2023"))
         ) # END div()
       ),
 
@@ -378,7 +387,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 500
+        upper_lim = 800
       )
     })
 
@@ -392,7 +401,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 300
+        upper_lim = 350
       )
     })
   })
