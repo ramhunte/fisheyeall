@@ -41,7 +41,7 @@ year_range_func <- function(inputID, label, min, max, value) {
 metric_func1 <- function(inputID) {
   checkboxGroupInput(
     inputId = inputID,
-    label = "Metric",
+    label = strong(em("Metric")),
     choices = c(
       "Markup",
       "Production price (per lb)",
@@ -56,11 +56,7 @@ metric_func1 <- function(inputID) {
       "Markup",
       "Production price (per lb)",
       "Production value",
-      "Production weight",
-      "Purchase price (per lb)",
-      "Recovery rate",
-      "Purchase value",
-      "Purchase weight"
+      "Production weight"
     )
   )
 }
@@ -68,15 +64,15 @@ metric_func1 <- function(inputID) {
 
 # creates a select dropdown option for metric to choose from (less options than metric_func1)
 metric_func2 <- function(inputID) {
-  selectInput(
+  radioButtons(
     inputId = inputID,
-    label = "Select a metric",
+    label = strong(em("Select a metric")),
     choices = c(
       'Production value',
-      'Production price (per lb)',
-      'Production weight'
+      'Production weight',
+      'Production price (per lb)'
     ),
-    selectize = F
+    selected = "Production value"
   )
 }
 
@@ -91,10 +87,10 @@ stat_func <- function(inputID) {
 }
 
 # creates a checkbox to choose product type
-prodtype_func <- function(inputID) {
+prodtype_func <- function(inputID, label) {
   checkboxGroupInput(
     inputId = inputID,
-    label = "Product types",
+    label = strong(em(label)),
     choices = c(
       "Canned",
       "Fillet",
@@ -109,20 +105,16 @@ prodtype_func <- function(inputID) {
       "Canned",
       "Fillet",
       "Fresh",
-      "Frozen",
-      "Headed-and-gutted",
-      "Other",
-      "Unprocessed",
-      "Smoked"
+      "Frozen"
     )
   )
 }
 
 # creates a checkbox to choose species
-specs_func <- function(inputID) {
+specs_func <- function(inputID, label) {
   checkboxGroupInput(
     inputId = inputID,
-    label = "Species",
+    label = strong(em(label)),
     choices = c(
       "All production",
       "Groundfish production",
@@ -169,11 +161,11 @@ os_func <- function(inputID1, inputID2) {
   )
 }
 
-# creates a checkbox to choose region
+# creates a checkbox to choose region with Small, Medium and Large
 reg_func <- function(inputID) {
   checkboxGroupInput(
     inputId = inputID,
-    label = "",
+    label = NULL,
     choices = c(
       'California',
       'Washington and Oregon'
@@ -185,11 +177,12 @@ reg_func <- function(inputID) {
   )
 }
 
+
 # creates a radio buttons list to choose production activities (species) (less options than specs_func)
 pracs_func <- function(inputID) {
   radioButtons(
     inputId = inputID,
-    label = "Production activities",
+    label = strong(em("Production activities")),
     choices = c(
       'All production',
       'Groundfish production',
@@ -203,16 +196,33 @@ pracs_func <- function(inputID) {
 size_func <- function(inputID) {
   checkboxGroupInput(
     inputId = inputID,
-    label = "",
+    label = NULL,
     choices = c(
       'Small',
       'Medium',
-      'Large',
-      'Non-processor'
+      'Large'
+      # 'Non-processor'
     ),
     selected = c(
       'Small',
       'Medium',
+      'Large'
+    )
+  )
+}
+
+# creates a checkbox to choose processor size
+size2_func <- function(inputID) {
+  checkboxGroupInput(
+    inputId = inputID,
+    label = NULL,
+    choices = c(
+      'Small/Medium',
+      'Large'
+      # 'Non-processor'
+    ),
+    selected = c(
+      'Small/Medium',
       'Large'
     )
   )
@@ -230,7 +240,7 @@ defl_func <- function(
 ) {
   shinyWidgets::pickerInput(
     inputId = inputID,
-    label = label,
+    label = strong(em(label)),
     choices = choices,
     selected = selected,
     options = options,

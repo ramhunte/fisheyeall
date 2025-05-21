@@ -175,7 +175,8 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
       plot.background = ggplot2::element_rect(
         fill = pal[["bg_plot"]],
         color = pal[["bg_plot"]]
-      )
+      ),
+      panel.spacing = unit(1, "cm", data = NULL) # facet spacing
     ) +
     # facet wrap based on the column specified to be faceted in the function
     ggplot2::facet_wrap(
@@ -190,33 +191,63 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
 # function for cleaning up data frame to be rendered under the "Table" panel of "Explore the Data" page
 process_df <- function(df, cs) {
   # list of columns to remove that are not needed
-  cols_to_remove <- c("statistic", "ylab", "tab", "unit_lab", "defl", "variance", "q25", "q75", "upper", "lower", "cs", "category")
+  cols_to_remove <- c(
+    "statistic",
+    "ylab",
+    "tab",
+    "unit_lab",
+    "defl",
+    "variance",
+    "q25",
+    "q75",
+    "upper",
+    "lower",
+    "cs",
+    "category"
+  )
 
- df |>
+  df |>
     # remove cols if they exist
     dplyr::select(-dplyr::any_of(cols_to_remove)) |> # remove cols if they exist
-    dplyr::mutate(metric = ifelse(
-      grepl('weight', metric) | grepl('value', metric), paste0('Total ', metric), metric)) |>
+    dplyr::mutate(
+      metric = ifelse(
+        grepl('weight', metric) | grepl('value', metric),
+        paste0('Total ', metric),
+        metric
+      )
+    ) |>
     # round numbers
     dplyr::mutate(
       value = dplyr::case_when(
-        unit == 'millions'  ~ round(value*1e6),
-        unit == 'thousands' ~ round(value*1e3),
-        T ~ round(value, 2)),
-      .keep = 'unused') |>
+        unit == 'millions' ~ round(value * 1e6),
+        unit == 'thousands' ~ round(value * 1e3),
+        T ~ round(value, 2)
+      ),
+      .keep = 'unused'
+    ) |>
     tidyr::pivot_wider(names_from = 'metric', values_from = 'value') |>
-    dplyr::rename_with(~ dplyr::case_when(
-           . == "year" ~ "Year",
-           . == "n" ~ "Number of processors",
-           . == "value" ~ "Value",
-           . == "type" ~ "Product type",
-           . == "variable" ~ "Variable",
-           . == "metric" ~ "Metric",
-           T ~ .)) |>
-   dplyr::mutate(Year = as.character(Year)) |>
-   dplyr::mutate(across(!contains('processor'), function(x) ifelse(x > 100, formatC(x, big.mark = ',', format = 'f', digits = 0), formatC(x, format = 'f', digits = 2)))) |>
-   dplyr::arrange(desc(Year)) |>
-   dplyr::mutate(across(contains('value'), function(x) paste0('$', x))) |>
-   dplyr::mutate(across(contains('price'), function(x) paste0('$', x)))
-  
+    dplyr::rename_with(
+      ~ dplyr::case_when(
+        . == "year" ~ "Year",
+        . == "n" ~ "Number of processors",
+        . == "value" ~ "Value",
+        . == "type" ~ "Product type",
+        . == "variable" ~ "Variable",
+        . == "metric" ~ "Metric",
+        T ~ .
+      )
+    ) |>
+    dplyr::mutate(Year = as.character(Year)) |>
+    dplyr::mutate(across(
+      !contains('processor'),
+      function(x)
+        ifelse(
+          x > 100,
+          formatC(x, big.mark = ',', format = 'f', digits = 0),
+          formatC(x, format = 'f', digits = 2)
+        )
+    )) |>
+    dplyr::arrange(desc(Year)) |>
+    dplyr::mutate(across(contains('value'), function(x) paste0('$', x))) |>
+    dplyr::mutate(across(contains('price'), function(x) paste0('$', x)))
 }

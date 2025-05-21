@@ -22,8 +22,20 @@ mod_specs_tabs_ui <- function(id) {
       bslib::nav_panel(
         "Product Type",
         class = "custom-card",
-        prodtype_func(inputID = ns("protype2Input"))
-      ) # END nav_panel
+        prodtype_func(inputID = ns("protype2Input"), label = NULL)
+      ), # END nav_panel
+      bslib::nav_panel(
+        "Region",
+        class = "custom-card",
+        reg_func(inputID = ns("reg2Input"))
+      ),
+
+      bslib::nav_panel(
+        "Processor Size/Type",
+        class = "custom-card",
+        size2_func(inputID = ns("size2Input"))
+      ), # END nav_panel
+      id = "tab_specs_bottom"
     ) # END navset_card_pill
   )
 }
@@ -40,7 +52,9 @@ mod_specs_tabs_server <- function(id) {
 
     return(reactive({
       list(
-        prodtype = input$protype2Input
+        prodtype = input$protype2Input,
+        regtype = input$reg2Input,
+        sizetype = input$size2Input
       )
     }))
   })
