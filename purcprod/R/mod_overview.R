@@ -160,32 +160,32 @@ mod_overview_ui <- function(id) {
       bslib::layout_column_wrap(
         width = 1 / 2,
 
-        # production value lollipop graph
-        bslib::card(
+        bslib::navset_card_pill(
           full_screen = TRUE,
-          class = "custom-card",
-          bslib::card_header(
-            "Species Production Value ($ Millions)",
-            class = "bg-dark"
-          ),
+          bslib::nav_panel(
+            "Production Value ($ Millions)",
 
           bslib::card_body(
             plotOutput(ns("pv_plot")),
-            class = "p-0" # remove padding
-          )
-        ),
+            class = "p-0" # remove padding)
+          )),
 
-        # production weight lollipop graph
-        bslib::card(
-          full_screen = TRUE,
-          class = "custom-card",
-          bslib::card_header(
+        # # production weight lollipop graph
+        bslib::nav_panel(
             "Production Weight (lb Millions)",
-            class = "bg-dark"
-          ),
           bslib::card_body(
             plotOutput(ns("pw_plot")),
-            class = "p-0" # remove padding
+            class = "p-0")
+        )
+        ),
+
+        # heat plot card
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_body(
+            plotOutput(ns("cov_plot")),
+            class = "custom-card p-0"
+            # style = "background-color: transparent;"
           )
         )
       )
@@ -409,6 +409,12 @@ mod_overview_server <- function(id) {
         upper_lim = 350
       )
     })
+
+    # Production weight chart
+    output$cov_plot <- renderPlot({
+      heat_func()
+    },  bg = "transparent")
+
   })
 }
 

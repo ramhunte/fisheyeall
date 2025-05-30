@@ -99,10 +99,54 @@ lollipop_func <- function(data, year1, range1, range2, upper_lim) {
       legend.position = "bottom",
       legend.direction = "horizontal",
       legend.title = ggplot2::element_blank(),
-      legend.text = element_text(size = 18, color = pal["value1"]), # <-- Adjust size here
+      legend.text = element_text(size = 18, color = pal["value1"]),
       legend.background = element_rect(fill = pal[["bg_plot"]], color = NA),
       legend.box.background = element_rect(fill = pal[["bg_plot"]], color = NA)
     )
+}
+
+
+############################## Heat Map ##################################
+
+heat_func <- function() {
+ggplot2::ggplot(cover, aes(x = as.factor(YEAR),
+                           y = forcats::fct_reorder(EDCSPID, perc_edc), fill = perc_edc)) +
+    ggplot2::geom_tile(color = pal[["bg_plot"]]) +
+  coord_fixed() +
+  theme_minimal() +
+
+  scale_fill_gradient(
+    low = pal[["bg_plot"]], high = pal[["value1"]],  # reverse color direction (red = high values)
+    na.value = "tan",
+    labels = scales::percent
+  ) +
+
+  guides(fill = guide_colourbar(barheight = 10,
+                                barwidth = .5,
+                                theme = theme(legend.direction = "vertical"))) +
+
+  theme(
+
+    plot.title = element_text(
+      hjust = 0.5,        # Center the title
+      face = "bold",      # Make it bold
+      size = 20,          # Optional: control font size
+      color = pal[["value1"]]  # Optional: match your existing color theme
+    ),
+    axis.text = element_text(size = 18, color = pal["value1"]),
+    axis.text.x = element_text(angle = 80, vjust = -.4, hjust = -.4),
+    text = element_text(size = 18, color = pal["value1"]),
+    legend.text = element_text(size = 18, color = pal["value1"]),
+    panel.background = ggplot2::element_rect(
+      fill = pal[["bg_plot"]],
+      color = pal[["bg_plot"]]
+    ),
+    plot.background = ggplot2::element_rect(
+      fill = pal[["bg_plot"]],
+      color = pal[["bg_plot"]])) +
+
+  labs(x = NULL, y = NULL, fill = NULL,
+       title = "% Coverage by EDC")
 }
 
 
@@ -137,14 +181,6 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
       ),
       linewidth = 0.75
     ) +
-    # geom_ribbon(
-    #   aes(
-    #     ymax = .data[["upper"]],
-    #     ymin = .data[["lower"]],
-    #     fill = .data[[group]]
-    #   ),
-    #   alpha = .2
-    # ) +
     scale_fill_manual(values = line_col) +
     scale_color_manual(values = line_col) +
     scale_linetype_manual(values = line_ty) +
