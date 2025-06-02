@@ -10,7 +10,9 @@
 
 # purchase production data
 raw_purcprod <- readRDS("data-raw/mini_purcprod_targ.RDS")
-ft <- readRDS("data-raw/ft.rds")
+
+# EDC coverage data
+coverage <- readRDS("data-raw/coverage.rds")
 
 # degp deflator
 load("data-raw/gdp_defl.RData")
@@ -247,40 +249,19 @@ overviewdf <- clean_purcprod |>
   dplyr::select(-defl)
 
 
-# coverage data
-cover <- ft %>%
-  dplyr::mutate(
-  EDCSPID = dplyr::case_when(
-    EDCSPID %in%
-      c(
-        'California halibut',
-        'Pacific halibut',
-        'Sturgeon',
-        'Pacific herring',
-        'Squid',
-        'Echinoderms'
-      ) ~
-      'Other species',
-    EDCSPID %in%
-      c(
-        'English sole',
-        'Lingcod',
-        'Rex sole',
-        'Sharks, skates and rays',
-        'Arrowtooth flounder',
-        'Sanddab'
-      ) ~
-      'Other groundfish',
-  TRUE ~ EDCSPID)) %>%
+order <- overviewdf %>%
+  filter(type == "All",
+         metric == "Production value") %>%
+  group_by(variable) %>%
+  summarise(mean = mean(value, na.rm = TRUE
+  )) %>%
+  arrange(mean) %>%
+  pull(variable)
 
-  dplyr::group_by(EDCSPID, YEAR) %>%
-  summarise(tot_lbs = sum(LBS),
-            edc_lbs = sum(LBS[COV == "EDC"]),
-            perc_edc= round(edc_lbs / tot_lbs, 2),
-            .groups = "drop") %>%
-  dplyr::filter(!is.na(EDCSPID),
-                !is.na(perc_edc)) %>%
-  tidyr::complete(YEAR = unique(YEAR), EDCSPID = unique(EDCSPID))
+
+# Apply the ordering to the overviewdf variable column as a factor
+overviewdf <- overviewdf %>%
+  mutate(variable = factor(variable, levels = order))
 
 
 
@@ -411,7 +392,8 @@ usethis::use_data(
 
   ###########  for "Overview" page
   overviewdf,
-  cover,
+  coverage,
+  order,
 
   ###########  plot aesthetics
   pal,

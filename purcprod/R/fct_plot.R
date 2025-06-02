@@ -40,10 +40,7 @@ lollipop_func <- function(data, year1, range1, range2, upper_lim) {
     data = data,
     ggplot2::aes(
       x = .data[["value"]],
-      y = forcats::fct_reorder(
-        .data[["variable"]],
-        .data[["value"]]
-      ),
+      y = .data[["variable"]],
       group = .data[["variable"]],
       color = factor(.data[["year"]])
     )
@@ -109,7 +106,7 @@ lollipop_func <- function(data, year1, range1, range2, upper_lim) {
 ############################## Heat Map ##################################
 
 heat_func <- function() {
-ggplot2::ggplot(cover, aes(x = as.factor(YEAR),
+ggplot2::ggplot(coverage, aes(x = as.factor(YEAR),
                            y = forcats::fct_reorder(EDCSPID, perc_edc), fill = perc_edc)) +
     ggplot2::geom_tile(color = pal[["bg_plot"]]) +
   coord_fixed() +

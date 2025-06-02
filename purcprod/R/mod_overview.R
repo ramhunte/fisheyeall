@@ -144,15 +144,71 @@ mod_overview_ui <- function(id) {
         ),
 
         # Number of observations value box
+        # bslib::value_box(
+          # title = "Number of processors",
+          # value = textOutput(ns("n_text")),
+          # theme = bslib::value_box_theme(
+          #   bg = pal[["value4"]],
+          #   fg = pal[["bg_plot"]]
+          # ),
+          # showcase = bsicons::bs_icon("hash")
+        # )
+
         bslib::value_box(
-          title = "Number of processors",
-          value = textOutput(ns("n_text")),
+
+          tags$div(
+            style = "display: flex; align-items: baseline; gap: 0.4rem;",
+          tags$div(
+            style = "font-weight: 200; font-size: 1.1rem;",
+           "Processors:"),
+          tags$div(
+              style = "font-weight: 400; font-size: 1.7rem;",
+              textOutput(ns("nproc_text"), container = span))),
+
+          tags$div(
+            style = "display: flex; align-items: baseline; gap: 0.4rem;",
+            tags$div(
+              style = "font-weight: 200; font-size: 1.1rem;",
+              "Buyers:"),
+            tags$div(
+              style = "font-weight: 400; font-size: 1.7rem;",
+              textOutput(ns("nbuy_text"), container = span))),
+
+
+              # tags$div(
+              #   style = "margin-bottom: 0.75rem;",
+              #   tags$div("Number of processors:", style = "font-size: 1.2rem;"),
+              #   textOutput(ns("nproc_text"), container = span)  # Span to style inline
+              # ),
+              #
+
+          # # Value content layout
+          # value = tags$div(
+          #   style = "font-weight: 400; font-size: 1.5rem;",  # Base font size for labels
+          #   tags$div(
+          #     style = "margin-bottom: 0.75rem;",
+          #     tags$div("Number of processors:", style = "font-size: 1.2rem;"),
+          #     textOutput(ns("nproc_text"), container = span)  # Span to style inline
+          #   ),
+          #   tags$div(
+          #     tags$div("Number of buyers:", style = "font-size: 1.2rem;"),
+          #     textOutput(ns("nbuy_text"), container = span)
+          #   )
+          # ),
+          value = NULL,
+          title = NULL,
           theme = bslib::value_box_theme(
             bg = pal[["value4"]],
             fg = pal[["bg_plot"]]
           ),
           showcase = bsicons::bs_icon("hash")
-        ),
+
+        )
+
+
+
+
+
       ),
 
       ######################### Plot Cards ##########################
@@ -370,7 +426,7 @@ mod_overview_server <- function(id) {
     })
 
     # number of observations output
-    output$n_text <- renderText({
+    output$nproc_text <- renderText({
       master_df() |>
         dplyr::filter(
           .data[["metric"]] == "Production value",
@@ -378,6 +434,18 @@ mod_overview_server <- function(id) {
           .data[["year"]] == input$year1Input
         ) |>
         dplyr::pull(.data[["number_of_processors"]])
+    })
+
+
+    # number of observations output
+    output$nbuy_text <- renderText({
+      master_df() |>
+        dplyr::filter(
+          .data[["metric"]] == "Production value",
+          .data[["variable"]] == "All production",
+          .data[["year"]] == input$year1Input
+        ) |>
+        dplyr::pull(.data[["number_of_buyers"]])
     })
 
     ############################# Plots ##################################
