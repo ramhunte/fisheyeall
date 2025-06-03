@@ -21,6 +21,8 @@
 # this function creates lollipop charts that are used on the "Overview" page
 
 lollipop_func <- function(data, year1, range1, range2, upper_lim) {
+
+  data <- subset(data, !variable %in% c('All production', 'Groundfish production', 'Non-whiting groundfish', 'Other species production'))
   # range label for the graph legend
   # if year range is the same (e.g. 2020-2020 avg., then making it show just 2020)
   range_label <- if (range1 != range2) {
