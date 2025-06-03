@@ -147,7 +147,7 @@ os_func <- function(inputID1, inputID2) {
       inputId = inputID2,
       label = "",
       choices = c(
-        "Other species production",
+        # "Other species production",
         "Crab",
         "Shrimp",
         "Salmon",
