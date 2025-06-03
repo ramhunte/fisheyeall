@@ -270,9 +270,12 @@ process_df <- function(df, cs) {
         T ~ .
       )
     ) |>
-    dplyr::mutate(Year = as.character(Year)) |>
+    dplyr::mutate(
+      Year = as.character(Year)) |>
+    dplyr::rename(`Number of buyers` = number_of_buyers,
+                  `Number of processors` = number_of_processors) |>
     dplyr::mutate(across(
-      !contains('processor'),
+      !contains('Number'),
       function(x)
         ifelse(
           x > 100,
