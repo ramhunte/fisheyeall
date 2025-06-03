@@ -276,7 +276,7 @@ process_df <- function(df, cs) {
       Year = as.character(Year)) |>
     dplyr::rename(`Number of buyers` = number_of_buyers,
                   `Number of processors` = number_of_processors) |>
-    dplyr::mutate(across(
+    dplyr::mutate(dplyr::across(
       !contains('Number'),
       function(x)
         ifelse(
@@ -286,6 +286,6 @@ process_df <- function(df, cs) {
         )
     )) |>
     dplyr::arrange(desc(Year)) |>
-    dplyr::mutate(across(contains('value'), function(x) paste0('$', x))) |>
-    dplyr::mutate(across(contains('price'), function(x) paste0('$', x)))
+    dplyr::mutate(dplyr::across(contains('value'), function(x) paste0('$', x))) |>
+    dplyr::mutate(dplyr::across(contains('price'), function(x) paste0('$', x)))
 }
