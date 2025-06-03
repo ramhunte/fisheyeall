@@ -102,10 +102,10 @@ prodtype_func <- function(inputID, label) {
       "Smoked"
     ),
     selected = c(
-      "Canned",
-      "Fillet",
       "Fresh",
-      "Frozen"
+      "Frozen",
+      "Unprocessed",
+      "Other"
     )
   )
 }
@@ -117,7 +117,7 @@ specs_func <- function(inputID, label) {
     label = strong(em(label)),
     choices = c(
       "All production",
-      "Groundfish production",
+      # "Groundfish production",
       "Pacific whiting",
       "Non-whiting groundfish",
       "Sablefish",
@@ -128,9 +128,8 @@ specs_func <- function(inputID, label) {
       "Other groundfish species"
     ),
     selected = c(
-      "All production",
-      "Groundfish production",
       "Pacific whiting",
+      "Sablefish",
       "Rockfish",
       "Dover sole",
       "Petrale sole"

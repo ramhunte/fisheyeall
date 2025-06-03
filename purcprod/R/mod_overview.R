@@ -98,7 +98,7 @@ mod_overview_ui <- function(id) {
           p(
             tags$small(
               icon("info-circle", style = "color: #31708f; margin-right: 5px;"),
-              em("All values are adjusted to $ in 2023")
+              em("All values are reported in 2023 US $")
             )
           )
         ) # END div()
