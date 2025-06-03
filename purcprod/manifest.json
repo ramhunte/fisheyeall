@@ -2419,10 +2419,16 @@
       "checksum": "3b39dd1541b910e116ceeb2c08898707"
     },
     ".Rprofile": {
-      "checksum": "1e464dd0848b372f61ccee017edc7348"
+      "checksum": "42008e948d6ffeac6289c465d52f8e75"
+    },
+    "data-raw/coverage.rds": {
+      "checksum": "30e373938a0b0d18ce40a8ffefd41abb"
     },
     "data-raw/data_processing.R": {
-      "checksum": "13fdd75039c16530cf2d3a22d7176a7c"
+      "checksum": "0f2a00ce757565c7e6c09742d89e1bd7"
+    },
+    "data-raw/ft.rds": {
+      "checksum": "7677eae51da8dbe9f3b23463cdfd4e13"
     },
     "data-raw/gdp_defl.RData": {
       "checksum": "0540ed971add6ac8eeba8723b90681a0"
@@ -2431,7 +2437,7 @@
       "checksum": "4cbbf91900d9be3f73a888f66ebe956e"
     },
     "data-raw/mini_purcprod_targ.rds": {
-      "checksum": "06d61351a9dacb693b96e4ebf7fd6529"
+      "checksum": "cb59ec2ab36e671e58f1be1d6f8a2965"
     },
     "defl.rds": {
       "checksum": "a7b6c4513d19d7b0fd2221ff67206891"
@@ -2458,7 +2464,7 @@
       "checksum": "6c33706851b9590b5180f91ed156763a"
     },
     "inst/app/text/info.md": {
-      "checksum": "2d27437020abd02a30a410614c05ae27"
+      "checksum": "b1741fc343209c05b8c09d5f6a1e5a42"
     },
     "inst/app/www/noaa_header.png": {
       "checksum": "9e370bbd7e6a4c4ac21607b1fe741f91"
@@ -2491,7 +2497,7 @@
       "checksum": "08b192db17c2cdd0abaa43d7b8d42dfa"
     },
     "R/app_server.R": {
-      "checksum": "6beceec482c72d0f97950d7e226ab468"
+      "checksum": "f8d1ceeae3d828e9d84aeb157aafb8b3"
     },
     "R/app_ui.R": {
       "checksum": "508036c36525025441e4e8c55fd4e73f"
@@ -2503,22 +2509,25 @@
       "checksum": "dfd08c593cbcc9ede5dd3c674bd6640c"
     },
     "R/fct_plot.R": {
-      "checksum": "cf89b3a41110593800e69881f7be6aa8"
+      "checksum": "a6ce904d9c39cdb3fbbab2963b3f9605"
+    },
+    "R/fct_reactive_dfs.R": {
+      "checksum": "551c7f7a9db060d3a685cafb48b0a5f5"
     },
     "R/mod_other_tabs.R": {
-      "checksum": "06164c4c97c12c7acf85be03bbe6bf62"
+      "checksum": "763cd71f0b8d5903ede8235eab3e6ac3"
     },
     "R/mod_overview.R": {
-      "checksum": "97229a2a9d440388ae72e7ef3df54e31"
+      "checksum": "1ca0761a6a43c6eb19ab51aebc968f99"
     },
     "R/mod_prod_type.R": {
-      "checksum": "7dddefb79523dc4e6ee32e347cd5539d"
+      "checksum": "8ee7e28f7de3bb3c2efc5915ea7f9937"
     },
     "R/mod_specs.R": {
-      "checksum": "11a56ad4878c7db586dc5513401e64c0"
+      "checksum": "7833b91d477c56c0d6c22ecd7abbc70f"
     },
     "R/mod_specs_tabs.R": {
-      "checksum": "c4c726d58b33a857aa22267f43b6f908"
+      "checksum": "bd71d64b5469f59e7a28e970861ecfca"
     },
     "R/mod_summary.R": {
       "checksum": "a5dfb9d03b38b42fe413cc6294ade841"
@@ -2527,10 +2536,10 @@
       "checksum": "4d19509f058abc65cfd23c7353a7c94c"
     },
     "R/sysdata.rda": {
-      "checksum": "b09db64c3bd7b737e8af900357f13474"
+      "checksum": "8b72a66dc1d54517ce275425100616fb"
     },
     "R/utils_ui.R": {
-      "checksum": "d89914ae30d0e8785cd92b64bae1818f"
+      "checksum": "15ec241b49720dc0776b723f83e5ce22"
     },
     "README.md": {
       "checksum": "d1423afe01d4b0f44b22936f314da42b"
