@@ -11,3 +11,6 @@ $run_dev.*
 ^codecov\.yml$
 ^\.github$
 ^LICENSE\.md$
+^app\.R$
+^rsconnect$
+^\.rscignore$

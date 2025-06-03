@@ -17,6 +17,7 @@ Imports:
     ggplot2,
     golem,
     markdown,
+    pkgload,
     scales,
     shiny,
     shinycssloaders,
