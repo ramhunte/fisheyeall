@@ -14,7 +14,8 @@ mod_specs_ui <- function(id) {
   ns <- NS(id)
   tagList(
     metric_func2(inputID = ns("metricInput")),
-    specs_func(inputID = ns("specsInput"), label = "Species"),
+    specs_func(inputID = ns("specsInput"),
+               label = specs_tooltip()),
     os_func(inputID1 = ns("osDropdown"), inputID2 = ns("ospsInput"))
     # stat_func(inputID = ns("statInput"))
   )

@@ -56,7 +56,7 @@ app_server <- function(input, output, session) {
 
   sum_plot_df <- reactive({
     req(
-      input$tab_top == "Summary",
+      input$tab_top == "Compare Metrics",
       input$tab_bottom %in%
         c("Production Activities", "Region", "Processor Size/Type"),
       summary_inputs(),
@@ -66,7 +66,7 @@ app_server <- function(input, output, session) {
     # Conditional rendering depending on the tab_bottom select
     if (
       # "Summary" and "Production Activities"
-      input$tab_top == "Summary" && input$tab_bottom == "Production Activities"
+      input$tab_top == "Compare Metrics" && input$tab_bottom == "Production Activities"
     ) {
       df <- sumdf_prac |>
         dplyr::filter(
@@ -119,7 +119,7 @@ app_server <- function(input, output, session) {
         )
     } else if (
       # "Summary" and "Region"
-      input$tab_top == "Summary" && input$tab_bottom == "Region"
+      input$tab_top == "Compare Metrics" && input$tab_bottom == "Region"
     ) {
       df <- sumdf_reg |>
         dplyr::filter(
@@ -172,7 +172,7 @@ app_server <- function(input, output, session) {
         )
     } else if (
       # "Summary" and "Processor Size/Type"
-      input$tab_top == "Summary" && input$tab_bottom == "Processor Size/Type"
+      input$tab_top == "Compare Metrics" && input$tab_bottom == "Processor Size/Type"
     ) {
       df <- sumdf_size |>
         dplyr::filter(
@@ -234,7 +234,7 @@ app_server <- function(input, output, session) {
   # reactive data frame for "By Product Type" tab
   prod_plot_df <- reactive({
     # "By Product Type" and "Production Acitivities"
-    if (input$tab_top == "By Product Type") {
+    if (input$tab_top == "Compare Product Types") {
       if (input$tab_bottom == "Production Activities") {
         df <- proddf_prac |>
           dplyr::filter(
@@ -388,7 +388,7 @@ app_server <- function(input, output, session) {
   ########################### "By Species" tab: reactive data frame #################################
 
   specs_plot_df <- reactive({
-    if (input$tab_top == "By Species") {
+    if (input$tab_top == "Compare Species") {
       if (input$tab_specs_bottom == "Product Type") {
         df <- specsdf_protype |>
           dplyr::filter(
@@ -534,7 +534,7 @@ app_server <- function(input, output, session) {
 
   output$exp_plot_ui <- renderPlot({
     # "Summary" tab plot
-    if (input$tab_top == "Summary") {
+    if (input$tab_top == "Compare Metrics") {
       plot_func(
         # plot function
         data = sum_plot_df(), # "Summary" tab reactive data frame
@@ -545,7 +545,7 @@ app_server <- function(input, output, session) {
         # )
       )
       # "By Product Type" tab plot
-    } else if (input$tab_top == "By Product Type") {
+    } else if (input$tab_top == "Compare Product Types") {
       plot_func(
         data = prod_plot_df(), # same steps as above for "Summary" ^^
         # lab = prod_type_inputs()$stat,
@@ -555,7 +555,7 @@ app_server <- function(input, output, session) {
         # )
       )
       # "By Species" tab plot
-    } else if (input$tab_top == "By Species") {
+    } else if (input$tab_top == "Compare Species") {
       plot_func(
         data = specs_plot_df(),
         lab = specs_inputs()$metric,
@@ -571,11 +571,11 @@ app_server <- function(input, output, session) {
   # conditional render depending on which tab_top is selected
   output$table <- DT::renderDT(
     {
-      if (input$tab_top == "Summary") {
+      if (input$tab_top == "Compare Metrics") {
         df <- sum_plot_df() #render "Summary" tab table
-      } else if (input$tab_top == "By Product Type") {
+      } else if (input$tab_top == "Compare Product Types") {
         df <- prod_plot_df() #render "By Product Type" tab table
-      } else if (input$tab_top == "By Species") {
+      } else if (input$tab_top == "Compare Species") {
         df <- specs_plot_df() #render "By Species" tab table
       }
 
@@ -597,11 +597,11 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       # conditional table render depending on tab_top selection
-      if (input$tab_top == "Summary") {
+      if (input$tab_top == "Compare Metrics") {
         utils::write.csv(sum_plot_df(), file)
-      } else if (input$tab_top == "By Product Type") {
+      } else if (input$tab_top == "Compare Product Types") {
         utils::write.csv(prod_plot_df(), file)
-      } else if (input$tab_top == "By Species") {
+      } else if (input$tab_top == "Compare Species") {
         utils::write.csv(specs_plot_df(), file)
       }
     }

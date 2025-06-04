@@ -56,14 +56,14 @@ app_ui <- function(request) {
               ########################### Top nav_panels ######################################
 
               bslib::nav_panel(
-                "Summary",
+                "Compare Metrics",
                 class = "custom-card",
                 mod_summary_ui("summary_1")
               ), # END Summary nav_panel
 
               # START By Product Type nav_panel
               bslib::nav_panel(
-                "By Product Type",
+                "Compare Product Types",
                 class = "custom-card",
                 # Metric
                 mod_prod_type_ui("prod_type_1")
@@ -71,7 +71,7 @@ app_ui <- function(request) {
 
               # START By Species nav_panel
               bslib::nav_panel(
-                "By Species",
+                "Compare Species",
                 class = "custom-card",
                 mod_specs_ui("specs_1")
               ), # END By Species nav_panel
@@ -84,13 +84,13 @@ app_ui <- function(request) {
 
             # condition for lower tabs if By Species is NOT selected
             conditionalPanel(
-              condition = "input.tab_top != 'By Species'",
+              condition = "input.tab_top != 'Compare Species'",
               uiOutput("otherTabs")
             ),
 
             # condition for lower tabs if By Species IS selected
             conditionalPanel(
-              condition = "input.tab_top == 'By Species'",
+              condition = "input.tab_top == 'Compare Species'",
               uiOutput("speciesTabs")
             ), # END lower nav_panel
 

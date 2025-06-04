@@ -137,6 +137,22 @@ specs_func <- function(inputID, label) {
   )
 }
 
+specs_tooltip <- function() {
+  bslib::tooltip(
+    span(
+      "Species",
+      bsicons::bs_icon("info-circle")
+    ),
+    "All production: (aggregate of Pacific whiting, non-whiting groundfish,
+                 and other species); Non-whiting groundfish production
+                 includes arrowtooth flounder, Dover sole, English sole, lingcod, Pacific
+                 sanddab,petrale sole, rex sole, rockfish, sablefish (black cod),
+                 thornyheads, and sharks, skates, and rays.",
+    options = list(container = "body"), # optional: avoids overflow issues
+    style = "position: absolute; top: 10px; right: 10px; cursor: pointer;"
+  )
+}
+
 # creates a dropdown to choose other species (not main species of interest)
 os_func <- function(inputID1, inputID2) {
   shinyWidgets::dropdownButton(

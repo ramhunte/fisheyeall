@@ -60,7 +60,7 @@ app](https://connect.fisheries.noaa.gov/Whiting/) for detailed
 information about all three sectors (shorebased, mothership, and
 catcher-processor).
 
-Definitions:
+**Definitions:**
 
 (excerpts from Steiner, E., A. Vizek, M. Guldin, M. Krigbaum, and L.
 Pfeiffer. 2021. [Evaluating the Economic Performance of the U.S. West
@@ -68,7 +68,11 @@ Coast Groundfish Trawl Catch Share
 Program](https://repository.library.noaa.gov/view/noaa/31435). NOAA Tech
 Memo NMFS-NWFSC 169.)
 
-Species groupings:
+**Species groupings:**
+For individual species labeling purposes, the group labeled "Other species" 
+includes California halibut, Pacific halibut, Sturgeon, Pacific herring, 
+Squid, and Echinoderms. "Other groundfish species" includes English sole, 
+Lingcod, Rex sole, Sharks, skates and rays, Arrowtooth flounder, and Sanddab.
 
 For processors, production information is collected on the EDC form at
 the species level. Data are reported in Fisheye in three distinct
@@ -88,7 +92,7 @@ tuna, other shellfish, and other species.
 :::
 
 ::: {style="font-size:1.2em;"}
-Company size:
+**Company size:**
 
 Shorebased processors are grouped into three size classes based on the
 number of\
@@ -98,7 +102,7 @@ and Small\
 :::
 
 ::: {style="font-size:1.2em;"}
-Region:
+**Region:**
 
 Processors are grouped by region based on the location of each
 processor. Two regions are recognized: Washington and Oregon, and
