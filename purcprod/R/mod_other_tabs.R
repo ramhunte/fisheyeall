@@ -22,8 +22,7 @@ mod_other_tabs_ui <- function(id) {
       bslib::nav_panel(
         "Production Activities",
         class = "custom-card",
-        specs_func(inputID = ns("prodacInput"),
-                   label = specs_tooltip()),
+        specs_func(inputID = ns("prodacInput")),
         os_func(inputID1 = ns("osDropdown"), inputID2 = ns("ospsInput"))
       ), # END nav_panel
       # START nav_panel

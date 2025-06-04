@@ -190,7 +190,7 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
       title = title
     ) +
     scale_x_discrete(breaks = scales::pretty_breaks()) +
-    scale_y_continuous(breaks = scales::pretty_breaks(), expand = c(0, 0), limits = c(0, NA)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(), limits = c(0, NA)) +
     theme(
       text = element_text(size = 22, color = pal["value1"]),
       axis.text = element_text(size = 18, color = pal["value1"]),
