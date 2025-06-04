@@ -109,90 +109,6 @@ prodtype_func <- function(inputID, label) {
     )
   )
 }
-#
-# # creates a checkbox to choose species
-# specs_func <- function(inputID, label) {
-#   checkboxGroupInput(
-#     inputId = inputID,
-#     label = strong(em(label)),
-#     choices = c(
-#       "All production",
-#       # "Groundfish production",
-#       "Pacific whiting",
-#       "Non-whiting groundfish",
-#       "Sablefish",
-#       "Rockfish",
-#       "Dover sole",
-#       "Petrale sole",
-#       "Thornyheads",
-#       "Other groundfish species"
-#     ),
-#     selected = c(
-#       "Pacific whiting",
-#       "Sablefish",
-#       "Rockfish",
-#       "Dover sole",
-#       "Petrale sole"
-#     )
-#   )
-# }
-
-
-
-# specs_func <- function(inputID, label) {
-#   tags$div(
-#     class = "form-group shiny-input-checkboxgroup shiny-input-container",
-#     tags$label(strong(em(label))),
-#
-#     tags$div(
-#       class = "checkbox",
-#       tags$label(
-#         tags$input(type = "checkbox", name = inputID, value = "All production"),
-#         "All production ",
-#         bslib::tooltip(
-#           bsicons::bs_icon("info-circle"),
-#           "Pacific whiting, non-whiting groundfish,and other species"
-#         )
-#       )
-#     ),
-#
-#     tags$div(
-#       class = "checkbox",
-#       tags$label(
-#         tags$input(type = "checkbox", name = inputID, value = "Pacific whiting"),
-#         "Pacific whiting"
-#       )
-#     ),
-#
-#     tags$div(
-#       class = "checkbox",
-#       tags$label(
-#         tags$input(type = "checkbox", name = inputID, value = "Non-whiting groundfish"),
-#         "Non-whiting groundfish ",
-#         bslib::tooltip(
-#           bsicons::bs_icon("info-circle"),
-#           "arrowtooth flounder, Dover sole, English sole, lingcod, Pacific
-#     sanddab, petrale sole, rex sole, rockfish, sablefish (black cod),
-#     thornyheads, and sharks, skates, and rays."
-#         )
-#       )
-#     ),
-#
-#     # Repeat for remaining species
-#     lapply(
-#       c("Sablefish", "Rockfish", "Dover sole", "Petrale sole", "Thornyheads", "Other groundfish species"),
-#       function(spec) {
-#         tags$div(
-#           class = "checkbox",
-#           tags$label(
-#             tags$input(type = "checkbox", name = inputID, value = spec),
-#             spec
-#           )
-#         )
-#       }
-#     )
-#   )
-# }
 
 
 specs_func <- function(inputID) {
@@ -233,26 +149,6 @@ specs_func <- function(inputID) {
 }
 
 
-
-
-#
-# specs_tooltip <- function() {
-#   bslib::tooltip(
-#     span(
-#       "Species",
-#       bsicons::bs_icon("info-circle")
-#     ),
-#     HTML(paste0(
-#       "<strong>All production</strong> includes Pacific whiting, non-whiting groundfish,
-#     and other species;<br><br>
-#     <strong>Non-whiting groundfish</strong> includes arrowtooth flounder, Dover sole, English sole, lingcod, Pacific
-#     sanddab, petrale sole, rex sole, rockfish, sablefish (black cod),
-#     thornyheads, and sharks, skates, and rays."
-#     )),
-#     options = list(container = "body"), # optional: avoids overflow issues
-#     style = "position: absolute; top: 10px; right: 10px; cursor: pointer;"
-#   )
-# }
 
 # creates a dropdown to choose other species (not main species of interest)
 os_func <- function(inputID1, inputID2) {
