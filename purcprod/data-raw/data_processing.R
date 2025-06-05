@@ -7,7 +7,8 @@
 #NOTE: this script does not need to be run again unless there are changes to the raw data in the future
 library(dplyr)
 ########################### Reading  Raw data #################################
-
+# Move mini_purchprod_targ.rds from fisheyedataprep to fisheyeall
+source("data-raw/Update_purcprod_files.R")
 # purchase production data
 raw_purcprod <- readRDS("data-raw/mini_purcprod_targ.rds")
 
