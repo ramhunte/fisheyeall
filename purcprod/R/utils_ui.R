@@ -110,14 +110,25 @@ prodtype_func <- function(inputID, label) {
   )
 }
 
-# creates a checkbox to choose species
-specs_func <- function(inputID, label) {
+
+specs_func <- function(inputID) {
   checkboxGroupInput(
     inputId = inputID,
-    label = strong(em(label)),
-    choices = c(
+    label = strong(em("Species")),
+    choiceNames = list(
+      # Tooltip inside label
+      tagList("All production ", bslib::tooltip(bsicons::bs_icon("info-circle"), "Includes all categories: Pacific whiting, non-whiting groundfish, and others")),
+      "Pacific whiting",
+      tagList("Non-whiting groundfish ", bslib::tooltip(bsicons::bs_icon("info-circle"), "Includes sablefish, rockfish, Dover sole, and others")),
+      "Sablefish",
+      "Rockfish",
+      "Dover sole",
+      "Petrale sole",
+      "Thornyheads",
+      "Other groundfish species"
+    ),
+    choiceValues = c(
       "All production",
-      # "Groundfish production",
       "Pacific whiting",
       "Non-whiting groundfish",
       "Sablefish",
@@ -136,6 +147,8 @@ specs_func <- function(inputID, label) {
     )
   )
 }
+
+
 
 # creates a dropdown to choose other species (not main species of interest)
 os_func <- function(inputID1, inputID2) {
