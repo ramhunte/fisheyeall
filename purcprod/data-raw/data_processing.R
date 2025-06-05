@@ -40,7 +40,7 @@ sumdf_size <- clean_purcprod |>
   dplyr::filter(
     tab == 'Summary',
     # cs != "",
-    variable %in% c("Small", "Medium", "Large", "Non-processor")
+    variable %in% c("Small/Medium", "Large", "Non-processor")
   )
 
 
@@ -66,7 +66,7 @@ proddf_reg <- clean_purcprod |>
 proddf_size <- clean_purcprod |>
   dplyr::filter(
     tab == 'Product',
-    variable %in% c("Small", "Medium", "Large", "Non-processor"),
+    variable %in% c("Small/Medium", "Large", "Non-processor"),
     !is.na(value)
   )
 
