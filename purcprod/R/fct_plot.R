@@ -109,7 +109,7 @@ lollipop_func <- function(data, year1, range1, range2, upper_lim) {
 
 heat_func <- function() {
 ggplot2::ggplot(coverage, aes(x = as.factor(YEAR),
-                           y = forcats::fct_reorder(EDCSPID, perc_edc), fill = perc_edc)) +
+                           y = EDCSPID, fill = perc_edc)) +
     ggplot2::geom_tile(color = pal[["bg_plot"]]) +
   coord_fixed() +
   theme_minimal() +
@@ -145,7 +145,7 @@ ggplot2::ggplot(coverage, aes(x = as.factor(YEAR),
       color = pal[["bg_plot"]])) +
 
   labs(x = NULL, y = NULL, fill = NULL,
-       title = "% Coverage by EDC")
+       title = "% of total West Coast landings by weight\ncaptured on EDC first-receiver forms")
 }
 
 
@@ -228,15 +228,8 @@ process_df <- function(df, cs) {
   # list of columns to remove that are not needed
   cols_to_remove <- c(
     "statistic",
-    "ylab",
     "tab",
-    "unit_lab",
     "defl",
-    "variance",
-    "q25",
-    "q75",
-    "upper",
-    "lower",
     "cs",
     "category"
   )

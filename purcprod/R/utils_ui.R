@@ -92,14 +92,12 @@ prodtype_func <- function(inputID, label) {
     inputId = inputID,
     label = strong(em(label)),
     choices = c(
-      "Canned",
-      "Fillet",
+      "Fillet (Whiting only)",
       "Fresh",
       "Frozen",
-      "Headed-and-gutted",
-      "Other",
+      "Headed-and-gutted (Whiting only)",
       "Unprocessed",
-      "Smoked"
+      "Other"
     ),
     selected = c(
       "Fresh",
@@ -210,14 +208,12 @@ size_func <- function(inputID) {
     inputId = inputID,
     label = NULL,
     choices = c(
-      'Small',
-      'Medium',
+      'Small/Medium',
       'Large'
       # 'Non-processor'
     ),
     selected = c(
-      'Small',
-      'Medium',
+      'Small/Medium',
       'Large'
     )
   )

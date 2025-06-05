@@ -50,7 +50,7 @@ mod_overview_ui <- function(id) {
             inputID = ns("yearrangeInput"),
             label = bslib::tooltip(
               span(
-                strong(em("Select a date range or year")),
+                strong(em("Compare a date range or year")),
                 bsicons::bs_icon("info-circle")
               ),
               "Select a year range (e.g. 2015-2020) to get an average total production value across years OR select a single year (slide both ends of the range onto the same year). This value is compared
@@ -460,7 +460,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 800
+        upper_lim = 400
       )
     })
 
@@ -474,7 +474,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 350
+        upper_lim = 250
       )
     })
 

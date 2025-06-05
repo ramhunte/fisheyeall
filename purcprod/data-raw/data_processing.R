@@ -11,6 +11,9 @@
 # purchase production data
 clean_purcprod <- readRDS("data-raw/mini_purcprod_targ.RDS")
 
+# gdp deflator data
+gdp_defl <- readRDS("data-raw/gdp_defl.rds")
+
 # EDC coverage data
 coverage <- readRDS("data-raw/coverage.rds")
 
@@ -43,17 +46,6 @@ sumdf_size <- clean_purcprod |>
 
 # this section subsets the data to be used for the "By Product Type" tab on the "Explore the Data" page
 
-# cleaning data for the "By Product Type" tab
-# proddf <- dplyr::filter(clean_purcprod, tab == 'Product') |> # production tab data
-  # tidyr::separate(
-  #   metric,
-  #   into = c("type", "metric"),
-  #   sep = " (?=\\()",
-  #   extra = "merge"
-  # ) |>
-  # dplyr::mutate(metric = substr(metric, 2, nchar(metric) - 1)) |>
-  # dplyr::filter(!is.na(value))
-
 # subsetting data for the "Production Activities" bottom tab under "By Product Type"
 proddf_prac <- clean_purcprod |>
   dplyr::filter(tab == 'Product',
@@ -84,37 +76,17 @@ proddf_size <- clean_purcprod |>
 # here (unlike in the previous data frames), so I am restructuring raw data so it is
 # all shown as numbers in the millions and not also thousands.
 
-specsdf <- proddf_prac %>%
-
-  # original data filter already classified labels as millions, billions,
-  # dplyr::mutate(
-  #   unit = dplyr::case_when(
-  #     metric == "Production weight" ~ "millions",
-  #     metric == "Production value" ~ "millions",
-  #     metric == "Production price (per lb)" ~ ""
-  #   ),
-  #   value = dplyr::case_when(
-  #     metric == "Production weight" ~ value / 1e6,
-  #     metric == "Production value" ~ value / 1e6,
-  #     metric == "Production price (per lb)" ~ value
-  #   )
-  # ) |>
-  rbind(
-    clean_purcprod |>
-      dplyr::filter(tab == "Overview")
-  )
-
 
 # making sub df's for filters
-specsdf_protype <- specsdf |>
+specsdf_protype <- proddf_prac |>
   dplyr::filter(tab == "Product")
 
-specsdf_reg <- specsdf |>
+specsdf_reg <- clean_purcprod |>
   dplyr::filter(
     tab == "Overview" & type %in% c("California", "Washington and Oregon")
   )
 
-specsdf_size <- specsdf |>
+specsdf_size <- clean_purcprod |>
   dplyr::filter(tab == "Overview" & type %in% c("Small/Medium", "Large"))
 
 
@@ -124,31 +96,19 @@ overviewdf <- clean_purcprod |>
   dplyr::filter(
     tab == "Overview"
   ) |>
-  # adding in "All" option from summary data frame
-  rbind(
-    sumdf_prac |>
-      # dplyr::select(-type) |>
-      dplyr::filter(
-        metric %in% c("Production value", "Production weight")
-      ) |>
-      dplyr::mutate(type = "All", tab = "Overview")
-  ) |>
-  dplyr::filter(
-    metric %in% c("Production value", "Production weight")
-  ) |>
-
-  # View data in terms of 2023 deflator value, so shoe 2023 equivalence
   dplyr::mutate(
     value = dplyr::case_when(
-      metric == "Production value" ~ value / defl,
+      metric == "Production value" ~ value / defl,  # View data in terms of 2023 deflator value
       TRUE ~ value
     )
   ) |>
   dplyr::select(-defl)
 
 
+# creating the factor order for the plots
 order <- overviewdf %>%
-  filter(type == "All",
+  filter(
+    type == "All",
          metric == "Production value") %>%
   group_by(variable) %>%
   summarise(mean = mean(value, na.rm = TRUE
@@ -157,9 +117,14 @@ order <- overviewdf %>%
   pull(variable)
 
 
-# Apply the ordering to the overviewdf variable column as a factor
+# redorderign overview data frame
 overviewdf <- overviewdf %>%
   mutate(variable = factor(variable, levels = order))
+
+coverage <- coverage %>%
+  mutate(EDCSPID = factor(EDCSPID, levels = order))
+
+
 
 
 
@@ -211,14 +176,12 @@ line_col <- c(
   "Non-processor" = '#D89B2C',
 
   # product type colors
-  "Canned" = "#287271",
-  "Fillet" = "#9E2B25",
+  "Fillet (Whiting only)" = "#9E2B25",
   "Fresh" = "#208AAE",
   "Frozen" = "#FF9F1C",
-  "Headed-and-gutted" = "#8E6C8A",
+  "Headed-and-gutted (Whiting only)" = "#8E6C8A",
   "Other" = "#B1B695",
-  "Unprocessed" = "#607744",
-  "Smoked" = "#D77A61"
+  "Unprocessed" = "#607744"
 )
 
 # line type
@@ -257,14 +220,12 @@ line_ty <- c(
   "Other species" = 'dashed',
 
   # product type
-  "Canned" = "solid",
-  "Fillet" = "solid",
+  "Fillet (Whiting only)" = "solid",
   "Fresh" = "solid",
   "Frozen" = "solid",
-  "Headed-and-gutted" = "solid",
+  "Headed-and-gutted (Whiting only)" = "solid",
   "Other" = "solid",
-  "Unprocessed" = "solid",
-  "Smoked" = "solid"
+  "Unprocessed" = "solid"
 )
 
 
@@ -272,7 +233,8 @@ line_ty <- c(
 
 # this function writes the desired data frames that are used in the app into the 'data' folder
 usethis::use_data(
-  ########### Deflator data
+
+  ########### GDP deflator vals
   gdp_defl,
   ########### for "Summary" tab on the Explore the Data page
   sumdf_prac,
@@ -283,7 +245,6 @@ usethis::use_data(
   proddf_reg,
   proddf_size,
   ###########  for "By Species" tab on the Explore the Data page
-  specsdf,
   specsdf_protype,
   specsdf_reg,
   specsdf_size,
