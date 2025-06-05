@@ -1,0 +1,12 @@
+name: west_coast_purchase_and_production
+title: West Coast Purchase and Production
+username: erin.steiner
+account: erin.steiner
+server: test-connect.fisheries.noaa.gov
+hostUrl: https://test-connect.fisheries.noaa.gov/__api__
+appId: 373
+bundleId: 1914
+url: https://test-connect.fisheries.noaa.gov/content/ce06d589-f143-493b-a94e-90b33a8fc3b7/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

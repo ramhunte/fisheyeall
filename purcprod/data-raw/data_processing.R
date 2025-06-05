@@ -5,10 +5,12 @@
 # as they are not called in the app itself. just used in this script for cleaning
 
 #NOTE: this script does not need to be run again unless there are changes to the raw data in the future
-
+library(dplyr)
 ########################### Reading  Raw data #################################
-
+# Move mini_purchprod_targ.rds from fisheyedataprep to fisheyeall
+source("data-raw/Update_purcprod_files.R")
 # purchase production data
+
 clean_purcprod <- readRDS("data-raw/mini_purcprod_targ.RDS")
 
 # gdp deflator data
@@ -105,19 +107,18 @@ overviewdf <- clean_purcprod |>
   dplyr::select(-defl)
 
 
+
 # creating the factor order for the plots
-order <- overviewdf %>%
-  filter(
-    type == "All",
-         metric == "Production value") %>%
-  group_by(variable) %>%
+order <- overviewdf |>
+  filter(type == "All",
+         metric == "Production value") |>
+  group_by(variable) |>
   summarise(mean = mean(value, na.rm = TRUE
-  )) %>%
-  arrange(mean) %>%
+  )) |>
+  arrange(mean) |>
   pull(variable)
 
-
-# redorderign overview data frame
+# Apply the ordering to the overviewdf variable column as a factor
 overviewdf <- overviewdf %>%
   mutate(variable = factor(variable, levels = order))
 
