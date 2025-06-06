@@ -34,7 +34,7 @@ mod_other_tabs_ui <- function(id) {
       ), # END nav_panel
       # START nav_panel
       bslib::nav_panel(
-        "Processor Size/Type",
+        "Processor Size",
         class = "custom-card",
         size_func(inputID = ns("sizeInput")),
         pracs_func(inputID = ns("pracs2Input"))

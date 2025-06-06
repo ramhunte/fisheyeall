@@ -58,7 +58,7 @@ app_server <- function(input, output, session) {
     req(
       input$tab_top == "Metric",
       input$tab_bottom %in%
-        c("Production Activities", "Region", "Processor Size/Type"),
+        c("Production Activities", "Region", "Processor Size"),
       summary_inputs(),
       other_tabs_inputs()
     )
@@ -171,15 +171,15 @@ app_server <- function(input, output, session) {
           )
         )
     } else if (
-      # "Summary" and "Processor Size/Type"
-      input$tab_top == "Metric" && input$tab_bottom == "Processor Size/Type"
+      # "Summary" and "Processor Size"
+      input$tab_top == "Metric" && input$tab_bottom == "Processor Size"
     ) {
       df <- sumdf_size |>
         dplyr::filter(
           # "Summary" tab filters
           .data$metric %in% summary_inputs()$metric,
           # .data$statistic %in% summary_inputs()$stat,
-          # "Processor Size/Type" tab filters
+          # "Processor Size" tab filters
           .data$variable %in% other_tabs_inputs()$size,
           .data$cs %in% other_tabs_inputs()$pracs2
         ) |>
@@ -331,8 +331,8 @@ app_server <- function(input, output, session) {
             )
           )
       } else if (
-        # "By Product Type" and "Processor Size/Type"
-        input$tab_bottom == "Processor Size/Type"
+        # "By Product Type" and "Processor Size"
+        input$tab_bottom == "Processor Size"
       ) {
         df <- proddf_size |>
           dplyr::filter(
@@ -340,7 +340,7 @@ app_server <- function(input, output, session) {
             .data$metric %in% prod_type_inputs()$metric,
             .data$type %in% prod_type_inputs()$prod_type,
             # .data$statistic == prod_type_inputs()$stat,
-            # "Processor Size/Type" tab filters
+            # "Processor Size" tab filters
             .data$variable %in% other_tabs_inputs()$size,
             .data$cs %in% other_tabs_inputs()$pracs2
           ) |>
@@ -477,8 +477,8 @@ app_server <- function(input, output, session) {
             )
           )
       } else if (
-        # "By Species" and "Processor Size/Type"
-        input$tab_specs_bottom == "Processor Size/Type"
+        # "By Species" and "Processor Size"
+        input$tab_specs_bottom == "Processor Size"
       ) {
         df <- specsdf_size |>
           dplyr::filter(

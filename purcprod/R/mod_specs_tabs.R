@@ -31,7 +31,7 @@ mod_specs_tabs_ui <- function(id) {
       ),
 
       bslib::nav_panel(
-        "Processor Size/Type",
+        "Processor Size",
         class = "custom-card",
         size2_func(inputID = ns("size2Input"))
       ), # END nav_panel
