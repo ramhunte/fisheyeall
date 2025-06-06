@@ -115,9 +115,9 @@ specs_func <- function(inputID) {
     label = strong(em("Species")),
     choiceNames = list(
       # Tooltip inside label
-      tagList("All production ", bslib::tooltip(bsicons::bs_icon("info-circle"), "Includes all categories: Pacific whiting, non-whiting groundfish, and others")),
+      tagList("All production ", bslib::tooltip(bsicons::bs_icon("info-circle"), "Pacific whiting, non-whiting groundfish, and others")),
       "Pacific whiting",
-      tagList("Non-whiting groundfish ", bslib::tooltip(bsicons::bs_icon("info-circle"), "Includes sablefish, rockfish, Dover sole, and others")),
+      tagList("Non-whiting groundfish ", bslib::tooltip(bsicons::bs_icon("info-circle"), "Sablefish, rockfish, Dover sole, and others")),
       "Sablefish",
       "Rockfish",
       "Dover sole",
