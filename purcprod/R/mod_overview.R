@@ -232,8 +232,16 @@ mod_overview_ui <- function(id) {
           bslib::card_body(
             plotOutput(ns("pw_plot")),
             class = "p-0")
-        )
         ),
+
+        # # markup lollipop graph
+        bslib::nav_panel(
+          "Markup",
+          bslib::card_body(
+            plotOutput(ns("mark_plot")),
+            class = "p-0")
+        )
+      ),
 
         # heat plot card
         bslib::card(
@@ -475,6 +483,20 @@ mod_overview_server <- function(id) {
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
         upper_lim = 250
+      )
+    })
+
+    # Production weight chart
+    output$mark_plot <- renderPlot({
+      lollipop_func(
+        data = dplyr::filter(
+          df_loli(),
+          .data[["metric"]] == "Markup"
+        ),
+        year1 = input$year1Input,
+        range1 = input$yearrangeInput[1],
+        range2 = input$yearrangeInput[2],
+        upper_lim = 40
       )
     })
 
