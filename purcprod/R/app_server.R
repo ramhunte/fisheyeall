@@ -82,7 +82,6 @@ app_server <- function(input, output, session) {
           value = dplyr::case_when(
             .data$metric %in%
               c(
-                "Markup",
                 "Production price (per lb)",
                 "Production value",
                 "Purchase price (per lb)",
@@ -94,6 +93,7 @@ app_server <- function(input, output, session) {
             TRUE ~ .data$value
           ),
           unit_lab = dplyr::case_when(
+            .data$metric == "Markup" ~ .data$metric,
             .data$metric %in%
               c("Production weight", "Purchase weight") ~
               paste0(
@@ -135,7 +135,6 @@ app_server <- function(input, output, session) {
           value = dplyr::case_when(
             .data$metric %in%
               c(
-                "Markup",
                 "Production price (per lb)",
                 "Production value",
                 "Purchase price (per lb)",
@@ -147,6 +146,7 @@ app_server <- function(input, output, session) {
             TRUE ~ .data$value
           ),
           unit_lab = dplyr::case_when(
+            .data$metric == "Markup" ~ .data$metric,
             .data$metric %in%
               c("Production weight", "Purchase weight") ~
               paste0(
@@ -188,7 +188,6 @@ app_server <- function(input, output, session) {
           value = dplyr::case_when(
             .data$metric %in%
               c(
-                "Markup",
                 "Production price (per lb)",
                 "Production value",
                 "Purchase price (per lb)",
@@ -201,6 +200,7 @@ app_server <- function(input, output, session) {
           ),
 
           unit_lab = dplyr::case_when(
+            .data$metric == "Markup" ~ .data$metric,
             .data$metric %in%
               c("Production weight", "Purchase weight") ~
               paste0(
@@ -251,7 +251,6 @@ app_server <- function(input, output, session) {
             value = dplyr::case_when(
               .data$metric %in%
                 c(
-                  "Markup",
                   "Production price (per lb)",
                   "Production value",
                   "Purchase price (per lb)",
@@ -300,7 +299,6 @@ app_server <- function(input, output, session) {
             value = dplyr::case_when(
               .data$metric %in%
                 c(
-                  "Markup",
                   "Production price (per lb)",
                   "Production value",
                   "Purchase price (per lb)",
@@ -349,7 +347,6 @@ app_server <- function(input, output, session) {
             value = dplyr::case_when(
               .data$metric %in%
                 c(
-                  "Markup",
                   "Production price (per lb)",
                   "Production value",
                   "Purchase price (per lb)",
@@ -403,7 +400,6 @@ app_server <- function(input, output, session) {
             value = dplyr::case_when(
               .data$metric %in%
                 c(
-                  "Markup",
                   "Production price (per lb)",
                   "Production value",
                   "Purchase price (per lb)",
@@ -448,7 +444,6 @@ app_server <- function(input, output, session) {
             value = dplyr::case_when(
               .data$metric %in%
                 c(
-                  "Markup",
                   "Production price (per lb)",
                   "Production value",
                   "Purchase price (per lb)",
@@ -493,7 +488,6 @@ app_server <- function(input, output, session) {
             value = dplyr::case_when(
               .data$metric %in%
                 c(
-                  "Markup",
                   "Production price (per lb)",
                   "Production value",
                   "Purchase price (per lb)",

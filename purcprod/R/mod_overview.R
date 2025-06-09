@@ -175,26 +175,7 @@ mod_overview_ui <- function(id) {
               textOutput(ns("nbuy_text"), container = span))),
 
 
-              # tags$div(
-              #   style = "margin-bottom: 0.75rem;",
-              #   tags$div("Number of processors:", style = "font-size: 1.2rem;"),
-              #   textOutput(ns("nproc_text"), container = span)  # Span to style inline
-              # ),
-              #
 
-          # # Value content layout
-          # value = tags$div(
-          #   style = "font-weight: 400; font-size: 1.5rem;",  # Base font size for labels
-          #   tags$div(
-          #     style = "margin-bottom: 0.75rem;",
-          #     tags$div("Number of processors:", style = "font-size: 1.2rem;"),
-          #     textOutput(ns("nproc_text"), container = span)  # Span to style inline
-          #   ),
-          #   tags$div(
-          #     tags$div("Number of buyers:", style = "font-size: 1.2rem;"),
-          #     textOutput(ns("nbuy_text"), container = span)
-          #   )
-          # ),
           value = NULL,
           title = NULL,
           theme = bslib::value_box_theme(
@@ -234,11 +215,19 @@ mod_overview_ui <- function(id) {
             class = "p-0")
         ),
 
+        # # purchase value lollipop graph
+        bslib::nav_panel(
+          "Purchase Value ($ Millions)",
+          bslib::card_body(
+            plotOutput(ns("purcv_plot")),
+            class = "p-0")
+        ),
+
         # # markup lollipop graph
         bslib::nav_panel(
-          "Markup",
+          "Purchase Weight (lb Millions)",
           bslib::card_body(
-            plotOutput(ns("mark_plot")),
+            plotOutput(ns("purcw_plot")),
             class = "p-0")
         )
       ),
@@ -486,17 +475,31 @@ mod_overview_server <- function(id) {
       )
     })
 
-    # Production weight chart
-    output$mark_plot <- renderPlot({
+    # Purchase value chart
+    output$purcv_plot <- renderPlot({
       lollipop_func(
         data = dplyr::filter(
           df_loli(),
-          .data[["metric"]] == "Markup"
+          .data[["metric"]] == "Purchase value"
         ),
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 40
+        upper_lim = 130
+      )
+    })
+
+    # Purchase weight chart
+    output$purcw_plot <- renderPlot({
+      lollipop_func(
+        data = dplyr::filter(
+          df_loli(),
+          .data[["metric"]] == "Purchase weight"
+        ),
+        year1 = input$year1Input,
+        range1 = input$yearrangeInput[1],
+        range2 = input$yearrangeInput[2],
+        upper_lim = 350
       )
     })
 

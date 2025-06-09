@@ -115,6 +115,7 @@ app_ui <- function(request) {
 
           # START main panel navset_card_pill
           bslib::navset_card_pill(
+            full_screen = TRUE,
             # START Plot nav_panel
             bslib::nav_panel(
               title = "Plot",
