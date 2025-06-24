@@ -23,84 +23,90 @@ coverage <- readRDS("data-raw/coverage.rds")
 
 # this section subsets the data to be used for the "Summary" tab on the "Explore the Data" page
 
-# subsetting data for the "Production Activities" bottom tab under "Summary"
-sumdf_prac <- clean_purcprod |>
-  dplyr::filter(tab == 'Summary', cs == "")
+# subsetting data for the "Production Activities" bottom tab under "Metrics"
+met_prac <- clean_purcprod |>
+  dplyr::filter(type == "All product types",
+                char_cat == "All")
 
-# subsetting data for the "Region" bottom tab under "Summary"
-sumdf_reg <- clean_purcprod |>
+# subsetting data for the "Region" bottom tab under "Metric"
+met_reg <- clean_purcprod |>
   dplyr::filter(
-    tab == 'Summary',
-    # cs != "",
-    variable %in% c("California", "Washington and Oregon")
-  )
+    type == "All product types",
+    char_cat == "region")
 
-# subsetting data for the "Processor size/type" bottom tab under "Summary"
-sumdf_size <- clean_purcprod |>
+# subsetting data for the "Processor size/type" bottom tab under "Metric"
+met_size <- clean_purcprod |>
   dplyr::filter(
-    tab == 'Summary',
-    # cs != "",
-    variable %in% c("Small/Medium", "Large", "Non-processor")
-  )
+    type == "All product types",
+    char_cat == "company_size")
 
 
 ####################### Cleaning "By Product Type" tab data ###########################
 
 # this section subsets the data to be used for the "By Product Type" tab on the "Explore the Data" page
 
-# subsetting data for the "Production Activities" bottom tab under "By Product Type"
-proddf_prac <- clean_purcprod |>
-  dplyr::filter(tab == 'Product',
-                cs == "",
-                !is.na(value))
-
-# subsetting data for the "Region" bottom tab under "By Product Type"
-proddf_reg <- clean_purcprod |>
+# subsetting data for the "Production Activities" bottom tab under "Product Type"
+prod_prac <- clean_purcprod |>
   dplyr::filter(
-    tab == 'Product',
-    cs != "",
-    variable %in% c("California", "Washington and Oregon")
-  )
+   metric %in% c("Production value",
+                 "Production weight",
+                 "Production price (per lb)"),
+   char_cat == "All")
+
+# subsetting data for the "Region" bottom tab under "Product Type"
+prod_reg <- clean_purcprod |>
+  dplyr::filter(
+    metric %in% c("Production value",
+                  "Production weight",
+                  "Production price (per lb)"),
+    char_cat == "region")
 
 # subsetting data for the "Processor size/type" bottom tab under "By Product Type"
-proddf_size <- clean_purcprod |>
+prod_size <- clean_purcprod |>
   dplyr::filter(
-    tab == 'Product',
-    variable %in% c("Small/Medium", "Large", "Non-processor"),
-    !is.na(value)
-  )
+    metric %in% c("Production value",
+                  "Production weight",
+                  "Production price (per lb)"),
+    char_cat == "company_size")
 
 
 ####################### Cleaning "Species" tab data ###########################
 
-# this data set is going to be similar to the By Product Type tab but flipped. However,
-# some data labeled a "thousands" and some as "millions" will be put on the same plot
-# here (unlike in the previous data frames), so I am restructuring raw data so it is
-# all shown as numbers in the millions and not also thousands.
 
-
-# making sub df's for filters
-specsdf_protype <- proddf_prac |>
-  dplyr::filter(tab == "Product")
-
-specsdf_reg <- clean_purcprod |>
+# making species data
+specs_prod <- clean_purcprod |>
   dplyr::filter(
-    tab == "Overview" & type %in% c("California", "Washington and Oregon")
+    metric %in% c("Production value",
+                  "Production weight",
+                  "Production price (per lb)"),
+    char_cat == "All"
+    )
+
+specs_reg <- clean_purcprod |>
+  dplyr::filter(
+    metric %in% c("Production value",
+                  "Production weight",
+                  "Production price (per lb)"),
+    char_cat == "region"
   )
 
-specsdf_size <- clean_purcprod |>
-  dplyr::filter(tab == "Overview" & type %in% c("Small/Medium", "Large"))
-
+specs_size <- clean_purcprod |>
+  dplyr::filter(
+    metric %in% c("Production value",
+                  "Production weight",
+                  "Production price (per lb)"),
+    char_cat == "company_size"
+  )
 
 ####################### Cleaning "Overview" page data ###########################
 
-overviewdf <- clean_purcprod |>
+overview <- clean_purcprod |>
   dplyr::filter(
-    tab == "Overview"
+    type == "All product types"
   ) |>
   dplyr::mutate(
     value = dplyr::case_when(
-      metric == "Production value" ~ value / defl,  # View data in terms of 2023 deflator value
+      metric %in% c("Production value", "Purchase value") ~ value / defl,  # View data in terms of 2023 deflator value
       TRUE ~ value
     )
   ) |>
@@ -110,17 +116,16 @@ overviewdf <- clean_purcprod |>
 
 # creating the factor order for the plots
 order <- overviewdf |>
-  filter(type == "All",
-         metric == "Production value") |>
-  group_by(variable) |>
+  filter(metric == "Production value") |>
+  group_by(production_activity) |>
   summarise(mean = mean(value, na.rm = TRUE
   )) |>
   arrange(mean) |>
-  pull(variable)
+  pull(production_activity)
 
 # Apply the ordering to the overviewdf variable column as a factor
-overviewdf <- overviewdf %>%
-  mutate(variable = factor(variable, levels = order))
+overview <- overviewdf %>%
+  mutate(production_activity = factor(production_activity, levels = order))
 
 coverage <- coverage %>%
   mutate(EDCSPID = factor(EDCSPID, levels = order))
@@ -170,18 +175,14 @@ line_col <- c(
   "Washington and Oregon" = '#C1052F',
 
   # processor size colors
-  "Small" = '#001B70',
-  "Medium" = '#C1052F',
   "Small/Medium" = '#005B70',
   "Large" = '#648C1C',
-  "Non-processor" = '#D89B2C',
 
   # product type colors
-  "Fillet (Whiting only)" = "#9E2B25",
+  "All product types" = "#8E6C8A",
   "Fresh" = "#208AAE",
   "Frozen" = "#FF9F1C",
-  "Headed-and-gutted (Whiting only)" = "#8E6C8A",
-  "Other" = "#B1B695",
+  "Other" = "#9E2B25",
   "Unprocessed" = "#607744"
 )
 
@@ -192,11 +193,8 @@ line_ty <- c(
   "Washington and Oregon" = 'solid',
 
   # processor size
-  "Small" = 'solid',
-  "Medium" = 'solid',
   "Small/Medium" = 'solid',
   "Large" = 'solid',
-  "Non-processor" = 'solid',
 
   # species
   "All production" = "solid",
@@ -221,10 +219,9 @@ line_ty <- c(
   "Other species" = 'dashed',
 
   # product type
-  "Fillet (Whiting only)" = "solid",
+  "All product types" = "solid",
   "Fresh" = "solid",
   "Frozen" = "solid",
-  "Headed-and-gutted (Whiting only)" = "solid",
   "Other" = "solid",
   "Unprocessed" = "solid"
 )
@@ -238,20 +235,20 @@ usethis::use_data(
   ########### GDP deflator vals
   gdp_defl,
   ########### for "Summary" tab on the Explore the Data page
-  sumdf_prac,
-  sumdf_reg,
-  sumdf_size,
+  sum_prac,
+  sum_reg,
+  sum_size,
   ###########  for "By Product Type" tab on the Explore the Data page
-  proddf_prac,
-  proddf_reg,
-  proddf_size,
+  prod_prac,
+  prod_reg,
+  prod_size,
   ###########  for "By Species" tab on the Explore the Data page
-  specsdf_protype,
-  specsdf_reg,
-  specsdf_size,
+  specs_prod,
+  specs_reg,
+  specs_size,
 
   ###########  for "Overview" page
-  overviewdf,
+  overview,
   coverage,
   order,
 

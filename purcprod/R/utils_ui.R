@@ -76,26 +76,15 @@ metric_func2 <- function(inputID) {
   )
 }
 
-# creates a radiobutton picker to choose statistic
-stat_func <- function(inputID) {
-  radioButtons(
-    inputId = inputID,
-    label = "Statistic",
-    choices = c("Mean", "Median", "Total"),
-    selected = "Median"
-  )
-}
-
 # creates a checkbox to choose product type
 prodtype_func <- function(inputID, label) {
   checkboxGroupInput(
     inputId = inputID,
     label = strong(em(label)),
     choices = c(
-      "Fillet (Whiting only)",
+      "All product types",
       "Fresh",
       "Frozen",
-      "Headed-and-gutted (Whiting only)",
       "Unprocessed",
       "Other"
     ),

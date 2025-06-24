@@ -266,7 +266,7 @@ mod_overview_server <- function(id) {
     observe({
       req(input$year1Input, input$yearrangeInput)
 
-      filtered <- overviewdf |>
+      filtered <- overview |>
         dplyr::filter(
           !is.na(.data[["value"]]),
           .data[["year"]] %in% # selecting just years that user is interested in
@@ -274,9 +274,7 @@ mod_overview_server <- function(id) {
               input$year1Input, # from first year picker
               seq(input$yearrangeInput[1], input$yearrangeInput[2]) # from second year range slider
             ),
-          # .data[["statistic"]] == "Total",
-          # .data[["metric"]] %in% c("Production value", "Production weight"), # production value and weight for graphs
-          .data[["type"]] %in% c(input$regsizeInput)
+          .data[["characteristic"]] %in% c(input$regsizeInput)
         ) |>
         dplyr::mutate(
           period = dplyr::case_when(
@@ -302,7 +300,7 @@ mod_overview_server <- function(id) {
       df |>
         dplyr::filter(
           .data[["metric"]] == "Production value",
-          .data[["variable"]] == "All production"
+          .data[["production_activity"]] == "All production"
         ) |>
         dplyr::group_by(.data[["period"]]) |>
         dplyr::summarise(value = mean(.data[["value"]], na.rm = TRUE))
@@ -320,7 +318,7 @@ mod_overview_server <- function(id) {
             c(seq(input$yearrangeInput[1], input$yearrangeInput[2]))
         ) |>
         # summarizing means of the values across range
-        dplyr::group_by(.data[["variable"]], .data[["metric"]]) |>
+        dplyr::group_by(.data[["production_activity"]], .data[["metric"]]) |>
         dplyr::summarise(
           value = mean(.data[["value"]], na.rm = TRUE),
           .groups = "drop"
@@ -345,7 +343,7 @@ mod_overview_server <- function(id) {
         dplyr::filter(.data[["year"]] == input$year1Input) |>
         dplyr::mutate(year = as.character(.data[["year"]])) |>
         dplyr::select(
-          "variable",
+          "production_activity",
           "metric",
           "value",
           "year"
@@ -368,7 +366,7 @@ mod_overview_server <- function(id) {
       master_df() |>
         dplyr::filter(
           .data[["metric"]] == "Production value",
-          .data[["variable"]] == "All production",
+          .data[["production_activity"]] == "All production",
           .data[["year"]] == input$year1Input
         ) |>
         dplyr::pull(.data[["value"]]) |>
@@ -427,7 +425,7 @@ mod_overview_server <- function(id) {
       master_df() |>
         dplyr::filter(
           .data[["metric"]] == "Production value",
-          .data[["variable"]] == "All production",
+          .data[["production_activity"]] == "All production",
           .data[["year"]] == input$year1Input
         ) |>
         dplyr::pull(.data[["number_of_processors"]])
@@ -439,7 +437,7 @@ mod_overview_server <- function(id) {
       master_df() |>
         dplyr::filter(
           .data[["metric"]] == "Production value",
-          .data[["variable"]] == "All production",
+          .data[["production_activity"]] == "All production",
           .data[["year"]] == input$year1Input
         ) |>
         dplyr::pull(.data[["number_of_buyers"]])

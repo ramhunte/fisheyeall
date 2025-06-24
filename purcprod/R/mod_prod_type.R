@@ -15,7 +15,6 @@ mod_prod_type_ui <- function(id) {
   tagList(
     metric_func2(inputID = ns("metricInput")),
     prodtype_func(inputID = ns("protypeInput"), label = "Product type")
-    # stat_func(inputID = ns("statInput"))
   )
 }
 

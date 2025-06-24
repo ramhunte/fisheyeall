@@ -61,7 +61,7 @@ app_ui <- function(request) {
               bslib::nav_panel(
                 "Metric",
                 class = "custom-card",
-                mod_summary_ui("summary_1")
+                mod_summary_ui("met_1")
               ), # END Summary nav_panel
 
               # START By Product Type nav_panel

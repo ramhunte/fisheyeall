@@ -24,8 +24,8 @@ app_server <- function(input, output, session) {
   # Loading Module Server Outputs
 
   # top tabs
-  summary_inputs <- mod_summary_server("summary_1")
-  prod_type_inputs <- mod_prod_type_server("prod_type_1")
+  met_inputs <- mod_summary_server("met_1")
+  prod_type_inputs <- mod_prod_type_server("prod_1")
   specs_inputs <- mod_specs_server("specs_1")
 
   # bottom tabs
@@ -54,12 +54,12 @@ app_server <- function(input, output, session) {
 
   ############################# "Summary" tab: reactive data frame  #################################
 
-  sum_plot_df <- reactive({
+  met_plot_df <- reactive({
     req(
       input$tab_top == "Metric",
       input$tab_bottom %in%
         c("Production Activities", "Region", "Processor Size"),
-      summary_inputs(),
+      met_inputs(),
       other_tabs_inputs()
     )
 
@@ -68,13 +68,12 @@ app_server <- function(input, output, session) {
       # "Summary" and "Production Activities"
       input$tab_top == "Metric" && input$tab_bottom == "Production Activities"
     ) {
-      df <- sumdf_prac |>
+      df <- met_prac |>
         dplyr::filter(
           # "Summary" tab filters
-          .data$metric %in% summary_inputs()$metric,
-          # .data$statistic %in% summary_inputs()$stat,
+          .data$metric %in% met_inputs()$metric,
           # "Production Activities"
-          .data$variable %in%
+          .data$production_activity %in%
             c(other_tabs_inputs()$prodac, other_tabs_inputs()$osps)
         ) |>
         dplyr::mutate(
@@ -121,14 +120,14 @@ app_server <- function(input, output, session) {
       # "Summary" and "Region"
       input$tab_top == "Metric" && input$tab_bottom == "Region"
     ) {
-      df <- sumdf_reg |>
+      df <- met_reg |>
         dplyr::filter(
           # "Summary" tab filters
-          .data$metric %in% summary_inputs()$metric,
-          # .data$statistic %in% summary_inputs()$stat,
+          .data$metric %in% met_inputs()$metric,
+          # .data$statistic %in% met_inputs()$stat,
           # "Region" tab filters
-          .data$variable %in% other_tabs_inputs()$reg,
-          .data$cs %in% other_tabs_inputs()$pracs1
+          .data$characteristic %in% other_tabs_inputs()$reg,
+          .data$production_activity %in% other_tabs_inputs()$pracs1
         ) |>
         dplyr::mutate(
           # adjusting price realted cols for deflation value
@@ -174,14 +173,13 @@ app_server <- function(input, output, session) {
       # "Summary" and "Processor Size"
       input$tab_top == "Metric" && input$tab_bottom == "Processor Size"
     ) {
-      df <- sumdf_size |>
+      df <- met_size |>
         dplyr::filter(
           # "Summary" tab filters
-          .data$metric %in% summary_inputs()$metric,
-          # .data$statistic %in% summary_inputs()$stat,
+          .data$metric %in% met_inputs()$metric,
           # "Processor Size" tab filters
-          .data$variable %in% other_tabs_inputs()$size,
-          .data$cs %in% other_tabs_inputs()$pracs2
+          .data$characteristic %in% other_tabs_inputs()$size,
+          .data$production_activity %in% other_tabs_inputs()$pracs2
         ) |>
         dplyr::mutate(
           # adjusting price realted cols for deflation value
@@ -236,14 +234,13 @@ app_server <- function(input, output, session) {
     # "By Product Type" and "Production Acitivities"
     if (input$tab_top == "Product Type") {
       if (input$tab_bottom == "Production Activities") {
-        df <- proddf_prac |>
+        df <- prod_prac |>
           dplyr::filter(
             # "By Product Type" tab filters
             .data$metric %in% prod_type_inputs()$metric,
             .data$type %in% prod_type_inputs()$prod_type,
-            # .data$statistic == prod_type_inputs()$stat,
             # "Production Activities" tab filters
-            .data$variable %in%
+            .data$production_activity %in%
               c(other_tabs_inputs()$prodac, other_tabs_inputs()$osps)
           ) |>
           dplyr::mutate(
@@ -284,15 +281,14 @@ app_server <- function(input, output, session) {
         # "By Product Type" and "Region"
         input$tab_bottom == "Region"
       ) {
-        df <- proddf_reg |>
+        df <- prod_reg |>
           dplyr::filter(
             # "By Product Type" tab filters
             .data$metric %in% prod_type_inputs()$metric,
             .data$type %in% prod_type_inputs()$prod_type,
-            # .data$statistic %in% prod_type_inputs()$stat,
             # "Region" tab filters
-            .data$variable %in% other_tabs_inputs()$reg,
-            .data$cs %in% other_tabs_inputs()$pracs1
+            .data$characteristic %in% other_tabs_inputs()$reg,
+            .data$production_activity %in% other_tabs_inputs()$pracs1
           ) |>
           dplyr::mutate(
             # adjusting price realted cols for deflation value
@@ -332,15 +328,14 @@ app_server <- function(input, output, session) {
         # "By Product Type" and "Processor Size"
         input$tab_bottom == "Processor Size"
       ) {
-        df <- proddf_size |>
+        df <- prod_size |>
           dplyr::filter(
             # "By Product Type" tab filters
             .data$metric %in% prod_type_inputs()$metric,
             .data$type %in% prod_type_inputs()$prod_type,
-            # .data$statistic == prod_type_inputs()$stat,
             # "Processor Size" tab filters
-            .data$variable %in% other_tabs_inputs()$size,
-            .data$cs %in% other_tabs_inputs()$pracs2
+            .data$characteristic %in% other_tabs_inputs()$size,
+            .data$production_activity %in% other_tabs_inputs()$pracs2
           ) |>
           dplyr::mutate(
             # adjusting price related cols for deflation value
@@ -387,11 +382,11 @@ app_server <- function(input, output, session) {
   specs_plot_df <- reactive({
     if (input$tab_top == "Species") {
       if (input$tab_specs_bottom == "Product Type") {
-        df <- specsdf_protype |>
+        df <- specs_prod |>
           dplyr::filter(
             # "By Species" tab filters
             .data$metric %in% specs_inputs()$metric,
-            .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
+            .data$production_activity %in% c(specs_inputs()$specs, specs_inputs()$os),
             # bottom tab filters
             .data$type %in% specs_tabs_inputs()$prodtype
           ) |>
@@ -411,14 +406,14 @@ app_server <- function(input, output, session) {
             unit_lab = dplyr::case_when(
               .data$metric == "Production weight" ~
                 paste0(
-                  .data$variable,
+                  .data$production_activity,
                   ": ",
                   .data$unit,
                   " lbs"
                 ),
               TRUE ~
                 paste0(
-                  .data$variable,
+                  .data$production_activity,
                   ": ",
                   .data$unit,
                   " ",
@@ -431,11 +426,11 @@ app_server <- function(input, output, session) {
         # "By Species" and "Region"
         input$tab_specs_bottom == "Region"
       ) {
-        df <- specsdf_reg |>
+        df <- specs_reg |>
           dplyr::filter(
             # "By Species" tab filters
             .data$metric %in% specs_inputs()$metric,
-            .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
+            .data$production_activity %in% c(specs_inputs()$specs, specs_inputs()$os),
             # bottom tab filters
             .data$type %in% specs_tabs_inputs()$regtype
           ) |>
@@ -455,14 +450,14 @@ app_server <- function(input, output, session) {
             unit_lab = dplyr::case_when(
               .data$metric == "Production weight" ~
                 paste0(
-                  .data$variable,
+                  .data$production_activity,
                   ": ",
                   .data$unit,
                   " lbs"
                 ),
               TRUE ~
                 paste0(
-                  .data$variable,
+                  .data$production_activity,
                   ": ",
                   .data$unit,
                   " ",
@@ -479,7 +474,7 @@ app_server <- function(input, output, session) {
           dplyr::filter(
             # "By Species" tab filters
             .data$metric %in% specs_inputs()$metric,
-            .data$variable %in% c(specs_inputs()$specs, specs_inputs()$os),
+            .data$production_activity %in% c(specs_inputs()$specs, specs_inputs()$os),
             # bottom tab filters
             .data$type %in% specs_tabs_inputs()$sizetype
           ) |>
@@ -499,14 +494,14 @@ app_server <- function(input, output, session) {
             unit_lab = dplyr::case_when(
               .data$metric == "Production weight" ~
                 paste0(
-                  .data$variable,
+                  .data$production_activity,
                   ": ",
                   .data$unit,
                   " lbs"
                 ),
               TRUE ~
                 paste0(
-                  .data$variable,
+                  .data$production_activity,
                   ": ",
                   .data$unit,
                   " ",
@@ -527,14 +522,13 @@ app_server <- function(input, output, session) {
   # conditional render depending on which tab_top is selected
 
   output$exp_plot_ui <- renderPlot({
-    # "Summary" tab plot
+    # "Metric" tab plot
     if (input$tab_top == "Metric") {
       plot_func(
         # plot function
-        data = sum_plot_df(), # "Summary" tab reactive data frame
-        # lab = summary_inputs()$stat, # using the statistic as label
+        data = met_plot_df(), # "Summary" tab reactive data frame
         lab = NULL,
-        group = "variable", # grouping by variable
+        group = "production_activity", # grouping by variable
         facet = "unit_lab" # faceting by unit label
         # )
       )
@@ -542,9 +536,8 @@ app_server <- function(input, output, session) {
     } else if (input$tab_top == "Product Type") {
       plot_func(
         data = prod_plot_df(), # same steps as above for "Summary" ^^
-        # lab = prod_type_inputs()$stat,
         lab = prod_type_inputs()$metric,
-        group = "variable",
+        group = "type",
         facet = "unit_lab"
         # )
       )
@@ -553,7 +546,7 @@ app_server <- function(input, output, session) {
       plot_func(
         data = specs_plot_df(),
         lab = specs_inputs()$metric,
-        group = "type", # faceting by product type (different column than variable for previous examples ^)
+        group = "production_activity", # faceting by product type (different column than variable for previous examples ^)
         facet = "unit_lab",
       )
     }
@@ -566,7 +559,7 @@ app_server <- function(input, output, session) {
   output$table <- DT::renderDT(
     {
       if (input$tab_top == "Metric") {
-        df <- sum_plot_df() #render "Summary" tab table
+        df <- met_plot_df() #render "Summary" tab table
       } else if (input$tab_top == "Product Type") {
         df <- prod_plot_df() #render "By Product Type" tab table
       } else if (input$tab_top == "Species") {
@@ -592,9 +585,9 @@ app_server <- function(input, output, session) {
     content = function(file) {
       # conditional table render depending on tab_top selection
       if (input$tab_top == "Metric") {
-        utils::write.csv(sum_plot_df(), file)
+        utils::write.csv(met_plot_df(), file)
       } else if (input$tab_top == "Product Type") {
-        utils::write.csv(prod_plot_df(), file)
+        utils::write.csv(prod_type_plot_df(), file)
       } else if (input$tab_top == "Species") {
         utils::write.csv(specs_plot_df(), file)
       }
