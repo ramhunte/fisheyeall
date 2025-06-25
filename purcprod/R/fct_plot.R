@@ -22,7 +22,7 @@
 
 lollipop_func <- function(data, year1, range1, range2, upper_lim) {
 
-  data <- subset(data, !variable %in% c('All production', 'Groundfish production', 'Non-whiting groundfish', 'Other species production'))
+  data <- subset(data, !production_activity %in% c('All production', 'Groundfish production', 'Non-whiting groundfish', 'Other species production'))
   # range label for the graph legend
   # if year range is the same (e.g. 2020-2020 avg., then making it show just 2020)
   range_label <- if (range1 != range2) {
@@ -42,14 +42,14 @@ lollipop_func <- function(data, year1, range1, range2, upper_lim) {
     data = data,
     ggplot2::aes(
       x = .data[["value"]],
-      y = .data[["variable"]],
-      group = .data[["variable"]],
+      y = .data[["production_activity"]],
+      group = .data[["production_activity"]],
       color = factor(.data[["year"]])
     )
   ) +
-    # Draw segments connecting the two years for each variable
+    # Draw segments connecting the two years for each production_activity
     ggplot2::geom_line(
-      aes(group = .data[["variable"]]),
+      aes(group = .data[["production_activity"]]),
       color = pal[["value2"]],
       linewidth = 1
     ) +
@@ -180,7 +180,7 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
       ),
       linewidth = 0.75
     ) +
-    scale_fill_manual(values = line_col) +
+    # scale_fill_manual(values = line_col) +
     scale_color_manual(values = line_col) +
     scale_linetype_manual(values = line_ty) +
     theme_minimal() +
@@ -227,11 +227,7 @@ plot_func <- function(data, lab, group, facet, line = "solid", title = NULL) {
 process_df <- function(df, cs) {
   # list of columns to remove that are not needed
   cols_to_remove <- c(
-    "statistic",
-    "tab",
-    "defl",
-    "cs",
-    "category"
+    "defl"
   )
 
   df |>
@@ -257,10 +253,8 @@ process_df <- function(df, cs) {
     dplyr::rename_with(
       ~ dplyr::case_when(
         . == "year" ~ "Year",
-        . == "n" ~ "Number of processors",
         . == "value" ~ "Value",
         . == "type" ~ "Product type",
-        . == "variable" ~ "Variable",
         . == "metric" ~ "Metric",
         T ~ .
       )

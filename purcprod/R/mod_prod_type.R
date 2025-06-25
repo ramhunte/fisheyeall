@@ -29,7 +29,6 @@ mod_prod_type_server <- function(id) {
       list(
         metric = input$metricInput,
         prod_type = input$protypeInput
-        # stat = input$statInput
       )
     }))
   })

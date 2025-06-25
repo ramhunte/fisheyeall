@@ -35,7 +35,7 @@ mod_overview_ui <- function(id) {
               options = list(container = "body"), # optional: avoids overflow issues
               style = "position: absolute; top: 10px; right: 10px; cursor: pointer;"
             ),
-            choices = unique(sumdf_prac$year),
+            choices = unique(met_prac$year),
             selected = "2023",
             options = list(`style` = "btn-year1")
           )
@@ -58,8 +58,8 @@ mod_overview_ui <- function(id) {
               options = list(container = "body"), # optional: avoids overflow issues
               style = "position: absolute; top: 10px; right: 10px; cursor: pointer;"
             ),
-            min = min(sumdf_prac$year),
-            max = max(sumdf_prac$year),
+            min = min(met_prac$year),
+            max = max(met_prac$year),
             value = c(2015, 2020)
           )
         ), # END div
@@ -143,17 +143,6 @@ mod_overview_ui <- function(id) {
           showcase = bsicons::bs_icon("graph-up")
         ),
 
-        # Number of observations value box
-        # bslib::value_box(
-          # title = "Number of processors",
-          # value = textOutput(ns("n_text")),
-          # theme = bslib::value_box_theme(
-          #   bg = pal[["value4"]],
-          #   fg = pal[["bg_plot"]]
-          # ),
-          # showcase = bsicons::bs_icon("hash")
-        # )
-
         bslib::value_box(
 
           tags$div(
@@ -185,11 +174,6 @@ mod_overview_ui <- function(id) {
           showcase = bsicons::bs_icon("hash")
 
         )
-
-
-
-
-
       ),
 
       ######################### Plot Cards ##########################
@@ -215,9 +199,9 @@ mod_overview_ui <- function(id) {
             class = "p-0")
         ),
 
-        # # purchase value lollipop graph
+        # # Purchase cost lollipop graph
         bslib::nav_panel(
-          "Purchase Value ($ Millions)",
+          "Purchase Cost ($ Millions)",
           bslib::card_body(
             plotOutput(ns("purcv_plot")),
             class = "p-0")
@@ -455,7 +439,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 400
+        upper_lim = NULL
       )
     })
 
@@ -469,21 +453,21 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 250
+        upper_lim = NULL
       )
     })
 
-    # Purchase value chart
+    # Purchase cost chart
     output$purcv_plot <- renderPlot({
       lollipop_func(
         data = dplyr::filter(
           df_loli(),
-          .data[["metric"]] == "Purchase value"
+          .data[["metric"]] == "Purchase cost"
         ),
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 130
+        upper_lim = NULL
       )
     })
 
@@ -497,7 +481,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = 350
+        upper_lim = NULL
       )
     })
 

@@ -49,7 +49,7 @@ metric_func1 <- function(inputID) {
       "Production weight",
       "Purchase price (per lb)",
       "Recovery rate",
-      "Purchase value",
+      "Purchase cost",
       "Purchase weight"
     ),
     selected = c(
@@ -185,7 +185,9 @@ pracs_func <- function(inputID) {
     choices = c(
       'All production',
       'Groundfish production',
-      'Other species production'
+      'Other species production',
+      'Non-whiting groundfish',
+      'Pacific whiting'
     ),
     selected = "All production"
   )

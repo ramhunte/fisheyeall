@@ -101,7 +101,7 @@ app_ui <- function(request) {
             defl_func(
               inputID = "deflInput",
               label = "Deflator Year",
-              choices = unique(sumdf_prac$year),
+              choices = unique(met_prac$year),
               selected = 2023,
               width = "130px",
               options = list(`style` = "btn-year1")

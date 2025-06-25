@@ -115,7 +115,7 @@ overview <- clean_purcprod |>
 
 
 # creating the factor order for the plots
-order <- overviewdf |>
+order <- overview |>
   filter(metric == "Production value") |>
   group_by(production_activity) |>
   summarise(mean = mean(value, na.rm = TRUE
@@ -123,8 +123,8 @@ order <- overviewdf |>
   arrange(mean) |>
   pull(production_activity)
 
-# Apply the ordering to the overviewdf variable column as a factor
-overview <- overviewdf %>%
+# Apply the ordering to the overview variable column as a factor
+overview <- overview %>%
   mutate(production_activity = factor(production_activity, levels = order))
 
 coverage <- coverage %>%
@@ -183,6 +183,7 @@ line_col <- c(
   "Fresh" = "#208AAE",
   "Frozen" = "#FF9F1C",
   "Other" = "#9E2B25",
+  "Surimi" = "#1E2B25",
   "Unprocessed" = "#607744"
 )
 
@@ -223,7 +224,8 @@ line_ty <- c(
   "Fresh" = "solid",
   "Frozen" = "solid",
   "Other" = "solid",
-  "Unprocessed" = "solid"
+  "Unprocessed" = "solid",
+  "Surimi" = "solid"
 )
 
 
@@ -235,9 +237,9 @@ usethis::use_data(
   ########### GDP deflator vals
   gdp_defl,
   ########### for "Summary" tab on the Explore the Data page
-  sum_prac,
-  sum_reg,
-  sum_size,
+  met_prac,
+  met_reg,
+  met_size,
   ###########  for "By Product Type" tab on the Explore the Data page
   prod_prac,
   prod_reg,
