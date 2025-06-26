@@ -1,136 +1,28 @@
-## this script processes the raw data stored in the data-raw file
-# it is used for development purposes only. I take the raw data (raw_purcprod), clean it (clean_purcprod)
-# and then subset it into smaller data frames for individual tabs and their associated plots
-# I intentionally do not save raw_purcprod, clean_purcprod, nor proddf to the 'data' folder
-# as they are not called in the app itself. just used in this script for cleaning
-
 #NOTE: this script does not need to be run again unless there are changes to the raw data in the future
-library(dplyr)
-########################### Reading  Raw data #################################
-# Move mini_purchprod_targ.rds from fisheyedataprep to fisheyeall
-source("data-raw/Update_purcprod_files.R")
-# purchase production data
-
-clean_purcprod <- readRDS("data-raw/mini_purcprod_targ.RDS")
-
-# gdp deflator data
-gdp_defl <- readRDS("data-raw/gdp_defl.rds")
-
-# EDC coverage data
-coverage <- readRDS("data-raw/coverage.rds")
-
-####################### Cleaning "Summary" tab data ###########################
-
-# this section subsets the data to be used for the "Summary" tab on the "Explore the Data" page
-
-# subsetting data for the "Production Activities" bottom tab under "Metrics"
-met_prac <- clean_purcprod |>
-  dplyr::filter(type == "All product types",
-                char_cat == "All")
-
-# subsetting data for the "Region" bottom tab under "Metric"
-met_reg <- clean_purcprod |>
-  dplyr::filter(
-    type == "All product types",
-    char_cat == "region")
-
-# subsetting data for the "Processor size/type" bottom tab under "Metric"
-met_size <- clean_purcprod |>
-  dplyr::filter(
-    type == "All product types",
-    char_cat == "company_size")
 
 
-####################### Cleaning "By Product Type" tab data ###########################
-
-# this section subsets the data to be used for the "By Product Type" tab on the "Explore the Data" page
-
-# subsetting data for the "Production Activities" bottom tab under "Product Type"
-prod_prac <- clean_purcprod |>
-  dplyr::filter(
-   metric %in% c("Production value",
-                 "Production weight",
-                 "Production price (per lb)"),
-   char_cat == "All")
-
-# subsetting data for the "Region" bottom tab under "Product Type"
-prod_reg <- clean_purcprod |>
-  dplyr::filter(
-    metric %in% c("Production value",
-                  "Production weight",
-                  "Production price (per lb)"),
-    char_cat == "region")
-
-# subsetting data for the "Processor size/type" bottom tab under "By Product Type"
-prod_size <- clean_purcprod |>
-  dplyr::filter(
-    metric %in% c("Production value",
-                  "Production weight",
-                  "Production price (per lb)"),
-    char_cat == "company_size")
+# this script processes the raw data stored in the data-raw file
+# it is used for development purposes only. Data is processed and saved in the
+# fisheyedataprep/dataprep_Purcprod repo as "purcprod_data.RData" it is then
+# moved to this repo in the data-raw folder where it is loaded in this script.
+# After loaded, it is saved using use_data() at the bottom of this script telling
+# the app to use this data internally in the app. This does not need to be run
+# again unless the "purcprod_data.RData" is changed or the color pallette/line types
+# are changed below. It just needs to be run during development unless data changes are made
 
 
-####################### Cleaning "Species" tab data ###########################
+# loading in all data from "fisheyedataprep/dataprep_Purcprod" repo
+# this contains all the data we need to run the app including:
 
+# - overview (overview page data)
+# - met_prac, met_reg, met_size (metric tab data)
+# - prod_prac, prod_reg, prod_size (product type tab)
+# - specs_prod, specs_reg, specs_size (species data)
+# - gdp_defl (GDP deflator value data)
+# - coverage (EDC coverage rate data)
+# - clean_purcprod (All purchase production app data)
 
-# making species data
-specs_prod <- clean_purcprod |>
-  dplyr::filter(
-    metric %in% c("Production value",
-                  "Production weight",
-                  "Production price (per lb)"),
-    char_cat == "All"
-    )
-
-specs_reg <- clean_purcprod |>
-  dplyr::filter(
-    metric %in% c("Production value",
-                  "Production weight",
-                  "Production price (per lb)"),
-    char_cat == "region"
-  )
-
-specs_size <- clean_purcprod |>
-  dplyr::filter(
-    metric %in% c("Production value",
-                  "Production weight",
-                  "Production price (per lb)"),
-    char_cat == "company_size"
-  )
-
-####################### Cleaning "Overview" page data ###########################
-
-overview <- clean_purcprod |>
-  dplyr::filter(
-    type == "All product types"
-  ) |>
-  dplyr::mutate(
-    value = dplyr::case_when(
-      metric %in% c("Production value", "Purchase value") ~ value / defl,  # View data in terms of 2023 deflator value
-      TRUE ~ value
-    )
-  ) |>
-  dplyr::select(-defl)
-
-
-
-# creating the factor order for the plots
-order <- overview |>
-  filter(metric == "Production value") |>
-  group_by(production_activity) |>
-  summarise(mean = mean(value, na.rm = TRUE
-  )) |>
-  arrange(mean) |>
-  pull(production_activity)
-
-# Apply the ordering to the overview variable column as a factor
-overview <- overview %>%
-  mutate(production_activity = factor(production_activity, levels = order))
-
-coverage <- coverage %>%
-  mutate(EDCSPID = factor(EDCSPID, levels = order))
-
-
+load("data-raw/purcprod_data.RData")
 
 
 

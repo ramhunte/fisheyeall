@@ -34,7 +34,7 @@ app_server <- function(input, output, session) {
 
   # output for conditional bottom tabs
 
-  # if top nav_panels are "Summary" or "By Product Type", then "other_tabs_1"
+  # if top nav_panels are "Metric" or "By Product Type", then "other_tabs_1"
   output$otherTabs <- renderUI({
     mod_other_tabs_ui("other_tabs_1")
   })
@@ -48,11 +48,11 @@ app_server <- function(input, output, session) {
 
   defl_val <- reactive({
     gdp_defl |>
-      dplyr::filter(.data$YEAR == input$deflInput) |>
-      dplyr::pull(.data$DEFL)
+      dplyr::filter(.data$year == input$deflInput) |>
+      dplyr::pull(.data$defl)
   })
 
-  ############################# "Summary" tab: reactive data frame  #################################
+  ############################# "Metric" tab: reactive data frame  #################################
 
   met_plot_df <- reactive({
     req(
@@ -65,12 +65,12 @@ app_server <- function(input, output, session) {
 
     # Conditional rendering depending on the tab_bottom select
     if (
-      # "Summary" and "Production Activities"
+      # "Metric" and "Production Activities"
       input$tab_top == "Metric" && input$tab_bottom == "Production Activities"
     ) {
       df <- met_prac |>
         dplyr::filter(
-          # "Summary" tab filters
+          # "Metric" tab filters
           .data$metric %in% met_inputs()$metric,
           # "Production Activities"
           .data$production_activity %in%
@@ -117,12 +117,12 @@ app_server <- function(input, output, session) {
           )
         )
     } else if (
-      # "Summary" and "Region"
+      # "Metric" and "Region"
       input$tab_top == "Metric" && input$tab_bottom == "Region"
     ) {
       df <- met_reg |>
         dplyr::filter(
-          # "Summary" tab filters
+          # "Metric" tab filters
           .data$metric %in% met_inputs()$metric,
           # .data$statistic %in% met_inputs()$stat,
           # "Region" tab filters
@@ -170,12 +170,12 @@ app_server <- function(input, output, session) {
           )
         )
     } else if (
-      # "Summary" and "Processor Size"
+      # "Metric" and "Processor Size"
       input$tab_top == "Metric" && input$tab_bottom == "Processor Size"
     ) {
       df <- met_size |>
         dplyr::filter(
-          # "Summary" tab filters
+          # "Metric" tab filters
           .data$metric %in% met_inputs()$metric,
           # "Processor Size" tab filters
           .data$characteristic %in% other_tabs_inputs()$size,
@@ -525,59 +525,34 @@ app_server <- function(input, output, session) {
   # conditional render depending on which tab_top is selected
 
   output$exp_plot_ui <- renderPlot({
-############################## Metric tab ###################################
+######## Metric tab #########
     if (input$tab_top == "Metric") {
-      if (input$tab_bottom == "Production Activities") {
       plot_func(
         # plot function
-        data = met_plot_df(), # "Summary" tab reactive data frame
+        data = met_plot_df(),
         lab = NULL,
-        group = "production_activity", # grouping by variable
+        group = if (input$tab_bottom == "Production Activities") "production_activity" else "characteristic",
         facet = "unit_lab" # faceting by unit label
       )
-      } else if (input$tab_bottom != "Production Activities") {
-        plot_func(
-          # plot function
-          data = met_plot_df(), # "Summary" tab reactive data frame
-          lab = NULL,
-          group = "characteristic", # grouping by variable
-          facet = "unit_lab" # faceting by unit label
-        )
-      }
 
-      ############################## Product Type tab ###################################
+      ######## Product Type tab ########
     } else if (input$tab_top == "Product Type") {
-      if (input$tab_bottom == "Production Activities") {
       plot_func(
-        data = prod_plot_df(), # same steps as above for "Summary" ^^
+        data = prod_plot_df(), # same steps as above for "Metric" ^^
         lab = prod_type_inputs()$metric,
-        group = "production_activity",
+        group = if (input$tab_bottom == "Production Activities") "production_activity" else "characteristic",
         facet = "unit_lab"
       )
-      } else if (input$tab_bottom != "Production Activities") {
-        plot_func(
-          data = prod_plot_df(), # same steps as above for "Summary" ^^
-          lab = prod_type_inputs()$metric,
-          group = "characteristic",
-          facet = "unit_lab"
-        )
-        }
-      ############################## Species ###################################
-    } else if (input$tab_top == "Species" & input$tab_specs_bottom == "Product Type") {
+      ######## Species ########
+    } else if (input$tab_top == "Species") {
+      req(input$tab_specs_bottom)
+
       plot_func(
         data = specs_plot_df(),
         lab = specs_inputs()$metric,
-        group = "type", # faceting by product type (different column than variable for previous examples ^)
+        group = if (input$tab_specs_bottom == "Product Type") "type" else "characteristic",
         facet = "unit_lab",
-      )} else if (input$tab_top == "Species" & input$tab_specs_bottom != "Product Type") {
-        plot_func(
-          data = specs_plot_df(),
-          lab = specs_inputs()$metric,
-          group = "characteristic", # faceting by product type (different column than variable for previous examples ^)
-          facet = "unit_lab",
-        )
-
-      }
+      )}
   })
 
   ############################################ Table  ############################################
@@ -587,10 +562,11 @@ app_server <- function(input, output, session) {
   output$table <- DT::renderDT(
     {
       if (input$tab_top == "Metric") {
-        df <- met_plot_df() #render "Summary" tab table
+        df <- met_plot_df() #render "Metric" tab table
       } else if (input$tab_top == "Product Type") {
         df <- prod_plot_df() #render "By Product Type" tab table
       } else if (input$tab_top == "Species") {
+        req(input$tab_specs_bottom)
         df <- specs_plot_df() #render "By Species" tab table
       }
 

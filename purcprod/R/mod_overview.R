@@ -439,7 +439,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = NULL
+        upper_lim = 200
       )
     })
 
@@ -453,7 +453,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = NULL
+        upper_lim = 225
       )
     })
 
@@ -467,7 +467,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = NULL
+        upper_lim = 175
       )
     })
 
@@ -481,7 +481,7 @@ mod_overview_server <- function(id) {
         year1 = input$year1Input,
         range1 = input$yearrangeInput[1],
         range2 = input$yearrangeInput[2],
-        upper_lim = NULL
+        upper_lim = 350
       )
     })
 

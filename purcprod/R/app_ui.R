@@ -51,7 +51,7 @@ app_ui <- function(request) {
           # START sidebar
           sidebar = bslib::sidebar(
             width = 500,
-            # START "Summary" nav_panel
+            # START "Metric" nav_panel
 
             div("Compare data by:", style = "margin-bottom: 0.5rem; font-size: 1.5rem;"),
 
@@ -62,7 +62,7 @@ app_ui <- function(request) {
                 "Metric",
                 class = "custom-card",
                 mod_summary_ui("met_1")
-              ), # END Summary nav_panel
+              ), # END Metric nav_panel
 
               # START By Product Type nav_panel
               bslib::nav_panel(
@@ -120,17 +120,17 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Plot",
               class = "custom-card",
-              plotOutput("exp_plot_ui") # plot output
-            ), # END Plot nav_panel
+                plotOutput("exp_plot_ui") |>
+                shinycssloaders::withSpinner(type = 4, color = pal[[1]], size = 1) |>
+                bslib::as_fill_carrier()),
 
             # START Table nav_panel
             bslib::nav_panel(
               "Table",
               class = "custom-card",
-              shinycssloaders::withSpinner(
                 # adding a cool loader
-                DT::DTOutput("table") # table output
-              )
+                DT::DTOutput("table") |>
+                shinycssloaders::withSpinner(type = 4, color = pal[[1]], size = 1)
             ) # END  Table nav_panel
           ) # END main panel navset_card_pill
         ) # END page_sidebar

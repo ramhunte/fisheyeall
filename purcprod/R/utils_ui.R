@@ -6,9 +6,9 @@
 #'
 #' @noRd
 
-# This script contains all of the functions I used for UI widgets and conditional panel display
-# these are called throughout the mod_*.R files and the app_*.R files
-# some are repeated in modules and some are used only once
+# This script contains all of the functions I used for UI widgets
+# These are called throughout the mod_*.R files and the app_*.R files
+# Some are repeated in modules and some are used only once
 
 ################################ Overview page ################################
 
@@ -97,7 +97,7 @@ prodtype_func <- function(inputID, label) {
   )
 }
 
-
+#species picker function
 specs_func <- function(inputID) {
   checkboxGroupInput(
     inputId = inputID,
@@ -166,12 +166,12 @@ reg_func <- function(inputID) {
     inputId = inputID,
     label = NULL,
     choices = c(
-      'California',
-      'Washington and Oregon'
+      'Washington and Oregon',
+      'California'
     ),
     selected = c(
-      'California',
-      'Washington and Oregon'
+      'Washington and Oregon',
+      'California'
     ),
   )
 }
@@ -262,39 +262,39 @@ down_func <- function(outputID) {
 # essentially these functions display nav_panels() in the bottom left sidebar of the page. The data
 # to be show is different depending on which tab_top you are looking at ("Summary" or "By Product Type" vs "Species")
 
-# this renders a navset_card_pill() + panels when tab_top "Summary" or "By Product Type" is selected
-other_tabs_func <- function() {
-  bslib::navset_card_pill(
-    bslib::nav_panel(
-      "Production Activities",
-      class = "custom-card",
-      specs_func(inputID = "prodacInput"),
-      os_func(inputID1 = "osDropdown", inputID2 = "ospsInput")
-    ),
-    bslib::nav_panel(
-      "Region",
-      class = "custom-card",
-      reg_func(inputID = "regionInput"),
-      pracs_func(inputID = "pracs1Input")
-    ),
-    bslib::nav_panel(
-      "Processor Size/Type",
-      class = "custom-card",
-      size_func(inputID = "sizeInput"),
-      pracs_func(inputID = "pracs2Input")
-    ),
-    id = "tab_bottom"
-  )
-}
-
-# this renders a navset_card_pill() + panels when tab_top "By Species" is selected
-species_tabs_func <- function() {
-  bslib::navset_card_pill(
-    bslib::nav_panel(
-      "Product Type",
-      class = "custom-card",
-      prodtype_func("protype2Input")
-    ),
-    id = "tab_bottom"
-  )
-}
+# # this renders a navset_card_pill() + panels when tab_top "Summary" or "By Product Type" is selected
+# other_tabs_func <- function() {
+#   bslib::navset_card_pill(
+#     bslib::nav_panel(
+#       "Production Activities",
+#       class = "custom-card",
+#       specs_func(inputID = "prodacInput"),
+#       os_func(inputID1 = "osDropdown", inputID2 = "ospsInput")
+#     ),
+#     bslib::nav_panel(
+#       "Region",
+#       class = "custom-card",
+#       reg_func(inputID = "regionInput"),
+#       pracs_func(inputID = "pracs1Input")
+#     ),
+#     bslib::nav_panel(
+#       "Processor Size/Type",
+#       class = "custom-card",
+#       size_func(inputID = "sizeInput"),
+#       pracs_func(inputID = "pracs2Input")
+#     ),
+#     id = "tab_bottom"
+#   )
+# }
+#
+# # this renders a navset_card_pill() + panels when tab_top "By Species" is selected
+# species_tabs_func <- function() {
+#   bslib::navset_card_pill(
+#     bslib::nav_panel(
+#       "Product Type",
+#       class = "custom-card",
+#       prodtype_func("protype2Input")
+#     ),
+#     id = "tab_bottom"
+#   )
+# }
