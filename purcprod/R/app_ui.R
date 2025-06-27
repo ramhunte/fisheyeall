@@ -147,7 +147,10 @@ app_ui <- function(request) {
           class = "scrollable-markdown",
           fluidRow(
             column(2),
-            column(8, shiny::includeMarkdown(app_sys("app/text/info.md"))),
+            column(8, bslib::card(
+              style = "background-color: #89b5c7; color: #1c4252;",
+              shiny::includeMarkdown(app_sys("app/text/info.md")))
+              ),
             column(2)
           )
         )
@@ -164,7 +167,9 @@ app_ui <- function(request) {
           class = "scrollable-markdown",
           fluidRow(
             column(2),
-            column(8, includeMarkdown(app_sys("app/text/contact.md"))),
+            column(8, bslib::card(
+              style = "background-color: #89b5c7; color: #1c4252;",
+              includeMarkdown(app_sys("app/text/contact.md")))),
             column(2)
           )
         )

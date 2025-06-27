@@ -1,6 +1,5 @@
 ## About the app
 
-<br>
 
 ::: {style="font-size:1.2em;"}
 This Shiny App (built in R) is a tool that was developed to assist the
@@ -50,7 +49,10 @@ time series plot or in tabular form using the **Plot** and **Table**
 panels on the right hand side.
 :::
 
+<br>
+
 ### Data Caveats and Details
+
 
 ::: {style="font-size:1.2em;"}
 The data included in this app only includes purchase and production
@@ -60,15 +62,20 @@ app](https://connect.fisheries.noaa.gov/Whiting/) for detailed
 information about all three sectors (shorebased, mothership, and
 catcher-processor).
 
+<br>
+
 **Definitions:**
 
-(excerpts from Steiner, E., A. Vizek, M. Guldin, M. Krigbaum, and L.
+excerpts from Steiner, E., A. Vizek, M. Guldin, M. Krigbaum, and L.
 Pfeiffer. 2021. [Evaluating the Economic Performance of the U.S. West
 Coast Groundfish Trawl Catch Share
 Program](https://repository.library.noaa.gov/view/noaa/31435). NOAA Tech
-Memo NMFS-NWFSC 169.)
+Memo NMFS-NWFSC 169.
+
+<br>
 
 **Species groupings:**
+
 For individual species labeling purposes, the group labeled "Other species" 
 includes California halibut, Pacific halibut, Sturgeon, Pacific herring, 
 Squid, and Echinoderms. "Other groundfish species" includes English sole, 
@@ -91,6 +98,8 @@ halibut, Pacific halibut, Pacific herring, salmon, squid, sturgeon,
 tuna, other shellfish, and other species.
 :::
 
+<br>
+
 ::: {style="font-size:1.2em;"}
 **Company size:**
 
@@ -100,6 +109,8 @@ production employees: Large (\>200 workers), Medium (100–200 workers),
 and Small\
 (\<100 workers).
 :::
+
+<br>
 
 ::: {style="font-size:1.2em;"}
 **Region:**

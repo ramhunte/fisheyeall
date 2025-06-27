@@ -528,7 +528,7 @@ app_server <- function(input, output, session) {
 ######## Metric tab #########
     if (input$tab_top == "Metric") {
       plot_func(
-        # plot function
+        # plot functionjnn8888rf
         data = met_plot_df(),
         lab = NULL,
         group = if (input$tab_bottom == "Production Activities") "production_activity" else "characteristic",

@@ -4,11 +4,7 @@ editor_options:
     wrap: 72
 ---
 
-## Contact us
-
-<br>
-
-#### We look forward to receiving feedback and questions. Please email us at [**nmfs.nwfsc.fisheye\@noaa.gov**](mailto:nmfs.nwfsc.fisheye@noaa.gov){.email}
+#### We look forward to receiving feedback and questions. Please email us at: [**nmfs.nwfsc.fisheye\@noaa.gov**](mailto:nmfs.nwfsc.fisheye@noaa.gov){.email}
 
 <br> <br>
 
